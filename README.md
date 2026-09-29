@@ -110,3 +110,7 @@ about health questions. The Garmin integration uses the unofficial
 [`garminconnect`](https://github.com/cyberjunky/python-garminconnect) library
 and may break when Garmin changes its login. Not affiliated with Garmin,
 Strava, Anthropic or OpenAI.
+
+## License
+
+[MIT](LICENSE)
