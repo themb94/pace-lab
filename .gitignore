@@ -1,0 +1,16 @@
+# Lokale Signatur-Einstellungen (Team-ID, Bundle-ID)
+Config/Signing.local.xcconfig
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+build/
+DerivedData/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

@@ -1,0 +1,189 @@
+{
+  "title": "Beispielplan",
+  "goal": "Grundlagen aufbauen",
+  "subtitle": "4 Wochen · Beispiel — über „Planen → Neuen Block planen“ einen eigenen erstellen lassen",
+  "previous": null,
+  "startMonday": "2026-01-05",
+  "idPrefix": "b1",
+  "workoutPrefix": "PL",
+  "uploadEasyRuns": false,
+  "athlete": { "maxHr": 190, "zoneFloors": [114, 133, 152, 171] },
+  "paceBands": [
+    { "name": "Tempo", "range": "5:45–6:15", "note": "angenehm hart — Beispielwert, vom Coach anpassen lassen" },
+    { "name": "Intervalle", "range": "5:15–5:45", "note": "Beispielwert" },
+    { "name": "Steigerungen", "range": "4:45–5:15", "note": "Beispielwert" }
+  ],
+  "weeks": [
+    {
+      "phase": "Aufbau",
+      "note": "Einstieg",
+      "sessions": [
+        {
+          "type": "tempo",
+          "dist": "~7 km",
+          "desc": "5×3 min zügig · 2 min Trabpause",
+          "workout": {
+            "name": "5x3min",
+            "steps": [
+              { "type": "warmup", "time": 600, "note": "Locker einlaufen (nach Gefühl)" },
+              {
+                "repeat": 5,
+                "steps": [
+                  { "type": "interval", "time": 180, "pace": "Tempo", "note": "3 min zügig" },
+                  { "type": "recovery", "time": 120, "note": "2 min locker traben" }
+                ]
+              },
+              { "type": "cooldown", "time": 600, "note": "Locker auslaufen (nach Gefühl)" }
+            ]
+          }
+        },
+        {
+          "type": "easy",
+          "dist": "5 km",
+          "desc": "locker + 4 Steigerungen",
+          "workout": {
+            "name": "Locker 5k + 4 Steigerungen",
+            "steps": [
+              { "type": "run", "distance": 5000, "note": "Locker (nach Gefühl)" },
+              {
+                "repeat": 4,
+                "steps": [
+                  { "type": "interval", "time": 20, "pace": "Steigerungen", "note": "Steigerung" },
+                  { "type": "recovery", "time": 60, "note": "Locker traben" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "long",
+          "dist": "10 km",
+          "desc": "nur Distanz, locker",
+          "workout": { "name": "Long Run 10k", "steps": [{ "type": "run", "distance": 10000, "note": "Long Run" }] }
+        }
+      ]
+    },
+    {
+      "phase": "Aufbau",
+      "note": "",
+      "sessions": [
+        {
+          "type": "tempo",
+          "dist": "7 km",
+          "desc": "2 km ein + 3 km Tempo + 2 km aus",
+          "workout": {
+            "name": "Tempo 3k",
+            "steps": [
+              { "type": "run", "distance": 2000, "note": "Locker einlaufen" },
+              { "type": "run", "distance": 3000, "pace": "Tempo", "note": "Tempo – angenehm hart" },
+              { "type": "run", "distance": 2000, "note": "Locker auslaufen" }
+            ]
+          }
+        },
+        {
+          "type": "easy",
+          "dist": "6 km",
+          "desc": "locker",
+          "workout": {
+            "name": "Locker 6k",
+            "steps": [{ "type": "run", "distance": 6000, "note": "Locker (nach Gefühl)" }]
+          }
+        },
+        {
+          "type": "long",
+          "dist": "11 km",
+          "desc": "nur Distanz, locker",
+          "workout": { "name": "Long Run 11k", "steps": [{ "type": "run", "distance": 11000, "note": "Long Run" }] }
+        }
+      ]
+    },
+    {
+      "phase": "Aufbau",
+      "note": "",
+      "sessions": [
+        {
+          "type": "tempo",
+          "dist": "~8 km",
+          "desc": "6×800 m zügig · 90 s Trabpause",
+          "workout": {
+            "name": "6x800m",
+            "steps": [
+              { "type": "warmup", "time": 600, "note": "Locker einlaufen (nach Gefühl)" },
+              {
+                "repeat": 6,
+                "steps": [
+                  { "type": "interval", "distance": 800, "pace": "Intervalle", "note": "800 m zügig" },
+                  { "type": "recovery", "time": 90, "note": "90 s locker traben" }
+                ]
+              },
+              { "type": "cooldown", "time": 600, "note": "Locker auslaufen (nach Gefühl)" }
+            ]
+          }
+        },
+        {
+          "type": "easy",
+          "dist": "6 km",
+          "desc": "locker + 4 Steigerungen",
+          "workout": {
+            "name": "Locker 6k + 4 Steigerungen",
+            "steps": [
+              { "type": "run", "distance": 6000, "note": "Locker (nach Gefühl)" },
+              {
+                "repeat": 4,
+                "steps": [
+                  { "type": "interval", "time": 20, "pace": "Steigerungen", "note": "Steigerung" },
+                  { "type": "recovery", "time": 60, "note": "Locker traben" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "long",
+          "dist": "12 km",
+          "desc": "nur Distanz, locker",
+          "workout": { "name": "Long Run 12k", "steps": [{ "type": "run", "distance": 12000, "note": "Long Run" }] }
+        }
+      ]
+    },
+    {
+      "phase": "Step-back",
+      "note": "Entlastungswoche",
+      "sessions": [
+        {
+          "type": "tempo",
+          "dist": "5 km",
+          "desc": "locker + 6 Steigerungen (kein harter Reiz)",
+          "workout": {
+            "name": "Locker 5k + 6 Steigerungen",
+            "steps": [
+              { "type": "run", "distance": 5000, "note": "Locker (nach Gefühl)" },
+              {
+                "repeat": 6,
+                "steps": [
+                  { "type": "interval", "time": 20, "pace": "Steigerungen", "note": "Steigerung" },
+                  { "type": "recovery", "time": 60, "note": "Locker traben" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "easy",
+          "dist": "5 km",
+          "desc": "locker",
+          "workout": {
+            "name": "Locker 5k",
+            "steps": [{ "type": "run", "distance": 5000, "note": "Locker (nach Gefühl)" }]
+          }
+        },
+        {
+          "type": "long",
+          "dist": "9 km",
+          "desc": "nur Distanz, locker",
+          "workout": { "name": "Long Run 9k", "steps": [{ "type": "run", "distance": 9000, "note": "Long Run" }] }
+        }
+      ]
+    }
+  ]
+}
