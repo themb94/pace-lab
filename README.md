@@ -98,10 +98,33 @@ Shared/           Models and calculations used by app and widgets
 Template/         Contents of a new training folder (bundled into the app)
 garmin-mcp/       Garmin MCP server (Python, bundled into the app)
 Config/           Info.plists, entitlements, signing (Signing.xcconfig + your local override)
+scripts/          Release build: signed, notarized DMG (release.sh)
 ```
 
 The Debug build can render screenshots of all views without clicking:
 `"Pace Lab" -projectPath <copy-of-your-folder> -debugSnapshots <dir> -debugQuit YES`.
+
+## Release build (maintainers)
+
+`scripts/release.sh` builds a DMG for distribution: signed with a *Developer ID
+Application* certificate, notarized by Apple and stapled, so Gatekeeper opens it
+without warnings on other Macs. It needs a paid Apple Developer Program
+membership. Team and bundle ID come from `Config/Signing.local.xcconfig`, the
+Apple credentials from your keychain — nothing personal lives in the repository.
+
+1. Create a *Developer ID Application* certificate (Xcode → Settings → Accounts →
+   Manage Certificates, or developer.apple.com — pick the **G2** authority when
+   asked). Certificates from the older authority expire on 2027-02-01; the script
+   shows your certificate's expiry and warns if it comes from the old chain.
+2. Store notary credentials once (asks for an app-specific password from
+   account.apple.com):
+   `xcrun notarytool store-credentials pacelab-notary --apple-id <you@example.com> --team-id <TEAMID>`
+3. Run `scripts/release.sh`. The DMG lands in `build/release/`.
+   `--no-notarize` is a dry run, `--upload` attaches the DMG to the GitHub
+   release `v<version>`.
+
+Apps that were signed and notarized stay valid after the certificate expires.
+Only new releases need a renewed certificate.
 
 ## Disclaimer
 
