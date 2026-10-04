@@ -4,6 +4,7 @@ import SwiftUI
 struct MenuBarContent: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -89,6 +90,12 @@ struct MenuBarContent: View {
 
             Divider()
 
+            Button {
+                openSettings()
+                NSApp.activate()
+            } label: {
+                Label("Einstellungen …", systemImage: "gearshape")
+            }
             Button("Pace Lab beenden") { NSApp.terminate(nil) }
         }
         .buttonStyle(.borderless)

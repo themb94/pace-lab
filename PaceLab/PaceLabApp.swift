@@ -241,10 +241,31 @@ private struct ToastView: View {
     }
 }
 
+/// Stand der Daten unten in der Seitenleiste, daneben der Weg zu den Einstellungen.
 private struct SidebarStatus: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
+        HStack(alignment: .bottom, spacing: 8) {
+            status
+            Button {
+                openSettings()
+            } label: {
+                Image(systemName: "gearshape")
+                    .imageScale(.large)
+                    .frame(width: 28, height: 28)
+                    .contentShape(.rect)
+            }
+            .buttonStyle(.borderless)
+            .foregroundStyle(.secondary)
+            .help("Einstellungen (⌘,)")
+            .accessibilityLabel("Einstellungen")
+        }
+        .padding(12)
+    }
+
+    private var status: some View {
         VStack(alignment: .leading, spacing: 3) {
             if let snapshot = model.snapshot {
                 Text(snapshot.statusLine(on: .now))
@@ -263,6 +284,5 @@ private struct SidebarStatus: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
     }
 }
