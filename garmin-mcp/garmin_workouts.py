@@ -155,7 +155,7 @@ def make_payload(name, steps):
 # ---------------------------------------------------------------------------
 # Pfad zu plan.json: PACELAB_PLAN (setzt Pace Lab in der .mcp.json des Trainingsordners),
 # sonst plan.json im Arbeitsverzeichnis, sonst neben diesem Ordner.
-PLAN_PATH = (os.environ.get("PACELAB_PLAN") or os.environ.get("LAUFPLAN_PLAN")
+PLAN_PATH = (os.environ.get("PACELAB_PLAN")
              or next((p for p in (os.path.join(os.getcwd(), "plan.json"),) if os.path.exists(p)), None)
              or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "plan.json"))
 

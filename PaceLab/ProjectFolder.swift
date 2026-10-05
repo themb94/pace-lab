@@ -19,16 +19,9 @@ enum AppSettings {
     }
 
     /// Eigene Dateien der App (Gespräche, Modelllisten, Garmin-Server) in Application Support.
-    /// Frühere Versionen hießen „Laufplan“ — deren Ordner wird beim ersten Zugriff übernommen.
     static let supportDirectory: URL = {
-        let base = URL.applicationSupportDirectory
-        let url = base.appending(path: "Pace Lab", directoryHint: .isDirectory)
-        let legacy = base.appending(path: "Laufplan", directoryHint: .isDirectory)
-        let fm = FileManager.default
-        if !fm.fileExists(atPath: url.path), fm.fileExists(atPath: legacy.path) {
-            try? fm.moveItem(at: legacy, to: url)
-        }
-        try? fm.createDirectory(at: url, withIntermediateDirectories: true)
+        let url = URL.applicationSupportDirectory.appending(path: "Pace Lab", directoryHint: .isDirectory)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }()
 }
