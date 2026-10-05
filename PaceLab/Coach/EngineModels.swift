@@ -34,6 +34,8 @@ struct EngineModels: Codable, Sendable {
     /// Z. B. „Opus 5.5 gibt es ab Claude Code 2.1.280 …“
     var notices: [String]
     var fetchedAt: Date
+    /// Sprache, in der die Beschreibungen beim Abruf übersetzt wurden — bei einem Sprachwechsel wird neu abgefragt.
+    var language: String?
 
     var all: [ModelOption] { options + pinned + older }
 
@@ -70,13 +72,13 @@ enum ModelDiscovery {
                       object["type"] as? String == "control_response",
                       let response = object["response"] as? [String: Any] else { continue }
                 if response["subtype"] as? String == "error" {
-                    throw SyncFailure(message: "Claude Code: \(response["error"] as? String ?? "Modellliste nicht verfügbar")")
+                    throw SyncFailure(message: "Claude Code: \(response["error"] as? String ?? String(localized: "model list not available"))")
                 }
                 models = (response["response"] as? [String: Any])?["models"] as? [[String: Any]] ?? []
                 process.cancel()
             }
             _ = await process.waitForExit()
-            guard let models else { throw SyncFailure(message: "Claude Code hat keine Modellliste geliefert.") }
+            guard let models else { throw SyncFailure(message: String(localized: "Claude Code didn’t return a model list.")) }
             return models
         } onCancel: {
             process.cancel()
@@ -89,12 +91,12 @@ enum ModelDiscovery {
             let description = entry["description"] as? String ?? ""
             let parts = description.components(separatedBy: " · ")
             let versionName = parts.first.flatMap { $0.isEmpty ? nil : $0 } ?? resolved.map(ModelName.pretty) ?? value
-            var details = parts.dropFirst().map(ModelName.german)
-            if value.hasSuffix("[1m]") { details.insert("1M Kontext", at: 0) }
+            var details = parts.dropFirst().map(ModelName.localizedDescription)
+            if value.hasSuffix("[1m]") { details.insert(String(localized: "1M context"), at: 0) }
             let efforts = entry["supportsEffort"] as? Bool == true ? entry["supportedEffortLevels"] as? [String] ?? [] : []
             if value == "default" {
-                options.insert(ModelOption(value: "", resolved: resolved, name: "Standard", version: versionName,
-                                           details: (["von Claude Code empfohlen"] + details).joined(separator: " · "),
+                options.insert(ModelOption(value: "", resolved: resolved, name: String(localized: "Default"), version: versionName,
+                                           details: ([String(localized: "recommended by Claude Code")] + details).joined(separator: " · "),
                                            efforts: efforts), at: 0)
             } else {
                 options.append(ModelOption(value: value, resolved: resolved, name: entry["displayName"] as? String ?? versionName,
@@ -109,7 +111,7 @@ enum ModelDiscovery {
                   !pinned.contains(where: { $0.value == resolved }),
                   !options.contains(where: { $0.value == resolved }) else { continue }
             pinned.append(ModelOption(value: resolved, resolved: resolved, name: option.version, version: option.version,
-                                      details: "feste Version — bleibt auch nach Updates", efforts: option.efforts))
+                                      details: String(localized: "fixed version — stays after updates"), efforts: option.efforts))
         }
 
         let official = options.compactMap { $0.resolved.flatMap(ClaudeModelID.init) }
@@ -146,7 +148,7 @@ enum ModelDiscovery {
                 .prefix(3)
             for (key, entry) in candidates {
                 older.append(ModelOption(value: entry.id, resolved: entry.id, name: key.displayName, version: key.displayName,
-                                         details: "ältere Version — von Claude Code nicht mehr angeboten", efforts: nil))
+                                         details: String(localized: "older version — no longer offered by Claude Code"), efforts: nil))
             }
         }
         return older
@@ -166,7 +168,7 @@ enum ModelDiscovery {
             if let match = description.firstMatch(of: /(\d+\.\d+\.\d+)\+?/) {
                 let required = String(match.1)
                 guard compareVersions(installed, required) == .orderedAscending else { return nil }
-                return "\(name) gibt es ab Claude Code \(required) (installiert: \(installed)). Nach einem Update erscheint es hier automatisch."
+                return String(localized: "\(name) is available from Claude Code \(required) (installed: \(installed)). After an update it shows up here automatically.")
             }
             return "\(name): \(description)"
         }
@@ -203,7 +205,7 @@ enum ModelDiscovery {
                 let efforts = (model["supported_reasoning_levels"] as? [[String: Any]])?.compactMap { $0["effort"] as? String }
                 let name = model["display_name"] as? String ?? slug
                 options.append(ModelOption(value: slug, resolved: slug, name: name, version: name,
-                                           details: ModelName.german(model["description"] as? String ?? ""), efforts: efforts))
+                                           details: ModelName.localizedDescription(model["description"] as? String ?? ""), efforts: efforts))
             }
         }
         // Standard laut config.toml — steht er nicht in der Liste, lehnt das Konto ihn ab.
@@ -211,11 +213,11 @@ enum ModelDiscovery {
         let config = (try? String(contentsOf: home.appending(path: "config.toml"), encoding: .utf8)) ?? ""
         let configured = config.split(separator: "\n").lazy
             .compactMap { $0.firstMatch(of: /^\s*model\s*=\s*"([^"]+)"/).map { String($0.1) } }.first
-        var standard = ModelOption(value: "", resolved: configured, name: "Standard",
-                                   version: configured ?? "Standard der CLI", details: "aus ~/.codex/config.toml", efforts: nil)
+        var standard = ModelOption(value: "", resolved: configured, name: String(localized: "Default"),
+                                   version: configured ?? String(localized: "CLI default"), details: String(localized: "from ~/.codex/config.toml"), efforts: nil)
         if let configured, !options.isEmpty, !options.contains(where: { $0.value == configured }) {
-            standard.details = "aus ~/.codex/config.toml — für dein Konto nicht verfügbar"
-            notices.append("Der Standard aus ~/.codex/config.toml (\(configured)) wird von deinem Konto nicht angeboten — hier besser ein Modell aus der Liste wählen.")
+            standard.details = String(localized: "from ~/.codex/config.toml — not available for your account")
+            notices.append(String(localized: "The default from ~/.codex/config.toml (\(configured)) is not offered for your account — better pick a model from the list here."))
         }
         options.insert(standard, at: 0)
         return EngineModels(cliVersion: version, executable: executable?.path ?? "", options: options, pinned: [],
@@ -282,26 +284,26 @@ enum ModelName {
     }
 
     static func effortLabel(_ effort: String) -> String {
-        ["minimal": "minimal", "low": "niedrig", "medium": "mittel", "high": "hoch", "xhigh": "sehr hoch", "max": "maximal",
+        ["minimal": "minimal", "low": String(localized: "low"), "medium": String(localized: "medium"), "high": String(localized: "high"), "xhigh": String(localized: "very high"), "max": String(localized: "maximum"),
          "ultra": "ultra"][effort]
             ?? effort
     }
 
-    /// Die bekannten englischen Beschreibungen der CLIs auf Deutsch.
-    static func german(_ text: String) -> String {
+    /// Die bekannten englischen Beschreibungen der CLIs in der Sprache der App (Deutsch: übersetzt, sonst unverändert).
+    static func localizedDescription(_ text: String) -> String {
         let known = [
-            "Efficient for routine tasks": "effizient für Routineaufgaben",
-            "Best for everyday, complex tasks": "für alltägliche, komplexe Aufgaben",
-            "Most capable for your hardest and longest-running tasks": "am stärksten, für die schwierigsten und längsten Aufgaben",
-            "Requires usage credits": "braucht Nutzungs-Guthaben",
-            "Fastest for quick answers": "am schnellsten, für kurze Antworten",
-            "Older balanced model for straightforward work.": "älteres, ausgewogenes Modell für einfache Aufgaben",
-            "Older fast and efficient model.": "älteres, schnelles und sparsames Modell",
-            "Legacy coding model.": "altes Coding-Modell",
+            "Efficient for routine tasks": String(localized: "efficient for routine tasks"),
+            "Best for everyday, complex tasks": String(localized: "for everyday, complex tasks"),
+            "Most capable for your hardest and longest-running tasks": String(localized: "most capable, for the hardest and longest-running tasks"),
+            "Requires usage credits": String(localized: "needs usage credits"),
+            "Fastest for quick answers": String(localized: "fastest, for quick answers"),
+            "Older balanced model for straightforward work.": String(localized: "older, balanced model for simple tasks"),
+            "Older fast and efficient model.": String(localized: "older, fast and economical model"),
+            "Legacy coding model.": String(localized: "legacy coding model"),
         ]
         if let german = known[text] { return german }
         if let match = text.wholeMatch(of: /~(\d+(?:\.\d+)?)× usage vs (\w+)/) {
-            return "≈ \(match.1)× Verbrauch gegenüber \(match.2)"
+            return String(localized: "≈ \(match.1)× usage compared to \(match.2)")
         }
         return text
     }
@@ -322,7 +324,7 @@ final class ModelStore {
     init() {
         if let data = try? Data(contentsOf: Self.storeURL),
            let stored = try? JSONDecoder().decode([String: EngineModels].self, from: data) {
-            byEngine = stored
+            byEngine = stored.filter { $0.value.language == AppLanguage.code }
         }
     }
 
@@ -346,9 +348,9 @@ final class ModelStore {
     func label(for engine: CoachEngine) -> String {
         let value = engine.model
         if let option = models(for: engine)?.option(for: value) {
-            return value.isEmpty ? "\(option.version) (Standard)" : option.version
+            return value.isEmpty ? String(localized: "\(option.version) (default)") : option.version
         }
-        return value.isEmpty ? "Standard" : ModelName.pretty(value)
+        return value.isEmpty ? String(localized: "Default") : ModelName.pretty(value)
     }
 
     /// „Claude Code · Opus 5“
@@ -393,7 +395,8 @@ final class ModelStore {
                     return nil
                 }
             }.value
-            if let fresh {
+            if var fresh {
+                fresh.language = AppLanguage.code
                 byEngine[key] = fresh
                 save()
             }
@@ -430,24 +433,24 @@ struct ModelMenu: View {
     var body: some View {
         Menu {
             if let models {
-                Section(models.pinned.isEmpty ? "Verfügbar" : "Immer das neueste") {
+                Section(models.pinned.isEmpty ? String(localized: "Available") : String(localized: "Always the latest")) {
                     ForEach(models.options) { option in
-                        item(option, title: option.value.isEmpty ? "Standard — \(option.version)" : option.name == option.version
+                        item(option, title: option.value.isEmpty ? String(localized: "Default — \(option.version)") : option.name == option.version
                              ? option.version : "\(option.name) — \(option.version)")
                     }
                 }
                 if !models.pinned.isEmpty {
-                    Section("Feste Version") {
+                    Section(String(localized: "Fixed version")) {
                         ForEach(models.pinned) { item($0, title: $0.version) }
                     }
                 }
                 if !models.older.isEmpty {
-                    Section("Ältere Versionen") {
+                    Section(String(localized: "Older versions")) {
                         ForEach(models.older) { item($0, title: $0.version) }
                     }
                 }
             } else {
-                Button("Standard der CLI") { value = "" }
+                Button(String(localized: "CLI default")) { value = "" }
                 ForEach(ModelCatalog.claude, id: \.self) { name in Button(name) { value = name } }
             }
         } label: {
@@ -470,13 +473,13 @@ struct ModelMenu: View {
 
     private var title: String {
         guard let models, let option = models.option(for: value) else {
-            return value.isEmpty ? "Standard der CLI" : "\(ModelName.pretty(value)) (eigenes)"
+            return value.isEmpty ? String(localized: "CLI default") : String(localized: "\(ModelName.pretty(value)) (custom)")
         }
         if models.options.contains(option) {
-            if value.isEmpty { return "Standard — \(option.version)" }
-            return models.pinned.isEmpty ? option.version : "\(option.name) — \(option.version) (immer das neueste)"
+            if value.isEmpty { return String(localized: "Default — \(option.version)") }
+            return models.pinned.isEmpty ? option.version : String(localized: "\(option.name) — \(option.version) (always the latest)")
         }
-        if models.pinned.contains(option) { return "\(option.version) (fest)" }
-        return "\(option.version) (ältere Version)"
+        if models.pinned.contains(option) { return String(localized: "\(option.version) (fixed)") }
+        return String(localized: "\(option.version) (older version)")
     }
 }

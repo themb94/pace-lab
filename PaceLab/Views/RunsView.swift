@@ -12,8 +12,8 @@ struct RunsView: View {
                 LoadErrorView()
             }
         }
-        .navigationTitle("Läufe")
-        .searchable(text: $query, placement: .toolbar, prompt: "Name, Tag, Analyse …")
+        .navigationTitle("Runs")
+        .searchable(text: $query, placement: .toolbar, prompt: "Name, tag, analysis …")
     }
 
     private func split(_ snapshot: TrainingSnapshot) -> some View {
@@ -24,9 +24,9 @@ struct RunsView: View {
                 if query.isEmpty {
                     Section {
                         HStack(spacing: 8) {
-                            MetricTile(value: "\(snapshot.runs.count)", label: "Läufe", symbol: "figure.run")
+                            MetricTile(value: "\(snapshot.runs.count)", label: String(localized: "Runs"), symbol: "figure.run")
                             MetricTile(value: Fmt.km(snapshot.totalKm, digits: 0), label: "km", symbol: "ruler")
-                            MetricTile(value: "\(snapshot.runs.filter { $0.verdict == .gut }.count)", label: "gut", symbol: "checkmark.seal")
+                            MetricTile(value: "\(snapshot.runs.filter { $0.verdict == .gut }.count)", label: String(localized: "good"), symbol: "checkmark.seal")
                         }
                         .selectionDisabled()
                     }
@@ -44,8 +44,8 @@ struct RunsView: View {
             .overlay {
                 if runs.isEmpty {
                     if query.isEmpty {
-                        ContentUnavailableView("Noch keine Läufe", systemImage: "figure.run",
-                                               description: Text("Nach der Wochenauswertung erscheinen hier deine analysierten Läufe."))
+                        ContentUnavailableView("No runs yet", systemImage: "figure.run",
+                                               description: Text("Your analyzed runs appear here after the weekly review."))
                     } else {
                         ContentUnavailableView.search(text: query)
                     }
@@ -57,8 +57,8 @@ struct RunsView: View {
                 if let id = model.selectedRunID, let run = snapshot.run(id: id) {
                     RunDetailView(run: run, snapshot: snapshot)
                 } else {
-                    ContentUnavailableView("Lauf auswählen", systemImage: "figure.run",
-                                           description: Text("Wähle links einen Lauf, um Splits und Analyse zu sehen."))
+                    ContentUnavailableView("Select a run", systemImage: "figure.run",
+                                           description: Text("Choose a run on the left to see splits and analysis."))
                 }
             }
             .frame(minWidth: 460, maxWidth: .infinity, maxHeight: .infinity)

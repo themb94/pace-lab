@@ -21,7 +21,7 @@ struct SessionDetailView: View {
                         .font(.title3)
                         .fixedSize(horizontal: false, vertical: true)
                     Label(
-                        "Woche \(session.week) · \(Fmt.range(snapshot.monday(ofWeek: session.week), snapshot.sunday(ofWeek: session.week)))"
+                        String(localized: "Week \(session.week) · \(Fmt.range(snapshot.monday(ofWeek: session.week), snapshot.sunday(ofWeek: session.week)))")
                             + (session.weekNote.map { " · \($0)" } ?? ""),
                         systemImage: "calendar")
                         .font(.callout)
@@ -36,8 +36,8 @@ struct SessionDetailView: View {
                             WorkoutStepsView(workout: workout, bands: snapshot.plan.paceBands ?? [])
                             Divider()
                             Label(session.isUploadable
-                                  ? "Auf der Uhr als „\(session.garminName ?? workout.name)“"
-                                  : "Lockere Läufe kommen nicht auf die Uhr — nach Gefühl laufen.",
+                                  ? "On the watch as “\(session.garminName ?? workout.name)”"
+                                  : "Easy runs are not sent to the watch — run by feel.",
                                   systemImage: "applewatch")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
@@ -48,7 +48,7 @@ struct SessionDetailView: View {
 
                 VStack(alignment: .leading, spacing: 10) {
                     Label {
-                        Text(isDone ? (snapshot.doneDate(session).map { "Erledigt am \($0)" } ?? "Erledigt") : "Noch offen")
+                        Text(isDone ? (snapshot.doneDate(session).map { "Done on \($0)" } ?? "Done") : "Still open")
                     } icon: {
                         Image(systemName: isDone ? "checkmark.circle.fill" : "circle.dashed")
                             .foregroundStyle(isDone ? .green : .secondary)
@@ -58,7 +58,7 @@ struct SessionDetailView: View {
                     Button {
                         withAnimation { model.toggleDone(session) }
                     } label: {
-                        Label(isDone ? "Als offen markieren" : "Als erledigt markieren",
+                        Label(isDone ? "Mark as open" : "Mark as done",
                               systemImage: isDone ? "arrow.uturn.backward" : "checkmark")
                             .frame(maxWidth: .infinity)
                     }
@@ -66,7 +66,7 @@ struct SessionDetailView: View {
                     .tint(isDone ? .gray : .green)
                     .controlSize(.large)
 
-                    Text("Schreibt direkt in completed.json — der Coach sieht es auch.")
+                    Text("Writes straight to completed.json — the coach sees it too.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -76,7 +76,7 @@ struct SessionDetailView: View {
                     Button {
                         model.requestPlan(.session, session: session)
                     } label: {
-                        Label("Mit Coach ändern …", systemImage: "wand.and.stars")
+                        Label("Change with coach …", systemImage: "wand.and.stars")
                             .frame(maxWidth: .infinity)
                     }
                     .disabled(model.coach.isRunning)
@@ -84,7 +84,7 @@ struct SessionDetailView: View {
                         Button {
                             model.garminUploadWeek = session.week
                         } label: {
-                            Label("Woche \(session.week) auf Garmin anlegen …", systemImage: "applewatch")
+                            Label("Create week \(session.week) on Garmin …", systemImage: "applewatch")
                                 .frame(maxWidth: .infinity)
                         }
                     }
@@ -93,7 +93,7 @@ struct SessionDetailView: View {
 
                 if let run = snapshot.linkedRun(for: session) {
                     VStack(alignment: .leading, spacing: 8) {
-                        SectionTitle(text: "Gelaufen")
+                        SectionTitle(text: String(localized: "Actual run"))
                         Button { model.show(run) } label: {
                             RunRow(run: run, label: snapshot.label(for: run)).card(padding: 12)
                         }
@@ -103,7 +103,7 @@ struct SessionDetailView: View {
 
                 if session.kind == .tempo, let bands = snapshot.plan.paceBands, !bands.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        SectionTitle(text: "Pace-Bänder")
+                        SectionTitle(text: String(localized: "Pace bands"))
                         VStack(alignment: .leading, spacing: 6) {
                             ForEach(bands, id: \.self) { band in
                                 HStack(alignment: .firstTextBaseline) {
@@ -112,7 +112,7 @@ struct SessionDetailView: View {
                                     Text("\(band.range) /km").monospacedDigit().foregroundStyle(.secondary)
                                 }
                             }
-                            Text("Auf-/Auslaufen und Trabpausen ohne Ziel. An warmen Tagen (>25 °C) lieber die HF deckeln als die Pace jagen.")
+                            Text("Warm-up, cool-down and jog breaks have no target. On warm days (>25 °C) cap heart rate rather than chase pace.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -122,7 +122,7 @@ struct SessionDetailView: View {
 
                 if let summary = snapshot.summary(forWeek: session.week), let analysis = summary.analysis {
                     VStack(alignment: .leading, spacing: 8) {
-                        SectionTitle(text: "Wochenfazit")
+                        SectionTitle(text: String(localized: "Week summary"))
                         Text(analysis).font(.callout).card(padding: 14)
                     }
                 }

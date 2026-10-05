@@ -16,32 +16,32 @@ struct CoachAction: Identifiable, Hashable {
     let needsConversation: Bool
 
     static let reviewWeek = CoachAction(
-        id: "review", title: "Woche auswerten", symbol: "chart.bar.doc.horizontal",
-        help: "Läufe holen, abhaken und analysieren",
-        prompt: """
-        Mach die Wochenauswertung für die zuletzt gelaufene Trainingswoche, genau wie in README.md beschrieben: \
-        Läufe holen (Strava bzw. Garmin, wie in der README festgelegt), completed.json und analysis.json aktualisieren und \
-        ein Wochenfazit in weekSummaries schreiben. Läufe, die die App schon geladen hat (Einträge mit „source“ und \
-        ohne „verdict“), ergänzt du, statt sie neu anzulegen. Lege keine Garmin-Workouts an. Antworte zum Schluss \
-        mit einer kurzen Zusammenfassung: welche Läufe, deine Bewertung und deine Empfehlung für die nächste Woche.
-        """,
+        id: "review", title: String(localized: "Review week"), symbol: "chart.bar.doc.horizontal",
+        help: String(localized: "Fetch runs, tick them off and analyze them"),
+        prompt: String(localized: """
+        Do the weekly review for the most recently completed training week, exactly as described in README.md: \
+        fetch runs (Strava or Garmin, as set in the README), update completed.json and analysis.json and \
+        write a week summary into weekSummaries. Runs the app has already loaded (entries with “source” and \
+        without “verdict”) you complete instead of creating them anew. Don’t create any Garmin workouts. At the end, answer \
+        with a short summary: which runs, your rating and your recommendation for next week.
+        """),
         allowUpload: false, startsConversation: true, needsConversation: false)
 
     static let prepareWeek = CoachAction(
-        id: "prepare", title: "Nächste Woche vorbereiten", symbol: "calendar.badge.plus",
-        help: "Plan prüfen und anpassen, Vorschau zeigen — noch ohne Upload",
-        prompt: """
-        Bereite die nächste Trainingswoche vor: Berücksichtige die letzte Auswertung und alles, was ich dir zu \
-        dieser Woche gesagt habe. Passe plan.json an, falls nötig — Einheiten und ihr „workout“; garmin_workouts.py \
-        baut die Garmin-Workouts daraus. Zeig mir die Einheiten der Woche. Lade noch nichts auf Garmin hoch — das \
-        gebe ich danach frei.
-        """,
+        id: "prepare", title: String(localized: "Prepare next week"), symbol: "calendar.badge.plus",
+        help: String(localized: "Check and adjust the plan, show a preview — no upload yet"),
+        prompt: String(localized: """
+        Prepare the next training week: take the latest review and everything I told you about \
+        this week into account. Adjust plan.json if needed — sessions and their “workout”; garmin_workouts.py \
+        builds the Garmin workouts from it. Show me the sessions of the week. Don’t upload anything to Garmin yet — I \
+        will approve that afterwards.
+        """),
         allowUpload: false, startsConversation: false, needsConversation: false)
 
     static let uploadWeek = CoachAction(
-        id: "upload", title: "Auf Garmin hochladen", symbol: "arrow.up.circle",
-        help: "Die besprochene Woche als Workouts auf die Uhr",
-        prompt: "Passt so. Lege die vorbereiteten Workouts jetzt auf Garmin an und bestätige kurz, was hochgeladen wurde.",
+        id: "upload", title: String(localized: "Upload to Garmin"), symbol: "arrow.up.circle",
+        help: String(localized: "Send the week we discussed to the watch as workouts"),
+        prompt: String(localized: "Looks good. Create the prepared workouts on Garmin now and briefly confirm what was uploaded."),
         allowUpload: true, startsConversation: false, needsConversation: true)
 
     static let all = [reviewWeek, prepareWeek, uploadWeek]
@@ -95,7 +95,7 @@ struct CoachTurn: Identifiable, Codable {
 
     /// Der Agent hat signalisiert, dass als Nächstes ein Garmin-Upload anstünde.
     var suggestsUpload: Bool {
-        !allowUpload && blocks.last(where: { $0.kind == .text })?.text.contains(CoachContext.uploadMarker) == true
+        !allowUpload && blocks.last(where: { $0.kind == .text }).map { block in CoachContext.uploadMarkers.contains { block.text.contains($0) } } == true
     }
 }
 
@@ -253,8 +253,8 @@ final class CoachModel {
 
     /// Wiederholt eine Anfrage, die an fehlender Garmin-Freigabe gescheitert ist.
     func retryWithUpload(in folder: URL) {
-        send(prompt: "Du hast jetzt die Freigabe für Garmin. Führe den Schritt aus, der eben blockiert war.",
-             title: "Mit Garmin-Freigabe wiederholen", allowUpload: true, in: folder)
+        send(prompt: String(localized: "You now have approval for Garmin. Carry out the step that was just blocked."),
+             title: String(localized: "Repeat with Garmin approval"), allowUpload: true, in: folder)
     }
 
     private func send(prompt: String, title: String?, allowUpload: Bool, in folder: URL, planning: TurnPlanning? = nil) {
@@ -294,7 +294,7 @@ final class CoachModel {
             let context = CoachContext.training(snapshotProvider?(), level: engine.context, folder: folder)
             // Bei „Ausführlich“ steckt das Profil schon in der mitgeschickten README.
             let profile = engine.context == .compact ? CoachContext.athleteProfile(folder: folder) ?? "" : ""
-            text = [profile, context, CoachContext.history(earlier), "# Neue Nachricht\n\(prompt)"]
+            text = [profile, context, CoachContext.history(earlier), "# New message\n\(prompt)"]
                 .filter { !$0.isEmpty }
                 .joined(separator: "\n\n")
         }
@@ -380,7 +380,7 @@ final class CoachModel {
         }
         var draftTitle: String?
         if files.contains(PlanFiles.draft), let data = await history.contents(of: PlanFiles.draft, at: commit) {
-            draftTitle = (try? PlanFiles.decode(data))?.title ?? "Entwurf"
+            draftTitle = (try? PlanFiles.decode(data))?.title ?? String(localized: "Draft")
         }
         mutateTurn(turnID, in: conversationID) { turn in
             turn.commit = commit
@@ -442,7 +442,7 @@ final class CoachModel {
     private static func commitMessage(title: String?, prompt: String, engine: CoachEngine, conversation: String) -> String {
         let subject = "Coach (\(engine.name)): \(title ?? shortTitle(prompt))"
         let request = prompt.count > 1_500 ? String(prompt.prefix(1_499)) + "…" : prompt
-        return "\(subject)\n\nAnfrage:\n\(request)\n\nEngine: \(engine.summary)\nGespräch: \(conversation)"
+        return String(localized: "\(subject)\n\nRequest:\n\(request)\n\nEngine: \(engine.summary)\nConversation: \(conversation)")
     }
 
     private func apply(_ event: CoachEvent, turn turnID: UUID, conversation conversationID: UUID) {
@@ -482,8 +482,8 @@ final class CoachModel {
             }
         case .rateLimited(let status):
             limitNote = status == "rejected"
-                ? "Dein Nutzungslimit ist erreicht — später erneut versuchen."
-                : "Dein Nutzungslimit ist bald erreicht."
+                ? String(localized: "Your usage limit has been reached — try again later.")
+                : String(localized: "Your usage limit will be reached soon.")
         case .finished(let result):
             mutateTurn(turnID, in: conversationID) { turn in
                 turn.deniedTools = result.deniedTools
@@ -493,7 +493,7 @@ final class CoachModel {
                 }
             }
             finish(turnID, in: conversationID, state: result.isError ? .failed : .done,
-                   error: result.isError ? (result.message ?? "Die Engine meldet einen Fehler.") : nil)
+                   error: result.isError ? (result.message ?? String(localized: "The engine reports an error.")) : nil)
         }
     }
 
@@ -516,8 +516,8 @@ final class CoachModel {
     func test(_ engine: CoachEngine, in folder: URL) async -> (ok: Bool, message: String) {
         let request = CoachRequest(
             engine: engine, workingDirectory: folder,
-            prompt: "Antworte nur mit dem Wort: bereit",
-            systemPrompt: engine.kind.isAgent ? "Antworte knapp auf Deutsch." : "Du antwortest knapp auf Deutsch.",
+            prompt: "Reply only with the word: ready",
+            systemPrompt: "Answer briefly in \(CoachContext.replyLanguage).",
             resumeSessionID: nil, newSessionID: UUID(), sessionName: "Pace Lab: Test",
             allowGarminWrite: false, ephemeral: true)
         let started = Date.now
@@ -528,7 +528,7 @@ final class CoachModel {
                 switch event {
                 case .text(let text): answer += text
                 case .textDelta(let chunk): answer += chunk
-                case .finished(let result) where result.isError: failure = result.message ?? "Fehler"
+                case .finished(let result) where result.isError: failure = result.message ?? String(localized: "Error")
                 default: break
                 }
             }
@@ -538,7 +538,7 @@ final class CoachModel {
         if let failure { return (false, failure) }
         let seconds = Date.now.timeIntervalSince(started)
         let reply = CoachContext.removeThinking(answer)
-        return (true, "Antwort: „\(reply.prefix(80))“ · \(seconds.formatted(.number.precision(.fractionLength(1)).locale(Fmt.de))) s")
+        return (true, String(localized: "Reply: “\(reply.prefix(80))” · \(seconds.formatted(.number.precision(.fractionLength(1)).locale(Fmt.locale))) s"))
     }
 
     // MARK: Hilfen

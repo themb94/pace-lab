@@ -4,7 +4,9 @@ A macOS app for planning and analysing your running training — with desktop
 widgets, Garmin/Strava sync and an AI coach that runs on your own machine
 through **Claude Code**, **Codex** or a **local model** (LM Studio).
 
-> The user interface and the coach currently speak **German**.
+> The app speaks **English** and **German**. It follows your system language:
+> German systems get German, every other language gets English. The coach answers
+> in the same language.
 
 - **Plan** — training blocks in a simple JSON file, every session with its
   structured workout (warm-up, intervals, pace targets). Tick sessions off,
@@ -56,12 +58,12 @@ build the Release configuration and copy `Pace Lab.app` to `/Applications`.
 
 ## First launch
 
-Pace Lab opens a setup window (also under *Pace Lab → Einrichtung …*):
+Pace Lab opens a setup window (also under *Pace Lab → Setup …*):
 
 1. **Training folder** — creates `~/Documents/Pace Lab` (or a folder you pick)
    with an example plan, empty run log, a coach README and a git repository.
 2. **About you** — your name. Goals, max heart rate, training days or health
-   notes go into the *Athletenprofil* section of the folder's `README.md` —
+   notes go into the *Athlete profile* section of the folder's `README.md` —
    or just tell the coach and it fills them in.
 3. **Coach** — detects Claude Code, Codex and LM Studio and whether you are
    logged in (`claude auth login`, `codex login`).
@@ -94,8 +96,8 @@ Pace Lab.app ──reads/writes──▶ training folder (plan.json, analysis.js
 ```
 PaceLab/          App (SwiftUI): Coach/, Planning/, Sync/, Project/ (git, JSON, MCP client), Setup/, Views/
 PaceLabWidgets/   Widgets (WidgetKit)
-Shared/           Models and calculations used by app and widgets
-Template/         Contents of a new training folder (bundled into the app)
+Shared/           Models and calculations used by app and widgets, and the translations (Localizable.xcstrings)
+Template/         Contents of a new training folder, per language: Template/en, Template/de (bundled into the app)
 garmin-mcp/       Garmin MCP server (Python, bundled into the app)
 Config/           Info.plists, entitlements, signing (Signing.xcconfig + your local override)
 scripts/          Release build: signed, notarized DMG (release.sh)
@@ -103,6 +105,18 @@ scripts/          Release build: signed, notarized DMG (release.sh)
 
 The Debug build can render screenshots of all views without clicking:
 `"Pace Lab" -projectPath <copy-of-your-folder> -debugSnapshots <dir> -debugQuit YES`.
+
+## Languages
+
+Texts are written in English in the source and translated through a
+[String Catalog](Shared/Localizable.xcstrings) (`Shared/Localizable.xcstrings`,
+shared by the app and the widgets). German is included. To add a language, add
+its translations to the catalog in Xcode and create a matching folder
+`Template/<language>` (coach README and example plan; the app falls back to
+`Template/en`). The language the coach replies in follows the app language.
+
+Your own data stays as you wrote it: plan texts, run analyses and the coach's
+notes in your training folder are not translated.
 
 ## Release build (maintainers)
 

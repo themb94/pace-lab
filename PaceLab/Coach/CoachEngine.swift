@@ -16,7 +16,7 @@ struct CoachEngine: Codable, Identifiable, Hashable, Sendable {
             switch self {
             case .claudeCode: "Claude Code"
             case .codex: "Codex"
-            case .textCLI: "Eigene CLI (nur Text)"
+            case .textCLI: String(localized: "Custom CLI (text only)")
             }
         }
 
@@ -41,9 +41,9 @@ struct CoachEngine: Codable, Identifiable, Hashable, Sendable {
 
         var capabilities: String {
             switch self {
-            case .claudeCode: "Agent: liest und ändert Dateien, Strava, Garmin (Upload nur mit Freigabe), Gedächtnis aus dem Chat."
-            case .codex: "Agent: liest und ändert Dateien, holt Läufe direkt über Garmin (kein Strava), Workouts anlegen nur mit Freigabe. Kein Claude-Gedächtnis — nur README."
-            case .textCLI: "Nur Text: antwortet anhand des mitgeschickten Trainingsstands, kann aber keine Läufe abrufen oder Dateien ändern."
+            case .claudeCode: String(localized: "Agent: reads and edits files, Strava, Garmin (upload only with approval), memory from the chat.")
+            case .codex: String(localized: "Agent: reads and edits files, fetches runs directly through Garmin (no Strava), creates workouts only with approval. No Claude memory — README only.")
+            case .textCLI: String(localized: "Text only: answers from the training status sent along, but cannot fetch runs or change files.")
             }
         }
     }
@@ -55,9 +55,9 @@ struct CoachEngine: Codable, Identifiable, Hashable, Sendable {
 
         var label: String {
             switch self {
-            case .compact: "Kompakt (Plan, Woche, letzte Läufe)"
-            case .full: "Ausführlich (zusätzlich README)"
-            case .none: "Keiner"
+            case .compact: String(localized: "Compact (plan, week, latest runs)")
+            case .full: String(localized: "Detailed (plus README)")
+            case .none: String(localized: "None")
             }
         }
     }
@@ -131,14 +131,14 @@ extension CoachEngine {
     /// wenn es nicht schon geladen ist, und gibt es nach 15 Minuten ohne Nutzung wieder frei.
     static func lmStudioPreset(model: String = "") -> CoachEngine {
         CoachEngine(
-            name: "Lokal (LM Studio / Bionic)", kind: .textCLI, executable: "lms", model: model,
+            name: String(localized: "Local (LM Studio / Bionic)"), kind: .textCLI, executable: "lms", model: model,
             arguments: "chat {model} -p {prompt} -s {system}",
             prepareCommand: "/bin/sh -c 'lms ps --json | grep -q \"{model}\" || lms load \"{model}\" -y --ttl 900 -c 8192'",
             context: .compact)
     }
 
     static func customPreset() -> CoachEngine {
-        CoachEngine(name: "Eigene CLI", kind: .textCLI, executable: "", arguments: "{prompt}", context: .compact)
+        CoachEngine(name: String(localized: "Custom CLI"), kind: .textCLI, executable: "", arguments: "{prompt}", context: .compact)
     }
 }
 

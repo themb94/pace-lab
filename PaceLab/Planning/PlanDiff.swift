@@ -15,46 +15,46 @@ enum PlanFiles {
 /// Lesbare Liste der Unterschiede zwischen zwei Plänen, z. B. „W3 · Tempo: 4×1000 m … (vorher: …)“.
 enum PlanDiff {
     static func changes(from old: TrainingPlan?, to new: TrainingPlan) -> [String] {
-        guard let old else { return ["Neuer Plan: \(new.title)"] }
+        guard let old else { return [String(localized: "New plan: \(new.title)")] }
         if old.idPrefix != new.idPrefix {
-            return ["Neuer Block: \(new.title) · \(new.weeks.count) Wochen ab \(day(new.startMonday))"]
+            return [String(localized: "New block: \(new.title) · \(new.weeks.count) weeks starting \(day(new.startMonday))")]
         }
 
         var lines: [String] = []
-        if old.title != new.title { lines.append("Titel: \(new.title)") }
-        if (old.goal ?? "") != (new.goal ?? "") { lines.append("Ziel: \(new.goal ?? "–")") }
+        if old.title != new.title { lines.append(String(localized: "Title: \(new.title)")) }
+        if (old.goal ?? "") != (new.goal ?? "") { lines.append(String(localized: "Goal: \(new.goal ?? "–")")) }
         if old.startMonday != new.startMonday {
             lines.append("Start: \(day(old.startMonday)) → \(day(new.startMonday))")
         }
         if old.weeks.count != new.weeks.count {
-            lines.append("Dauer: \(old.weeks.count) → \(new.weeks.count) Wochen")
+            lines.append(String(localized: "Duration: \(old.weeks.count) → \(new.weeks.count) weeks"))
         }
 
         let oldBands = Dictionary((old.paceBands ?? []).map { ($0.name, $0.range) }, uniquingKeysWith: { a, _ in a })
         let newBands = Dictionary((new.paceBands ?? []).map { ($0.name, $0.range) }, uniquingKeysWith: { a, _ in a })
         for band in new.paceBands ?? [] {
             if let range = oldBands[band.name] {
-                if range != band.range { lines.append("Pace-Band \(band.name): \(range) → \(band.range)") }
+                if range != band.range { lines.append(String(localized: "Pace band \(band.name): \(range) → \(band.range)")) }
             } else {
-                lines.append("Neues Pace-Band \(band.name): \(band.range)")
+                lines.append(String(localized: "New pace band \(band.name): \(band.range)"))
             }
         }
         for band in old.paceBands ?? [] where newBands[band.name] == nil {
-            lines.append("Pace-Band entfernt: \(band.name)")
+            lines.append(String(localized: "Pace band removed: \(band.name)"))
         }
         if old.athlete?.zoneFloors != new.athlete?.zoneFloors || old.athlete?.maxHr != new.athlete?.maxHr {
-            lines.append("HF-Zonen angepasst")
+            lines.append(String(localized: "HR zones adjusted"))
         }
 
         for index in 0..<max(old.weeks.count, new.weeks.count) {
             let label = "W\(index + 1)"
             guard index < new.weeks.count else {
-                lines.append("\(label) entfällt")
+                lines.append(String(localized: "\(label) dropped"))
                 continue
             }
             let week = new.weeks[index]
             guard index < old.weeks.count else {
-                lines.append("\(label) neu (\(week.phase)): " + week.sessions.map { "\($0.kind.label) \($0.dist)" }.joined(separator: ", "))
+                lines.append(String(localized: "\(label) new (\(week.phase)): ") + week.sessions.map { "\($0.kind.label) \($0.dist)" }.joined(separator: ", "))
                 continue
             }
             let before = old.weeks[index]
@@ -82,19 +82,19 @@ enum PlanDiff {
             }
             let oldOrder = before.sessions.map(\.type), newOrder = week.sessions.map(\.type)
             if oldOrder != newOrder && oldOrder.sorted() == newOrder.sorted() {
-                lines.append("\(label): neue Reihenfolge – " + week.sessions.map(\.kind.label).joined(separator: ", "))
+                lines.append(String(localized: "\(label): new order – ") + week.sessions.map(\.kind.label).joined(separator: ", "))
             }
             for pair in pairs {
                 switch (pair.was, pair.now) {
                 case (let was?, nil):
-                    lines.append("\(label): \(was.kind.label) \(was.dist) entfällt")
+                    lines.append(String(localized: "\(label): \(was.kind.label) \(was.dist) dropped"))
                 case (nil, let now?):
-                    lines.append("\(label) neu: \(now.kind.label) \(now.dist) – \(now.desc)")
+                    lines.append(String(localized: "\(label) new: \(now.kind.label) \(now.dist) – \(now.desc)"))
                 case (let was?, let now?):
                     if was.type != now.type || was.dist != now.dist || was.desc != now.desc {
-                        lines.append("\(label) · \(now.kind.label): \(now.dist) – \(now.desc) (vorher: \(was.kind.label) \(was.dist) – \(was.desc))")
+                        lines.append(String(localized: "\(label) · \(now.kind.label): \(now.dist) – \(now.desc) (before: \(was.kind.label) \(was.dist) – \(was.desc))"))
                     } else if was.workout != now.workout {
-                        lines.append("\(label) · \(now.kind.label): Workout-Schritte angepasst")
+                        lines.append(String(localized: "\(label) · \(now.kind.label): workout steps adjusted"))
                     }
                 default:
                     break
@@ -125,19 +125,19 @@ enum WorkoutText {
             let range = bands.first { $0.name.caseInsensitiveCompare(pace) == .orderedSame }?.range ?? pace
             target = " @ \(range.replacingOccurrences(of: "-", with: "–"))"
         } else if let hr = step.hr {
-            target = " @ HF \(hr.replacingOccurrences(of: "-", with: "–"))"
+            target = String(localized: " @ HR \(hr.replacingOccurrences(of: "-", with: "–"))")
         }
         return amount + target
     }
 
     static func typeLabel(_ type: String?) -> String {
         switch type {
-        case "warmup": "Einlaufen"
-        case "cooldown": "Auslaufen"
-        case "interval": "Belastung"
-        case "recovery": "Pause"
-        case "rest": "Pause"
-        default: "Lauf"
+        case "warmup": String(localized: "Warm-up")
+        case "cooldown": String(localized: "Cool-down")
+        case "interval": String(localized: "Interval")
+        case "recovery": String(localized: "Recovery")
+        case "rest": String(localized: "Recovery")
+        default: String(localized: "Run")
         }
     }
 }

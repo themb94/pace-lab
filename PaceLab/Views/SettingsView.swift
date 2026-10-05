@@ -6,10 +6,10 @@ struct SettingsView: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            Tab("Allgemein", systemImage: "gearshape", value: "general") {
+            Tab("General", systemImage: "gearshape", value: "general") {
                 GeneralSettings()
             }
-            Tab("Läufe", systemImage: "arrow.down.circle", value: "runs") {
+            Tab("Runs", systemImage: "arrow.down.circle", value: "runs") {
                 RunSourceSettings()
             }
             Tab("Coach", systemImage: "sparkles", value: "coach") {
@@ -34,15 +34,15 @@ private struct GeneralSettings: View {
     var body: some View {
         Form {
             Section {
-                LabeledContent("Ordner") {
+                LabeledContent("Folder") {
                     Text(projectPath)
                         .textSelection(.enabled)
                         .truncationMode(.middle)
                         .lineLimit(1)
                 }
                 HStack {
-                    Button("Auswählen …", action: chooseFolder)
-                    Button("Im Finder zeigen") {
+                    Button("Choose …", action: chooseFolder)
+                    Button("Show in Finder") {
                         NSWorkspace.shared.activateFileViewerSelecting([URL(filePath: projectPath)])
                     }
                 }
@@ -52,33 +52,33 @@ private struct GeneralSettings: View {
                         .foregroundStyle(found ? Color.primary : Color.orange)
                 }
             } header: {
-                Text("Trainingsordner")
+                Text("Training folder")
             } footer: {
-                Text("Die App liest und schreibt die Dateien direkt dort — dieselben, die auch der Coach benutzt.")
+                Text("The app reads and writes the files right there — the same ones the coach uses.")
             }
 
             Section {
-                TextField("Dein Name", text: $athleteName, prompt: Text("so spricht dich der Coach an"))
-                Button("Einrichtung öffnen …") { openWindow(id: "setup") }
+                TextField("Your name", text: $athleteName, prompt: Text("how the coach addresses you"))
+                Button("Open setup …") { openWindow(id: "setup") }
             } header: {
-                Text("Über dich")
+                Text("About you")
             } footer: {
-                Text("Ziel, Maximalpuls und Besonderheiten stehen im Athletenprofil der README im Trainingsordner.")
+                Text("Goal, max heart rate and special considerations are in the athlete profile of the README in the training folder.")
             }
 
             Section {
                 if model.history.isRepository {
-                    Label(historyCount.map { "Aktiv — \($0) Stände festgehalten" } ?? "Aktiv", systemImage: "checkmark.circle.fill")
+                    Label(historyCount.map { "Active — \($0) versions saved" } ?? "Active", systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
-                    Button("Verlauf öffnen") {
+                    Button("Open history") {
                         model.section = .history
                         openWindow(id: "main")
                     }
                 } else {
-                    Label("Aus", systemImage: "xmark.circle")
+                    Label("Off", systemImage: "xmark.circle")
                         .foregroundStyle(.orange)
                     HStack {
-                        Button("Einrichten") {
+                        Button("Set up") {
                             settingUp = true
                             Task {
                                 do { try await model.setUpHistory() } catch { historyError = error.localizedDescription }
@@ -93,20 +93,20 @@ private struct GeneralSettings: View {
                     Text(historyError).foregroundStyle(.orange).textSelection(.enabled)
                 }
             } header: {
-                Text("Versionsverwaltung (git)")
+                Text("Version control (git)")
             } footer: {
-                Text("Die App hält vor und nach jedem Coach-Lauf, bei Häkchen, geladenen Läufen und übernommenen Plänen einen Stand fest. Unter „Verlauf“ siehst du jede Änderung und kannst sie zurücknehmen. Alles bleibt lokal im Ordner (.git) — nichts wird hochgeladen.")
+                Text("The app records a version before and after every coach run, for ticks, loaded runs and applied plans. Under “History” you see every change and can undo it. Everything stays local in the folder (.git) — nothing is uploaded.")
             }
 
             Section {
-                Button("Widgets jetzt aktualisieren") {
+                Button("Update widgets now") {
                     model.reload(force: true)
                     WidgetCenter.shared.reloadAllTimelines()
                 }
             } header: {
                 Text("Widgets")
             } footer: {
-                Text("Die Widgets zeigen den Stand, den die App zuletzt gelesen hat. Solange Pace Lab läuft (auch nur in der Menüleiste), aktualisiert sie die Widgets bei jeder Änderung automatisch.")
+                Text("The widgets show the state the app last read. As long as Pace Lab is running (even just in the menu bar), it updates the widgets automatically on every change.")
             }
         }
         .formStyle(.grouped)
@@ -123,8 +123,8 @@ private struct GeneralSettings: View {
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = false
         panel.directoryURL = URL(filePath: projectPath)
-        panel.prompt = "Auswählen"
-        panel.message = "Wähle den Ordner mit plan.json, analysis.json und completed.json."
+        panel.prompt = String(localized: "Choose")
+        panel.message = String(localized: "Choose the folder with plan.json, analysis.json and completed.json.")
         if panel.runModal() == .OK, let url = panel.url {
             projectPath = url.path
         }
@@ -144,45 +144,45 @@ private struct RunSourceSettings: View {
     var body: some View {
         Form {
             Section {
-                Picker("Läufe holen von", selection: $source) {
+                Picker("Fetch runs from", selection: $source) {
                     ForEach(RunSource.allCases) { Text($0.label).tag($0.rawValue) }
                 }
                 .pickerStyle(.radioGroup)
                 Text(source == RunSource.strava.rawValue
-                     ? "Claude Code ruft im Hintergrund nur die beiden Strava-Lese-Werkzeuge auf; die App übernimmt die Rohdaten direkt aus der Antwort. Dauert etwa 10–20 Sekunden und zählt minimal aufs Claude-Kontingent."
-                     : "Die App startet den Garmin-Server aus der .mcp.json im Nur-Lese-Modus und fragt die letzten Läufe direkt ab — ohne Sprachmodell und ohne Kontingent. Dauert ein paar Sekunden.")
+                     ? "In the background, Claude Code only calls the two Strava read tools; the app takes the raw data straight from the reply. Takes about 10–20 seconds and counts minimally against your Claude quota."
+                     : "The app starts the Garmin server from the .mcp.json in read-only mode and queries the latest runs directly — without a language model and without using any quota. Takes a few seconds.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             } header: {
-                Text("Quelle")
+                Text("Source")
             } footer: {
-                Text("„Läufe laden“ (⌘R, Knopf oben links) holt alle Läufe ab drei Tagen vor dem neuesten gespeicherten und trägt neue in analysis.json ein — noch ohne Bewertung. Ein Lauf, der schon von der anderen Quelle da ist, wird erkannt und nicht doppelt eingetragen.")
+                Text("“Load runs” (⌘R, button at the top left) fetches all runs from three days before the newest saved one and adds new ones to analysis.json — without a rating yet. A run that already exists from the other source is recognized and not entered twice.")
             }
 
             if source == RunSource.strava.rawValue {
                 Section("Claude Code") {
-                    Picker("Modell", selection: $stravaModel) {
+                    Picker("Model", selection: $stravaModel) {
                         ForEach(stravaChoices, id: \.value) { choice in
                             Text(choice.title).tag(choice.value)
                         }
                     }
-                    LabeledContent("Programm", value: model.claudeCommand)
+                    LabeledContent("Program", value: model.claudeCommand)
                 }
             }
 
             Section {
-                Toggle("Workout-Läufe automatisch zuordnen und abhaken", isOn: $autoAssign)
+                Toggle("Automatically assign workout runs and tick them off", isOn: $autoAssign)
             } footer: {
-                Text("Garmin übernimmt den Workout-Namen (z. B. „PL W01 · 6x800m“) in den Lauf — daran erkennt die App die Einheit eindeutig. Andere Läufe ordnest du unter Läufe → „Zuordnen“ zu oder überlässt es dem Coach bei der Auswertung.")
+                Text("Garmin copies the workout name (e.g. “PL W01 · 6x800m”) into the run — that is how the app identifies the session unambiguously. You assign other runs under Runs → “Assign” or leave it to the coach during the review.")
             }
 
             Section {
                 HStack {
-                    Button("Verbindung prüfen", action: check)
+                    Button("Check connection", action: check)
                         .disabled(checking)
                     if checking { ProgressView().controlSize(.small) }
                     Spacer()
-                    Button("Jetzt laden") { model.syncRuns() }
+                    Button("Load now") { model.syncRuns() }
                         .disabled(model.sync.isRunning || model.coach.isRunning || model.snapshot == nil)
                 }
                 if let result {
@@ -209,12 +209,12 @@ private struct RunSourceSettings: View {
         var choices: [(value: String, title: String)]
         if let models = model.models.models(for: model.claudeEngine) {
             choices = (models.options + models.pinned).map { option in
-                let title = option.value.isEmpty ? "Standard — \(option.version)"
-                    : option.value == option.resolved ? "\(option.version) (fest)" : "\(option.name) — \(option.version)"
-                return (option.value, title + (option.value == SyncSettings.defaultStravaModel ? " · empfohlen" : ""))
+                let title = option.value.isEmpty ? String(localized: "Default — \(option.version)")
+                    : option.value == option.resolved ? String(localized: "\(option.version) (fixed)") : "\(option.name) — \(option.version)"
+                return (option.value, title + (option.value == SyncSettings.defaultStravaModel ? String(localized: " · recommended") : ""))
             }
         } else {
-            choices = [("haiku", "Haiku · empfohlen"), ("sonnet", "Sonnet"), ("opus", "Opus"), ("", "Standard der CLI")]
+            choices = [("haiku", String(localized: "Haiku · recommended")), ("sonnet", "Sonnet"), ("opus", "Opus"), ("", String(localized: "CLI default"))]
         }
         if !choices.contains(where: { $0.value == stravaModel }) {
             choices.append((stravaModel, ModelName.pretty(stravaModel)))
@@ -237,7 +237,7 @@ private struct RunSourceSettings: View {
             } else {
                 do {
                     guard let config = GarminServerConfig.load(from: folder) else {
-                        throw SyncFailure(message: "Keine .mcp.json mit „garmin-workouts“ im Trainingsordner.")
+                        throw SyncFailure(message: String(localized: "No .mcp.json with “garmin-workouts” in the training folder."))
                     }
                     let client = try await config.connect(in: folder, readOnly: true)
                     let text = try await client.callTool("garmin_status", timeout: 60)
@@ -263,14 +263,14 @@ private struct CoachSettings: View {
         HStack(alignment: .top, spacing: 0) {
             VStack(spacing: 0) {
                 List(selection: $selection) {
-                    Section("Hinterlegte CLIs") {
+                    Section("Configured CLIs") {
                         ForEach(coach.engines) { engine in
                             Label {
                                 VStack(alignment: .leading, spacing: 1) {
                                     HStack(spacing: 4) {
                                         Text(engine.name)
                                         if engine.id == coach.selectedEngine.id {
-                                            Text("Standard").font(.caption2.weight(.semibold)).foregroundStyle(Color.brand)
+                                            Text("Default").font(.caption2.weight(.semibold)).foregroundStyle(Color.brand)
                                         }
                                     }
                                     Text("\(engine.kind.label) · \(model.models.label(for: engine))")
@@ -291,16 +291,16 @@ private struct CoachSettings: View {
                     Menu {
                         Button("Claude Code") { add(.claudePreset()) }
                         Button("Codex") { add(.codexPreset()) }
-                        Button("Lokales Modell (LM Studio / Bionic)") { add(.lmStudioPreset()) }
+                        Button("Local model (LM Studio / Bionic)") { add(.lmStudioPreset()) }
                         Divider()
-                        Button("Eigene CLI …") { add(.customPreset()) }
+                        Button("Custom CLI …") { add(.customPreset()) }
                     } label: {
                         Image(systemName: "plus")
                     }
                     .menuStyle(.borderlessButton)
                     .menuIndicator(.hidden)
                     .frame(width: 30)
-                    .help("CLI hinzufügen")
+                    .help("Add CLI")
 
                     Button {
                         remove()
@@ -310,7 +310,7 @@ private struct CoachSettings: View {
                     .buttonStyle(.borderless)
                     .frame(width: 30)
                     .disabled(coach.engines.count <= 1 || selection == nil)
-                    .help("Ausgewählte CLI entfernen")
+                    .help("Remove selected CLI")
                     Spacer()
                 }
                 .padding(6)
@@ -323,8 +323,8 @@ private struct CoachSettings: View {
                 EngineEditor(engine: $coach.engines[index])
                     .id(coach.engines[index].id)
             } else {
-                ContentUnavailableView("CLI auswählen", systemImage: "terminal",
-                                       description: Text("Links eine CLI wählen oder mit + eine neue hinzufügen."))
+                ContentUnavailableView("Select a CLI", systemImage: "terminal",
+                                       description: Text("Choose a CLI on the left or add a new one with +."))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
@@ -368,7 +368,7 @@ private struct EngineEditor: View {
         Form {
             Section {
                 TextField("Name", text: $engine.name)
-                Picker("Typ", selection: $engine.kind) {
+                Picker("Type", selection: $engine.kind) {
                     ForEach(CoachEngine.Kind.allCases) { kind in
                         Label(kind.label, systemImage: kind.symbol).tag(kind)
                     }
@@ -378,18 +378,18 @@ private struct EngineEditor: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("Programm") {
+            Section("Program") {
                 HStack {
-                    TextField("Programm", text: $engine.executable, prompt: Text(programPrompt))
-                    Button("Auswählen …", action: chooseProgram)
+                    TextField("Program", text: $engine.executable, prompt: Text(programPrompt))
+                    Button("Choose …", action: chooseProgram)
                 }
                 Group {
                     if resolving {
-                        Label("Suche …", systemImage: "magnifyingglass")
+                        Label("Searching …", systemImage: "magnifyingglass")
                     } else if let resolvedPath {
-                        Label("Gefunden: \(resolvedPath)", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                        Label("Found: \(resolvedPath)", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
                     } else if !engine.command.isEmpty {
-                        Label("„\(engine.command)“ nicht gefunden — vollständigen Pfad eintragen.", systemImage: "exclamationmark.triangle.fill")
+                        Label("“\(engine.command)” not found — enter the full path.", systemImage: "exclamationmark.triangle.fill")
                             .foregroundStyle(.orange)
                     }
                 }
@@ -397,15 +397,15 @@ private struct EngineEditor: View {
             }
 
             if engine.kind == .textCLI {
-                Section("Modell") {
+                Section("Model") {
                     HStack {
-                        TextField("Modell", text: $engine.model, prompt: Text("Standard der CLI"))
+                        TextField("Model", text: $engine.model, prompt: Text("CLI default"))
                         localModelMenu
                     }
                 }
             } else {
                 Section {
-                    LabeledContent("Modell") {
+                    LabeledContent("Model") {
                         ModelMenu(value: $engine.model, models: model.models.models(for: engine))
                     }
                     if let details = selectedOption?.details, !details.isEmpty {
@@ -414,20 +414,20 @@ private struct EngineEditor: View {
                             .foregroundStyle(.secondary)
                     }
                     if effortChoices.isEmpty {
-                        LabeledContent("Denktiefe", value: "bei diesem Modell nicht einstellbar")
+                        LabeledContent("Thinking depth", value: String(localized: "not adjustable for this model"))
                             .foregroundStyle(.secondary)
                     } else {
-                        Picker("Denktiefe", selection: $engine.effort) {
-                            Text("Standard").tag("")
+                        Picker("Thinking depth", selection: $engine.effort) {
+                            Text("Default").tag("")
                             ForEach(effortChoices, id: \.self) { Text(ModelName.effortLabel($0)).tag($0) }
                         }
                     }
-                    DisclosureGroup("Anderes Modell eintragen") {
-                        TextField("Modellname", text: $engine.model,
-                                  prompt: Text(engine.kind == .claudeCode ? "voller Name, z. B. claude-opus-4-6" : "z. B. gpt-5.5"))
+                    DisclosureGroup("Enter another model") {
+                        TextField("Model name", text: $engine.model,
+                                  prompt: Text(engine.kind == .claudeCode ? "full name, e.g. claude-opus-4-6" : "e.g. gpt-5.5"))
                     }
                 } header: {
-                    Text("Modell")
+                    Text("Model")
                 } footer: {
                     modelFooter
                 }
@@ -435,36 +435,36 @@ private struct EngineEditor: View {
 
             if engine.kind == .textCLI {
                 Section {
-                    TextField("Argumente", text: $engine.arguments, prompt: Text("z. B. run {model} oder chat {model} -p {prompt}"))
-                    TextField("Vorher ausführen", text: $engine.prepareCommand, prompt: Text("optional, z. B. lms load {model} -y"))
-                    Picker("Trainingsstand mitschicken", selection: $engine.context) {
+                    TextField("Arguments", text: $engine.arguments, prompt: Text("e.g. run {model} or chat {model} -p {prompt}"))
+                    TextField("Run first", text: $engine.prepareCommand, prompt: Text("optional, e.g. lms load {model} -y"))
+                    Picker("Send training status", selection: $engine.context) {
                         ForEach(CoachEngine.ContextLevel.allCases) { Text($0.label).tag($0) }
                     }
                 } header: {
-                    Text("Aufruf")
+                    Text("Invocation")
                 } footer: {
-                    Text("Platzhalter: {model}, {prompt} = deine Frage mit Trainingsstand und Verlauf, {system} = Anweisungen an den Coach. Ohne {prompt} geht die Frage über die Standardeingabe, ohne {system} stehen die Anweisungen vor der Frage. Beispiele: Ollama „run {model}“, LM Studio/Bionic „chat {model} -p {prompt} -s {system}“.")
+                    Text("Placeholders: {model}, {prompt} = your question with training status and history, {system} = instructions for the coach. Without {prompt} the question goes through standard input, without {system} the instructions come before the question. Examples: Ollama “run {model}”, LM Studio/Bionic “chat {model} -p {prompt} -s {system}”.")
                 }
             } else {
                 Section {
-                    TextField("Zusätzliche Argumente", text: $engine.arguments, prompt: Text("optional"))
+                    TextField("Additional arguments", text: $engine.arguments, prompt: Text("optional"))
                 } footer: {
                     Text(engine.kind == .codex
-                         ? "Für ein lokales Modell über Codex z. B. „--oss --local-provider lmstudio“ (dann Modell = LM-Studio-Modell). Codex kann sich nicht bei Strava anmelden und holt Läufe direkt über Garmin."
-                         : "Wird an den Aufruf von Claude Code angehängt, z. B. „--fallback-model sonnet“.")
+                         ? "For a local model via Codex, e.g. “--oss --local-provider lmstudio” (then model = LM Studio model). Codex can’t sign in to Strava and fetches runs directly through Garmin."
+                         : "Appended to the Claude Code call, e.g. “--fallback-model sonnet”.")
                 }
             }
 
             Section {
                 HStack {
-                    Button("Testen", action: runTest)
+                    Button("Test", action: runTest)
                         .disabled(testing)
                     if testing { ProgressView().controlSize(.small) }
                     if engine.kind == .claudeCode {
-                        Button("Strava/Garmin prüfen", action: checkConnections)
+                        Button("Check Strava/Garmin", action: checkConnections)
                     }
                     Spacer()
-                    Button("Für neue Gespräche verwenden") { model.coach.selectEngine(engine.id) }
+                    Button("Use for new conversations") { model.coach.selectEngine(engine.id) }
                         .disabled(model.coach.selectedEngine.id == engine.id)
                 }
                 if let testResult {
@@ -479,7 +479,7 @@ private struct EngineEditor: View {
                     }
                 }
             } footer: {
-                Text("Der Test schickt „Antworte nur mit dem Wort: bereit“. Bei Claude und Codex zählt das minimal aufs Kontingent, lokale Modelle werden dafür geladen.")
+                Text("The test sends “Reply only with the word: ready”. For Claude and Codex this counts minimally against your quota; local models are loaded for it.")
             }
         }
         .formStyle(.grouped)
@@ -494,16 +494,16 @@ private struct EngineEditor: View {
     }
 
     private var programPrompt: String {
-        engine.kind.defaultCommand.isEmpty ? "z. B. lms, ollama oder /pfad/zum/programm" : "automatisch (\(engine.kind.defaultCommand))"
+        engine.kind.defaultCommand.isEmpty ? String(localized: "e.g. lms, ollama or /path/to/program") : String(localized: "automatic (\(engine.kind.defaultCommand))")
     }
 
     /// Lokale Modelle (LM Studio / Bionic) — nur auf Knopfdruck, weil die Abfrage LM Studio weckt.
     private var localModelMenu: some View {
         Menu {
-            Button("Standard der CLI") { engine.model = "" }
+            Button("CLI default") { engine.model = "" }
             Divider()
             if localModels.isEmpty {
-                Button(loadingLocalModels ? "Lade …" : "Modelle aus LM Studio / Bionic abrufen", action: fetchLocalModels)
+                Button(loadingLocalModels ? "Loading …" : "Fetch models from LM Studio / Bionic", action: fetchLocalModels)
                     .disabled(loadingLocalModels)
             } else {
                 ForEach(localModels, id: \.self) { name in Button(name) { engine.model = name } }
@@ -513,7 +513,7 @@ private struct EngineEditor: View {
         }
         .menuIndicator(.hidden)
         .fixedSize()
-        .help("Vorschläge")
+        .help("Suggestions")
     }
 
     private var selectedOption: ModelOption? {
@@ -535,8 +535,8 @@ private struct EngineEditor: View {
                         .foregroundStyle(.orange)
                 }
                 HStack(spacing: 8) {
-                    Text("\(engine.kind == .claudeCode ? "Claude Code" : "Codex") \(models.cliVersion) · Stand \(models.fetchedAt.formatted(.dateTime.day().month().hour().minute().locale(Fmt.de)))")
-                    Button("Aktualisieren") {
+                    Text("\(engine.kind == .claudeCode ? "Claude Code" : "Codex") \(models.cliVersion) · updated \(models.fetchedAt.formatted(.dateTime.day().month().hour().minute().locale(Fmt.locale)))")
+                    Button("Refresh") {
                         Task { await store.refresh(engine, folder: model.folder.url, force: true) }
                     }
                     .buttonStyle(.link)
@@ -544,10 +544,10 @@ private struct EngineEditor: View {
                     if store.isLoading(engine) { ProgressView().controlSize(.mini) }
                 }
                 Text(engine.kind == .claudeCode
-                     ? "Die Liste kommt direkt aus der installierten Claude-Code-Version. „Immer das neueste“ wandert mit Updates mit (opus zeigt dann z. B. auf 5.5), eine feste Version bleibt."
-                     : "Die Liste kommt aus Codex' eigener Modellliste für dein Konto.")
+                     ? "The list comes straight from the installed Claude Code version. “Always the latest” moves along with updates (opus then points to e.g. 5.5), a fixed version stays."
+                     : "The list comes from Codex’s own model list for your account.")
             } else if store.isLoading(engine) {
-                Label("Frage die verfügbaren Modelle ab …", systemImage: "hourglass")
+                Label("Querying the available models …", systemImage: "hourglass")
             } else if let error = store.error(for: engine) {
                 Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
             }
@@ -568,7 +568,7 @@ private struct EngineEditor: View {
         panel.treatsFilePackagesAsDirectories = true   // auch CLIs innerhalb von Apps (z. B. Bionic)
         panel.allowsMultipleSelection = false
         panel.directoryURL = URL(filePath: "/opt/homebrew/bin")
-        panel.prompt = "Auswählen"
+        panel.prompt = String(localized: "Choose")
         if panel.runModal() == .OK, let url = panel.url {
             engine.executable = url.path
         }
@@ -619,9 +619,9 @@ struct ConnectionCheck: Sendable {
         let list = CLIResolver.runSync(exe, ["mcp", "list"], in: folder)
         if let strava = list.split(separator: "\n").first(where: { $0.hasPrefix("strava-mcp") }) {
             let ok = strava.contains("Connected")
-            lines.append(Line(text: ok ? "Strava verbunden" : "Strava: \(strava.split(separator: " - ").last ?? "nicht verbunden")", ok: ok))
+            lines.append(Line(text: ok ? String(localized: "Strava connected") : "Strava: \(strava.split(separator: " - ").last.map(String.init) ?? String(localized: "not connected"))", ok: ok))
         } else {
-            lines.append(Line(text: "Strava-MCP ist für diesen Ordner nicht eingerichtet", ok: false))
+            lines.append(Line(text: String(localized: "Strava MCP is not set up for this folder"), ok: false))
         }
 
         if let data = try? Data(contentsOf: folder.appending(path: ".mcp.json")),
@@ -630,9 +630,9 @@ struct ConnectionCheck: Sendable {
            let garmin = servers["garmin-workouts"] as? [String: Any],
            let program = garmin["command"] as? String {
             let ok = FileManager.default.isExecutableFile(atPath: program)
-            lines.append(Line(text: ok ? "Garmin-Server gefunden (wird beim Start geladen)" : "Garmin: \(program) fehlt", ok: ok))
+            lines.append(Line(text: ok ? String(localized: "Garmin server found (loaded at startup)") : String(localized: "Garmin: \(program) is missing"), ok: ok))
         } else {
-            lines.append(Line(text: "Garmin: keine .mcp.json im Ordner", ok: false))
+            lines.append(Line(text: String(localized: "Garmin: no .mcp.json in the folder"), ok: false))
         }
         return ConnectionCheck(lines: lines)
     }

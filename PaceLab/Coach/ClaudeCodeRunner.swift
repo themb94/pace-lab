@@ -132,7 +132,7 @@ struct ClaudeStreamParser: OutputParser {
                           !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
                     return .text(text)
                 case "tool_use":
-                    let name = block["name"] as? String ?? "Werkzeug"
+                    let name = block["name"] as? String ?? String(localized: "Tool")
                     let input = block["input"] as? [String: Any] ?? [:]
                     return .toolStarted(id: block["id"] as? String ?? UUID().uuidString,
                                         name: name, label: ToolLabel.describe(name, input: input))
@@ -174,8 +174,8 @@ struct ClaudeStreamParser: OutputParser {
         if sawResult { return nil }
         if outcome.signaled { return .finished(CoachResult(isError: true, message: "Abgebrochen.")) }
         let message = outcome.stderr.isEmpty
-            ? "Claude Code wurde unerwartet beendet (Code \(outcome.exitCode))."
-            : "Claude Code meldet: \(outcome.stderr)"
+            ? String(localized: "Claude Code quit unexpectedly (code \(outcome.exitCode)).")
+            : String(localized: "Claude Code reports: \(outcome.stderr)")
         return .finished(CoachResult(isError: true, message: message))
     }
 }
@@ -187,15 +187,15 @@ enum ToolLabel {
             (input[key] as? String).map { URL(filePath: $0).lastPathComponent } ?? ""
         }
         switch name {
-        case "Read": return "Liest \(fileName())"
-        case "Edit", "MultiEdit": return "Bearbeitet \(fileName())"
-        case "Write": return "Schreibt \(fileName())"
-        case "Glob", "Grep": return "Durchsucht das Projekt"
-        case "WebSearch": return "Websuche: \(input["query"] as? String ?? "")"
-        case "WebFetch": return "Lädt \(URL(string: input["url"] as? String ?? "")?.host() ?? "eine Webseite")"
-        case "TodoWrite": return "Plant die nächsten Schritte"
-        case "ToolSearch": return "Lädt Werkzeuge"
-        case "Task", "Agent": return "Teilaufgabe: \(input["description"] as? String ?? "")"
+        case "Read": return String(localized: "Reading \(fileName())")
+        case "Edit", "MultiEdit": return String(localized: "Editing \(fileName())")
+        case "Write": return String(localized: "Writing \(fileName())")
+        case "Glob", "Grep": return String(localized: "Searching the project")
+        case "WebSearch": return String(localized: "Web search: \(input["query"] as? String ?? "")")
+        case "WebFetch": return String(localized: "Loading \(URL(string: input["url"] as? String ?? "")?.host() ?? String(localized: "a web page"))")
+        case "TodoWrite": return String(localized: "Planning next steps")
+        case "ToolSearch": return String(localized: "Loading tools")
+        case "Task", "Agent": return String(localized: "Subtask: \(input["description"] as? String ?? "")")
         case "Bash": return "Terminal: \((input["command"] as? String ?? "").prefix(60))"
         default: return label(for: name)
         }
@@ -203,19 +203,19 @@ enum ToolLabel {
 
     static func label(for tool: String) -> String {
         let known = [
-            "mcp__strava-mcp__list_activities": "Strava: Aktivitäten abrufen",
-            "mcp__strava-mcp__get_activity_performance": "Strava: Lauf-Details",
-            "mcp__strava-mcp__get_activity_streams": "Strava: Zeitreihen (Pace/HF)",
-            "mcp__strava-mcp__get_athlete_zones": "Strava: HF-Zonen",
-            "mcp__strava-mcp__get_athlete_profile": "Strava: Profil",
-            "mcp__garmin-workouts__garmin_status": "Garmin: Verbindung prüfen",
-            "mcp__garmin-workouts__list_activities": "Garmin: Aktivitäten abrufen",
-            "mcp__garmin-workouts__get_activity_data": "Garmin: Lauf-Details",
-            "mcp__garmin-workouts__list_workouts": "Garmin: Workouts auflisten",
-            "mcp__garmin-workouts__preview_plan": "Garmin: Woche als Vorschau",
-            "mcp__garmin-workouts__create_plan": "Garmin: Workouts anlegen",
-            "mcp__garmin-workouts__schedule_workout": "Garmin: Workout einplanen",
-            "mcp__garmin-workouts__delete_workout": "Garmin: Workout löschen",
+            "mcp__strava-mcp__list_activities": String(localized: "Strava: fetching activities"),
+            "mcp__strava-mcp__get_activity_performance": String(localized: "Strava: run details"),
+            "mcp__strava-mcp__get_activity_streams": String(localized: "Strava: time series (pace/HR)"),
+            "mcp__strava-mcp__get_athlete_zones": String(localized: "Strava: HR zones"),
+            "mcp__strava-mcp__get_athlete_profile": String(localized: "Strava: profile"),
+            "mcp__garmin-workouts__garmin_status": String(localized: "Garmin: checking connection"),
+            "mcp__garmin-workouts__list_activities": String(localized: "Garmin: fetching activities"),
+            "mcp__garmin-workouts__get_activity_data": String(localized: "Garmin: run details"),
+            "mcp__garmin-workouts__list_workouts": String(localized: "Garmin: listing workouts"),
+            "mcp__garmin-workouts__preview_plan": String(localized: "Garmin: previewing the week"),
+            "mcp__garmin-workouts__create_plan": String(localized: "Garmin: creating workouts"),
+            "mcp__garmin-workouts__schedule_workout": String(localized: "Garmin: scheduling a workout"),
+            "mcp__garmin-workouts__delete_workout": String(localized: "Garmin: deleting a workout"),
         ]
         if let label = known[tool] { return label }
         for (prefix, title) in [("mcp__strava-mcp__", "Strava"), ("mcp__garmin-workouts__", "Garmin")] where tool.hasPrefix(prefix) {

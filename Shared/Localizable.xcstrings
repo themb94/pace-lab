@@ -1,0 +1,7306 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "  (already done)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "  (schon erledigt)"
+          }
+        }
+      }
+    },
+    " (HRmax %lld)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " (HFmax %lld)"
+          }
+        }
+      }
+    },
+    " (already done)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " (schon erledigt)"
+          }
+        }
+      }
+    },
+    " @ HR %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " @ HF %@"
+          }
+        }
+      }
+    },
+    " from %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " aus %@"
+          }
+        }
+      }
+    },
+    " · %lld sessions ticked off": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": " · %lld Einheit abgehakt"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": " · %lld Einheiten abgehakt"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": " · %lld session ticked off"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": " · %lld sessions ticked off"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    " · not signed in": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · nicht angemeldet"
+          }
+        }
+      }
+    },
+    " · recommended": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · empfohlen"
+          }
+        }
+      }
+    },
+    " · session ticked off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · Einheit abgehakt"
+          }
+        }
+      }
+    },
+    " · signed in": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · angemeldet"
+          }
+        }
+      }
+    },
+    " — updated %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " — zuletzt %@"
+          }
+        }
+      }
+    },
+    "# Schema of a workout\n\"workout\": { \"name\": \"6x800m\", \"steps\": [ { \"type\": \"warmup\", \"time\": 600, \"note\": \"…\" }, { \"repeat\": 6, \"steps\": [ { \"type\": \"interval\", \"distance\": 800, \"pace\": \"4:45-5:15\", \"note\": \"…\" }, { \"type\": \"recovery\", \"time\": 90 } ] }, { \"type\": \"cooldown\", \"time\": 600 } ] }\ntype: warmup, cooldown, interval, recovery or run. End: \"distance\" (metres) or \"time\" (seconds). \"pace\" = name of a paceBand or \"m:ss-m:ss\"; without pace = free, by feel. Easy runs and long runs have no pace target.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "# Schema eines Workouts\n\"workout\": { \"name\": \"6x800m\", \"steps\": [ { \"type\": \"warmup\", \"time\": 600, \"note\": \"…\" }, { \"repeat\": 6, \"steps\": [ { \"type\": \"interval\", \"distance\": 800, \"pace\": \"4:45-5:15\", \"note\": \"…\" }, { \"type\": \"recovery\", \"time\": 90 } ] }, { \"type\": \"cooldown\", \"time\": 600 } ] }\ntype: warmup, cooldown, interval, recovery oder run. Ende: \"distance\" (Meter) oder \"time\" (Sekunden). \"pace\" = Name eines paceBands oder \"m:ss-m:ss\"; ohne pace = frei nach Gefühl. Locker-Läufe und Long Runs haben kein Pace-Ziel."
+          }
+        }
+      }
+    },
+    "%@\n\nChange plan.json directly for this: the affected sessions (type, dist, desc) and, matching each, its “workout” (schema: README, section “Plan schema” — garmin_workouts.py builds the Garmin workouts from it, so don’t change anything there). Only adjust other weeks if this change really requires it, and explain why. The ticks are tied to the type and position of a session ({idPrefix}w{week}-{type}-{index}) — so don’t change type or order of sessions that are already ticked off. Follow the training principles in the README. Don’t upload anything to Garmin. At the end, briefly summarize what you changed and why.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@\n\nÄndere dafür plan.json direkt: die betroffenen Einheiten (type, dist, desc) und passend dazu jeweils das „workout“ (Schema: README, Abschnitt „Plan-Schema“ — garmin_workouts.py baut daraus die Garmin-Workouts, dort also nichts ändern). Andere Wochen nur anpassen, wenn es wegen dieser Änderung wirklich nötig ist, und das dann begründen. Die Häkchen hängen an Typ und Position der Einheit ({idPrefix}w{Woche}-{type}-{index}) — bei schon abgehakten Einheiten Typ und Reihenfolge also nicht ändern. Halte dich an die Trainingsprinzipien der README. Lade nichts auf Garmin hoch. Fasse zum Schluss knapp zusammen, was du geändert hast und warum."
+          }
+        }
+      }
+    },
+    "%@\n\nRequest:\n%@\n\nEngine: %@\nConversation: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@\n\nAnfrage:\n%2$@\n\nEngine: %3$@\nGespräch: %4$@"
+          }
+        }
+      }
+    },
+    "%@\n\nWrite the draft to plan-entwurf.json — same schema as plan.json (README, section “Plan schema”) with a “workout” for every session, a new idPrefix (e.g. “b3”), a new workoutPrefix, fitting title/goal/subtitle, paceBands and athlete; previous = a short look back at the current block. Do NOT change plan.json — the current block keeps running, the draft is applied in the app. First review analysis.json (runs, ratings, week summaries) and the training principles in the README. At the end, briefly explain the structure (phases, progression, pace bands) and what you deliberately do differently from the current block.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@\n\nSchreib den Entwurf nach plan-entwurf.json — gleiches Schema wie plan.json (README, Abschnitt „Plan-Schema“) mit „workout“ für jede Einheit, neuem idPrefix (z. B. „b3“), neuem workoutPrefix, passendem title/goal/subtitle, paceBands und athlete; previous = kurzer Rückblick auf den aktuellen Block. plan.json NICHT ändern — der aktuelle Block läuft weiter, der Entwurf wird in der App übernommen. Werte vorher analysis.json (Läufe, Bewertungen, Wochenfazits) und die Trainingsprinzipien der README aus. Erkläre zum Schluss kurz den Aufbau (Phasen, Progression, Pace-Bänder) und was du bewusst anders machst als im aktuellen Block."
+          }
+        }
+      }
+    },
+    "%@\n\nYou can’t change any files. Answer with a short explanation of the structure and then the complete new plan as JSON in a code block (```json … ```), in the schema of the current plan below — with a new idPrefix (e.g. “b3”) and workoutPrefix. The app saves it as a draft; it is applied in the app.\n\n# Current plan (plan.json)\n```json\n%@\n```\n\n%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@\n\nDu kannst keine Dateien ändern. Antworte mit einer kurzen Erklärung des Aufbaus und danach mit dem vollständigen neuen Plan als JSON in einem Codeblock (```json … ```), im Schema des aktuellen Plans unten — mit neuem idPrefix (z. B. „b3“) und workoutPrefix. Die App legt ihn als Entwurf ab; übernommen wird er in der App.\n\n# Aktueller Plan (plan.json)\n```json\n%2$@\n```\n\n%3$@"
+          }
+        }
+      }
+    },
+    "%@\n\nYou can’t change any files. Answer with a short rationale and then the complete new week %lld as JSON in a code block (```json … ```), in the same schema as below: phase, note, sessions with type, dist, desc and workout. The app shows the suggestion and only applies it after you confirm.\n\n# Week %lld so far (from plan.json)\n```json\n%@\n```\n\n%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@\n\nDu kannst keine Dateien ändern. Antworte mit einer kurzen Begründung und danach mit der vollständigen neuen Woche %2$lld als JSON in einem Codeblock (```json … ```), im selben Schema wie unten: phase, note, sessions mit type, dist, desc und workout. Die App zeigt den Vorschlag und übernimmt ihn erst nach Bestätigung.\n\n# Woche %3$lld bisher (aus plan.json)\n```json\n%4$@\n```\n\n%5$@"
+          }
+        }
+      }
+    },
+    "%@ %@ failed:\n%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ %2$@ ist fehlgeschlagen:\n%3$@"
+          }
+        }
+      }
+    },
+    "%@ %@ · updated %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ %2$@ · Stand %3$@"
+          }
+        }
+      }
+    },
+    "%@ (custom)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (eigenes)"
+          }
+        }
+      }
+    },
+    "%@ (default)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (Standard)"
+          }
+        }
+      }
+    },
+    "%@ (fixed)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (fest)"
+          }
+        }
+      }
+    },
+    "%@ (older version)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (ältere Version)"
+          }
+        }
+      }
+    },
+    "%@ can’t change files: the suggestion comes as JSON and the app only applies it once you agree.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ kann keine Dateien ändern: Der Vorschlag kommt als JSON, die App übernimmt ihn erst, wenn du zustimmst."
+          }
+        }
+      }
+    },
+    "%@ could not be read: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ konnte nicht gelesen werden: %2$@"
+          }
+        }
+      }
+    },
+    "%@ dropped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ entfällt"
+          }
+        }
+      }
+    },
+    "%@ expected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ erwartet"
+          }
+        }
+      }
+    },
+    "%@ failed.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ist fehlgeschlagen."
+          }
+        }
+      }
+    },
+    "%@ is available from Claude Code %@ (installed: %@). After an update it shows up here automatically.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ gibt es ab Claude Code %2$@ (installiert: %3$@). Nach einem Update erscheint es hier automatisch."
+          }
+        }
+      }
+    },
+    "%@ is invalid: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ ist ungültig: %2$@"
+          }
+        }
+      }
+    },
+    "%@ is missing from the project folder.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ fehlt im Projektordner."
+          }
+        }
+      }
+    },
+    "%@ is thinking …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ denkt nach …"
+          }
+        }
+      }
+    },
+    "%@ is working …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ arbeitet …"
+          }
+        }
+      }
+    },
+    "%@ new (%@): ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ neu (%2$@): "
+          }
+        }
+      }
+    },
+    "%@ new: %@ %@ – %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ neu: %2$@ %3$@ – %4$@"
+          }
+        }
+      }
+    },
+    "%@ of %@ km": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ von %2$@ km"
+          }
+        }
+      }
+    },
+    "%@ wind%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ Wind%2$@"
+          }
+        }
+      }
+    },
+    "%@ · %@: %@ – %@ (before: %@ %@ – %@)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@: %3$@ – %4$@ (vorher: %5$@ %6$@ – %7$@)"
+          }
+        }
+      }
+    },
+    "%@ · %@: workout steps adjusted": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@: Workout-Schritte angepasst"
+          }
+        }
+      }
+    },
+    "%@ — %@ (always the latest)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ — %2$@ (immer das neueste)"
+          }
+        }
+      }
+    },
+    "%@: %@ %@ dropped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: %2$@ %3$@ entfällt"
+          }
+        }
+      }
+    },
+    "%@: connected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: verbunden"
+          }
+        }
+      }
+    },
+    "%@: new order – ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: neue Reihenfolge – "
+          }
+        }
+      }
+    },
+    "%@: starting …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: starte …"
+          }
+        }
+      }
+    },
+    "%lld %% humidity": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld %% Luftfeuchte"
+          }
+        }
+      }
+    },
+    "%lld new runs from %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld neue Läufe von %2$@"
+          }
+        }
+      }
+    },
+    "%lld runs loaded (%@)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld Läufe geladen (%2$@)"
+          }
+        }
+      }
+    },
+    "%lld runs per week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Läufe pro Woche"
+          }
+        }
+      }
+    },
+    "%lld versions": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Stand"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Stände"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld version"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld versions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld versions before %@ will be deleted; everything after stays available through “Undo”. ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld Stände vor dem %2$@ werden gelöscht; alles danach bleibt mit „Rückgängig“ erhalten. "
+          }
+        }
+      }
+    },
+    "%lld versions deleted": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Stand gelöscht"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Stände gelöscht"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld version deleted"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld versions deleted"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld weeks": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Wochen"
+          }
+        }
+      }
+    },
+    "%lld weeks starting %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld Wochen ab %2$@"
+          }
+        }
+      }
+    },
+    "%lld work steps": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Arbeitsschritt"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Arbeitsschritte"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld work step"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld work steps"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "(no program set)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(kein Programm eingetragen)"
+          }
+        }
+      }
+    },
+    ", %lld kept": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", %lld behalten"
+          }
+        }
+      }
+    },
+    "1 new run from %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 neuer Lauf von %@"
+          }
+        }
+      }
+    },
+    "1M context": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1M Kontext"
+          }
+        }
+      }
+    },
+    "About my run “%@” from %@: ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu meinem Lauf „%1$@“ vom %2$@: "
+          }
+        }
+      }
+    },
+    "About you": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über dich"
+          }
+        }
+      }
+    },
+    "Active": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiv"
+          }
+        }
+      }
+    },
+    "Active — %lld versions saved": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Aktiv — %lld Stand festgehalten"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Aktiv — %lld Stände festgehalten"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Active — %lld version saved"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Active — %lld versions saved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Actual run": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gelaufen"
+          }
+        }
+      }
+    },
+    "Add CLI": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CLI hinzufügen"
+          }
+        }
+      }
+    },
+    "Add Strava to Claude Code": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava in Claude Code eintragen"
+          }
+        }
+      }
+    },
+    "Additional arguments": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zusätzliche Argumente"
+          }
+        }
+      }
+    },
+    "Adjust a week, change a session or draft a new block": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche anpassen, Einheit ändern oder neuen Block entwerfen"
+          }
+        }
+      }
+    },
+    "Adjust week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche anpassen"
+          }
+        }
+      }
+    },
+    "Adjust week %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %lld anpassen"
+          }
+        }
+      }
+    },
+    "Adjust week with coach …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche mit Coach anpassen …"
+          }
+        }
+      }
+    },
+    "Adjust week …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche anpassen …"
+          }
+        }
+      }
+    },
+    "Adjust with coach …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Coach anpassen …"
+          }
+        }
+      }
+    },
+    "Adjustment for next week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anpassung Folgewoche"
+          }
+        }
+      }
+    },
+    "Adjustments for week %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anpassungen Woche %lld"
+          }
+        }
+      }
+    },
+    "Affected: %@. Undoing is itself recorded as a version in the history.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Betroffen: %@. Das Zurücknehmen wird selbst als Stand im Verlauf festgehalten."
+          }
+        }
+      }
+    },
+    "Agent — plans, reviews, Garmin (no Strava).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent — plant, wertet aus, Garmin (kein Strava)."
+          }
+        }
+      }
+    },
+    "Agent — plans, reviews, Strava and Garmin.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent — plant, wertet aus, Strava und Garmin."
+          }
+        }
+      }
+    },
+    "Agent: reads and edits files, Strava, Garmin (upload only with approval), memory from the chat.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent: liest und ändert Dateien, Strava, Garmin (Upload nur mit Freigabe), Gedächtnis aus dem Chat."
+          }
+        }
+      }
+    },
+    "Agent: reads and edits files, fetches runs directly through Garmin (no Strava), creates workouts only with approval. No Claude memory — README only.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent: liest und ändert Dateien, holt Läufe direkt über Garmin (kein Strava), Workouts anlegen nur mit Freigabe. Kein Claude-Gedächtnis — nur README."
+          }
+        }
+      }
+    },
+    "All %lld versions will be deleted; the current state becomes the new starting point. ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle %lld Stände werden gelöscht; der jetzige Stand wird der neue Ausgangspunkt. "
+          }
+        }
+      }
+    },
+    "All sessions done": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Einheiten erledigt"
+          }
+        }
+      }
+    },
+    "Allow Garmin upload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin-Upload erlauben"
+          }
+        }
+      }
+    },
+    "Already on Garmin — will be replaced": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schon auf Garmin — wird ersetzt"
+          }
+        }
+      }
+    },
+    "Always the latest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immer das neueste"
+          }
+        }
+      }
+    },
+    "Analysis": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse"
+          }
+        }
+      }
+    },
+    "Analysis available": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse vorhanden"
+          }
+        }
+      }
+    },
+    "Appended to the Claude Code call, e.g. “--fallback-model sonnet”.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird an den Aufruf von Claude Code angehängt, z. B. „--fallback-model sonnet“."
+          }
+        }
+      }
+    },
+    "Applied": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übernommen"
+          }
+        }
+      }
+    },
+    "Apply": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übernehmen"
+          }
+        }
+      }
+    },
+    "Apply as active plan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als aktiven Plan übernehmen"
+          }
+        }
+      }
+    },
+    "Apply to plan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In den Plan übernehmen"
+          }
+        }
+      }
+    },
+    "Apply “%@”?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ übernehmen?"
+          }
+        }
+      }
+    },
+    "Approve & upload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Freigeben & hochladen"
+          }
+        }
+      }
+    },
+    "Arguments": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Argumente"
+          }
+        }
+      }
+    },
+    "As soon as you tick something off, load runs or the coach works, it shows up here.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sobald du etwas abhakst, Läufe lädst oder der Coach arbeitet, erscheint es hier."
+          }
+        }
+      }
+    },
+    "Ask coach": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach fragen"
+          }
+        }
+      }
+    },
+    "Ask e.g. “What’s on this week?” or “How was my last long run?” — or have a suggestion made via “Planning”, which the app applies after you agree.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frag z. B. „Was steht diese Woche an?“ oder „Wie war mein letzter Long Run?“ — oder lass dir über „Planen“ einen Vorschlag machen, den die App nach deiner Zustimmung übernimmt."
+          }
+        }
+      }
+    },
+    "Assign": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zuordnen"
+          }
+        }
+      }
+    },
+    "Assign this run to a session in the plan and tick it off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lauf einer Einheit im Plan zuordnen und sie abhaken"
+          }
+        }
+      }
+    },
+    "Assigned: %@ %@ → %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zugeordnet: %1$@ %2$@ → %3$@"
+          }
+        }
+      }
+    },
+    "Assignment failed: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zuordnung fehlgeschlagen: %@"
+          }
+        }
+      }
+    },
+    "Assistant": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assistent"
+          }
+        }
+      }
+    },
+    "Automatically assign workout runs and tick them off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout-Läufe automatisch zuordnen und abhaken"
+          }
+        }
+      }
+    },
+    "Available": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verfügbar"
+          }
+        }
+      }
+    },
+    "Avg HR": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ø HF"
+          }
+        }
+      }
+    },
+    "Avg pace": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ø Pace"
+          }
+        }
+      }
+    },
+    "Base": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basis"
+          }
+        }
+      }
+    },
+    "Block completed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Block abgeschlossen"
+          }
+        }
+      }
+    },
+    "Block week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Block-Woche"
+          }
+        }
+      }
+    },
+    "CLI default": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard der CLI"
+          }
+        }
+      }
+    },
+    "CURRENT": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AKTUELL"
+          }
+        }
+      }
+    },
+    "Cadence": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kadenz"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
+          }
+        }
+      }
+    },
+    "Cancelled": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abgebrochen"
+          }
+        }
+      }
+    },
+    "Change W%lld · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W%1$lld · %2$@ ändern"
+          }
+        }
+      }
+    },
+    "Change a session in the plan: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändere eine Einheit im Plan: %@"
+          }
+        }
+      }
+    },
+    "Change folder …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordner ändern …"
+          }
+        }
+      }
+    },
+    "Change session": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einheit ändern"
+          }
+        }
+      }
+    },
+    "Change session …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einheit ändern …"
+          }
+        }
+      }
+    },
+    "Change the session week %lld · %@ (%@: %@), planned for %@.\nRequest: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändere die Einheit Woche %1$lld · %2$@ (%3$@: %4$@), geplant für %5$@.\nWunsch: %6$@"
+          }
+        }
+      }
+    },
+    "Change with coach …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Coach ändern …"
+          }
+        }
+      }
+    },
+    "Changed files": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geänderte Dateien"
+          }
+        }
+      }
+    },
+    "Changed: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geändert: %@"
+          }
+        }
+      }
+    },
+    "Changes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Änderungen"
+          }
+        }
+      }
+    },
+    "Changes outside the app": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Änderungen außerhalb der App"
+          }
+        }
+      }
+    },
+    "Changes plan.json — it only reaches the watch when you upload it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändert plan.json — auf die Uhr kommt es erst, wenn du es hochlädst."
+          }
+        }
+      }
+    },
+    "Changes undone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Änderungen zurückgenommen"
+          }
+        }
+      }
+    },
+    "Check Strava/Garmin": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava/Garmin prüfen"
+          }
+        }
+      }
+    },
+    "Check again": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut prüfen"
+          }
+        }
+      }
+    },
+    "Check and adjust the plan, show a preview — no upload yet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan prüfen und anpassen, Vorschau zeigen — noch ohne Upload"
+          }
+        }
+      }
+    },
+    "Check connection": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbindung prüfen"
+          }
+        }
+      }
+    },
+    "Checked off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abgehakt"
+          }
+        }
+      }
+    },
+    "Checking what is already on Garmin …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfe, was schon auf Garmin liegt …"
+          }
+        }
+      }
+    },
+    "Checking …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfe …"
+          }
+        }
+      }
+    },
+    "Choose": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auswählen"
+          }
+        }
+      }
+    },
+    "Choose a CLI on the left or add a new one with +.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links eine CLI wählen oder mit + eine neue hinzufügen."
+          }
+        }
+      }
+    },
+    "Choose a run on the left to see splits and analysis.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle links einen Lauf, um Splits und Analyse zu sehen."
+          }
+        }
+      }
+    },
+    "Choose a version on the left to see the changes.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links einen Stand wählen, um die Änderungen zu sehen."
+          }
+        }
+      }
+    },
+    "Choose another folder …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anderen Ordner wählen …"
+          }
+        }
+      }
+    },
+    "Choose engine — switching starts a new conversation": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Engine wählen — ein Wechsel beginnt ein neues Gespräch"
+          }
+        }
+      }
+    },
+    "Choose the folder with plan.json, analysis.json and completed.json.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle den Ordner mit plan.json, analysis.json und completed.json."
+          }
+        }
+      }
+    },
+    "Choose the training folder (or an empty folder where the app will create it).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle den Trainingsordner (oder einen leeren Ordner, in dem die App ihn anlegt)."
+          }
+        }
+      }
+    },
+    "Choose …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auswählen …"
+          }
+        }
+      }
+    },
+    "Claude Code didn’t return a model list.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code hat keine Modellliste geliefert."
+          }
+        }
+      }
+    },
+    "Claude Code quit unexpectedly (code %d).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code wurde unerwartet beendet (Code %d)."
+          }
+        }
+      }
+    },
+    "Claude Code reports an error.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code meldet einen Fehler."
+          }
+        }
+      }
+    },
+    "Claude Code reports: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code meldet: %@"
+          }
+        }
+      }
+    },
+    "Claude reviews the last week (Strava → analysis)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude wertet die letzte Woche aus (Strava → Analyse)"
+          }
+        }
+      }
+    },
+    "Click a session to see its details.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klick auf eine Einheit, um Details zu sehen."
+          }
+        }
+      }
+    },
+    "Climb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anstieg"
+          }
+        }
+      }
+    },
+    "Close": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
+          }
+        }
+      }
+    },
+    "Coach is working …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach arbeitet …"
+          }
+        }
+      }
+    },
+    "Coach settings …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach-Einstellungen …"
+          }
+        }
+      }
+    },
+    "Code from the email / app": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code aus der E-Mail / App"
+          }
+        }
+      }
+    },
+    "Codex quit unexpectedly (code %d).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex wurde unerwartet beendet (Code %d)."
+          }
+        }
+      }
+    },
+    "Codex reports: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex meldet: %@"
+          }
+        }
+      }
+    },
+    "Command: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Befehl: %@"
+          }
+        }
+      }
+    },
+    "Compact (plan, week, latest runs)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kompakt (Plan, Woche, letzte Läufe)"
+          }
+        }
+      }
+    },
+    "Conditions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedingungen"
+          }
+        }
+      }
+    },
+    "Configured CLIs": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hinterlegte CLIs"
+          }
+        }
+      }
+    },
+    "Confirm": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bestätigen"
+          }
+        }
+      }
+    },
+    "Conversation": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespräch"
+          }
+        }
+      }
+    },
+    "Conversations": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespräche"
+          }
+        }
+      }
+    },
+    "Cool-down": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auslaufen"
+          }
+        }
+      }
+    },
+    "Create first plan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ersten Plan erstellen"
+          }
+        }
+      }
+    },
+    "Create folder": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordner anlegen"
+          }
+        }
+      }
+    },
+    "Create on Garmin": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf Garmin anlegen"
+          }
+        }
+      }
+    },
+    "Create on Garmin …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf Garmin anlegen …"
+          }
+        }
+      }
+    },
+    "Create week %lld on Garmin": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %lld auf Garmin anlegen"
+          }
+        }
+      }
+    },
+    "Create week %lld on Garmin …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %lld auf Garmin anlegen …"
+          }
+        }
+      }
+    },
+    "Create workouts on Garmin?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workouts auf Garmin anlegen?"
+          }
+        }
+      }
+    },
+    "Creating Python environment (Python %@) …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Python-Umgebung anlegen (Python %@) …"
+          }
+        }
+      }
+    },
+    "Creating workouts …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lege Workouts an …"
+          }
+        }
+      }
+    },
+    "Current block": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktueller Block"
+          }
+        }
+      }
+    },
+    "Custom CLI": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene CLI"
+          }
+        }
+      }
+    },
+    "Custom CLI (text only)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene CLI (nur Text)"
+          }
+        }
+      }
+    },
+    "Custom CLI …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene CLI …"
+          }
+        }
+      }
+    },
+    "DRAFT": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ENTWURF"
+          }
+        }
+      }
+    },
+    "Default": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard"
+          }
+        }
+      }
+    },
+    "Default — %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard — %@"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Löschen"
+          }
+        }
+      }
+    },
+    "Delete all": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle löschen"
+          }
+        }
+      }
+    },
+    "Delete all %lld conversations?": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Das Gespräch löschen?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alle %lld Gespräche löschen?"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Delete the conversation?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Delete all %lld conversations?"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Delete all conversations …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Gespräche löschen …"
+          }
+        }
+      }
+    },
+    "Delete entire history …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesamten Verlauf löschen …"
+          }
+        }
+      }
+    },
+    "Delete history": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verlauf löschen"
+          }
+        }
+      }
+    },
+    "Delete old versions or the whole history — your files stay unchanged": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alte Stände oder den ganzen Verlauf löschen — deine Dateien bleiben unverändert"
+          }
+        }
+      }
+    },
+    "Delete older versions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ältere Stände löschen"
+          }
+        }
+      }
+    },
+    "Delete the entire history?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesamten Verlauf löschen?"
+          }
+        }
+      }
+    },
+    "Delete this conversation …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Gespräch löschen …"
+          }
+        }
+      }
+    },
+    "Delete versions older than %lld days?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stände älter als %lld Tage löschen?"
+          }
+        }
+      }
+    },
+    "Delete versions older than 30 days …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stände älter als 30 Tage löschen …"
+          }
+        }
+      }
+    },
+    "Delete versions older than 7 days …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stände älter als 7 Tage löschen …"
+          }
+        }
+      }
+    },
+    "Delete “%@”?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ löschen?"
+          }
+        }
+      }
+    },
+    "Deleting …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lösche …"
+          }
+        }
+      }
+    },
+    "Detailed (plus README)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausführlich (zusätzlich README)"
+          }
+        }
+      }
+    },
+    "Discard": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwerfen"
+          }
+        }
+      }
+    },
+    "Discard draft?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf verwerfen?"
+          }
+        }
+      }
+    },
+    "Distance": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distanz"
+          }
+        }
+      }
+    },
+    "Do the weekly review for the most recently completed training week, exactly as described in README.md: fetch runs (Strava or Garmin, as set in the README), update completed.json and analysis.json and write a week summary into weekSummaries. Runs the app has already loaded (entries with “source” and without “verdict”) you complete instead of creating them anew. Don’t create any Garmin workouts. At the end, answer with a short summary: which runs, your rating and your recommendation for next week.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mach die Wochenauswertung für die zuletzt gelaufene Trainingswoche, genau wie in README.md beschrieben: Läufe holen (Strava bzw. Garmin, wie in der README festgelegt), completed.json und analysis.json aktualisieren und ein Wochenfazit in weekSummaries schreiben. Läufe, die die App schon geladen hat (Einträge mit „source“ und ohne „verdict“), ergänzt du, statt sie neu anzulegen. Lege keine Garmin-Workouts an. Antworte zum Schluss mit einer kurzen Zusammenfassung: welche Läufe, deine Bewertung und deine Empfehlung für die nächste Woche."
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erledigt"
+          }
+        }
+      }
+    },
+    "Done on %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erledigt am %@"
+          }
+        }
+      }
+    },
+    "Done — you can close this window.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig — dieses Fenster kann geschlossen werden."
+          }
+        }
+      }
+    },
+    "Draft": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf"
+          }
+        }
+      }
+    },
+    "Draft discarded: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf verworfen: %@"
+          }
+        }
+      }
+    },
+    "Draft for the next block: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf für den nächsten Block: %@"
+          }
+        }
+      }
+    },
+    "Draft not applied: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf nicht übernommen: %@"
+          }
+        }
+      }
+    },
+    "Draft not deleted: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf nicht gelöscht: %@"
+          }
+        }
+      }
+    },
+    "Draft: %@ · %lld weeks starting %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf: %1$@ · %2$lld Wochen ab %3$@"
+          }
+        }
+      }
+    },
+    "Duration: %lld → %lld weeks": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dauer: %1$lld → %2$lld Wochen"
+          }
+        }
+      }
+    },
+    "EASY": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LOCKER"
+          }
+        }
+      }
+    },
+    "Earlier conversations": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frühere Gespräche"
+          }
+        }
+      }
+    },
+    "Easy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locker"
+          }
+        }
+      }
+    },
+    "Easy runs are not sent to the watch (plan option uploadEasyRuns).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lockere Läufe kommen nicht auf die Uhr (Plan-Option uploadEasyRuns)."
+          }
+        }
+      }
+    },
+    "Easy runs are not sent to the watch — run by feel.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lockere Läufe kommen nicht auf die Uhr — nach Gefühl laufen."
+          }
+        }
+      }
+    },
+    "Easy runs by feel, long runs distance only. Pace targets apply to the hard segments only.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locker-Läufe nach Gefühl, Long Runs nur Distanz. Pace-Vorgaben gelten nur für die harten Abschnitte."
+          }
+        }
+      }
+    },
+    "Editing %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearbeitet %@"
+          }
+        }
+      }
+    },
+    "Editing files": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearbeitet Dateien"
+          }
+        }
+      }
+    },
+    "Effort": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anstrengung"
+          }
+        }
+      }
+    },
+    "Enter another model": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anderes Modell eintragen"
+          }
+        }
+      }
+    },
+    "Error": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehler"
+          }
+        }
+      }
+    },
+    "Error from the Garmin server.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehler vom Garmin-Server."
+          }
+        }
+      }
+    },
+    "Fetch models from LM Studio / Bionic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modelle aus LM Studio / Bionic abrufen"
+          }
+        }
+      }
+    },
+    "Fetch new runs from %@ (⌘R)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neue Läufe von %@ holen (⌘R)"
+          }
+        }
+      }
+    },
+    "Fetch runs from": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läufe holen von"
+          }
+        }
+      }
+    },
+    "Fetch runs, tick them off and analyze them": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läufe holen, abhaken und analysieren"
+          }
+        }
+      }
+    },
+    "Files: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dateien: %@"
+          }
+        }
+      }
+    },
+    "Finished": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
+          }
+        }
+      }
+    },
+    "Finished · %@ · %@%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig · %1$@ · %2$@%3$@"
+          }
+        }
+      }
+    },
+    "First week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erste Woche"
+          }
+        }
+      }
+    },
+    "Fixed version": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feste Version"
+          }
+        }
+      }
+    },
+    "Folder": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordner"
+          }
+        }
+      }
+    },
+    "For a local model via Codex, e.g. “--oss --local-provider lmstudio” (then model = LM Studio model). Codex can’t sign in to Strava and fetches runs directly through Garmin.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für ein lokales Modell über Codex z. B. „--oss --local-provider lmstudio“ (dann Modell = LM-Studio-Modell). Codex kann sich nicht bei Strava anmelden und holt Läufe direkt über Garmin."
+          }
+        }
+      }
+    },
+    "For the next message only: the coach may create, schedule or delete workouts on Garmin.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur für die nächste Nachricht: Der Coach darf Workouts auf Garmin anlegen, einplanen oder löschen."
+          }
+        }
+      }
+    },
+    "For “Load runs” directly from Garmin and to send workouts to your watch. The app installs a small local server for this (needs Python 3.10+). You sign in with your Garmin account; only a token is stored in ~/.garminconnect, never your password.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für „Läufe laden“ direkt von Garmin und um Workouts auf die Uhr zu schicken. Die App installiert dafür einen kleinen lokalen Server (braucht Python 3.10+). Angemeldet wird mit deinem Garmin-Konto; gespeichert wird nur ein Token in ~/.garminconnect, nie dein Passwort."
+          }
+        }
+      }
+    },
+    "Found: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gefunden: %@"
+          }
+        }
+      }
+    },
+    "Garmin Connect (direct)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin Connect (direkt)"
+          }
+        }
+      }
+    },
+    "Garmin copies the workout name (e.g. “PL W01 · 6x800m”) into the run — that is how the app identifies the session unambiguously. You assign other runs under Runs → “Assign” or leave it to the coach during the review.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin übernimmt den Workout-Namen (z. B. „PL W01 · 6x800m“) in den Lauf — daran erkennt die App die Einheit eindeutig. Andere Läufe ordnest du unter Läufe → „Zuordnen“ zu oder überlässt es dem Coach bei der Auswertung."
+          }
+        }
+      }
+    },
+    "Garmin email": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin-E-Mail"
+          }
+        }
+      }
+    },
+    "Garmin reports: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin meldet: %@"
+          }
+        }
+      }
+    },
+    "Garmin reports: %@\nIf the sign-in has expired, run “./.venv/bin/python login.py” in the garmin-mcp folder in Terminal.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin meldet: %@\nIst die Anmeldung abgelaufen, im Terminal im Ordner garmin-mcp „./.venv/bin/python login.py“ ausführen."
+          }
+        }
+      }
+    },
+    "Garmin server found (loaded at startup)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin-Server gefunden (wird beim Start geladen)"
+          }
+        }
+      }
+    },
+    "Garmin upload approved": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin-Upload freigegeben"
+          }
+        }
+      }
+    },
+    "Garmin weather at start: ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin-Wetter beim Start: "
+          }
+        }
+      }
+    },
+    "Garmin: %@ is missing": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: %@ fehlt"
+          }
+        }
+      }
+    },
+    "Garmin: checking connection": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: Verbindung prüfen"
+          }
+        }
+      }
+    },
+    "Garmin: connecting": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: Verbindung aufbauen"
+          }
+        }
+      }
+    },
+    "Garmin: creating workouts": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: Workouts anlegen"
+          }
+        }
+      }
+    },
+    "Garmin: deleting a workout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: Workout löschen"
+          }
+        }
+      }
+    },
+    "Garmin: fetching activities": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: Aktivitäten abrufen"
+          }
+        }
+      }
+    },
+    "Garmin: listing workouts": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: Workouts auflisten"
+          }
+        }
+      }
+    },
+    "Garmin: no .mcp.json in the folder": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: keine .mcp.json im Ordner"
+          }
+        }
+      }
+    },
+    "Garmin: previewing the week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: Woche als Vorschau"
+          }
+        }
+      }
+    },
+    "Garmin: run details": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: Lauf-Details"
+          }
+        }
+      }
+    },
+    "Garmin: scheduling a workout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: Workout einplanen"
+          }
+        }
+      }
+    },
+    "Garmin: unexpected response to list_activities.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin: unerwartete Antwort auf list_activities."
+          }
+        }
+      }
+    },
+    "General": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allgemein"
+          }
+        }
+      }
+    },
+    "Get started": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loslegen"
+          }
+        }
+      }
+    },
+    "Go to plan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Plan"
+          }
+        }
+      }
+    },
+    "Go to the app": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zur App"
+          }
+        }
+      }
+    },
+    "Goal": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziel"
+          }
+        }
+      }
+    },
+    "Goal, max heart rate and special considerations are in the athlete profile of the README in the training folder.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziel, Maximalpuls und Besonderheiten stehen im Athletenprofil der README im Trainingsordner."
+          }
+        }
+      }
+    },
+    "Goal, max heart rate, training days or special considerations go in the “Athlete profile” section of the README in the training folder. Fill it in or just tell the coach — it will enter it itself.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziel, Maximalpuls, Trainingstage oder Besonderheiten stehen im Abschnitt „Athletenprofil“ der README im Trainingsordner. Füll ihn aus oder erzähl es einfach dem Coach — er trägt es selbst ein."
+          }
+        }
+      }
+    },
+    "Goal: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziel: %@"
+          }
+        }
+      }
+    },
+    "HR zones": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HF-Zonen"
+          }
+        }
+      }
+    },
+    "HR zones adjusted": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HF-Zonen angepasst"
+          }
+        }
+      }
+    },
+    "Haiku · recommended": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haiku · empfohlen"
+          }
+        }
+      }
+    },
+    "Have the coach plan your first block of your own — it follows the athlete profile in the README. The example plan is archived in the process.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lass dir vom Coach deinen ersten eigenen Block planen — er richtet sich nach dem Athletenprofil in der README. Der Beispielplan wird dabei abgelegt."
+          }
+        }
+      }
+    },
+    "Heads up: “%@” is still running (week %lld of %lld). ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achtung: „%1$@“ läuft noch (Woche %2$lld von %3$lld). "
+          }
+        }
+      }
+    },
+    "History": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verlauf"
+          }
+        }
+      }
+    },
+    "History not deleted: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verlauf nicht gelöscht: %@"
+          }
+        }
+      }
+    },
+    "ID prefix %@ · Workouts %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID-Präfix %1$@ · Workouts %2$@"
+          }
+        }
+      }
+    },
+    "In the background, Claude Code only calls the two Strava read tools; the app takes the raw data straight from the reply. Takes about 10–20 seconds and counts minimally against your Claude quota.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code ruft im Hintergrund nur die beiden Strava-Lese-Werkzeuge auf; die App übernimmt die Rohdaten direkt aus der Antwort. Dauert etwa 10–20 Sekunden und zählt minimal aufs Claude-Kontingent."
+          }
+        }
+      }
+    },
+    "Initial state": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgangsstand"
+          }
+        }
+      }
+    },
+    "Initial state (%lld older versions deleted on %@)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgangsstand (%1$lld ältere Stände am %2$@ gelöscht)"
+          }
+        }
+      }
+    },
+    "Initial state (history deleted on %@)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgangsstand (Verlauf am %@ gelöscht)"
+          }
+        }
+      }
+    },
+    "Install …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installieren …"
+          }
+        }
+      }
+    },
+    "Installing packages (garminconnect, mcp) — may take a minute …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pakete installieren (garminconnect, mcp) — kann eine Minute dauern …"
+          }
+        }
+      }
+    },
+    "Interval": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Belastung"
+          }
+        }
+      }
+    },
+    "Invalid JSON at position %lld: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ungültiges JSON an Position %1$lld: %2$@"
+          }
+        }
+      }
+    },
+    "Invocation": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufruf"
+          }
+        }
+      }
+    },
+    "Kilometers run vs. planned and sessions completed this week.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gelaufene vs. geplante Kilometer und erledigte Einheiten dieser Woche."
+          }
+        }
+      }
+    },
+    "Lap %lld · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Runde %1$lld · %2$@"
+          }
+        }
+      }
+    },
+    "Last run": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letzter Lauf"
+          }
+        }
+      }
+    },
+    "Last week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letzte Woche"
+          }
+        }
+      }
+    },
+    "Later changes touch the same places": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spätere Änderungen betreffen dieselben Stellen"
+          }
+        }
+      }
+    },
+    "Later changes touch the same places. Undo the later versions first or ask the coach to fix it by hand.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spätere Änderungen betreffen dieselben Stellen. Nimm zuerst die späteren Stände zurück oder bitte den Coach, es von Hand zu korrigieren."
+          }
+        }
+      }
+    },
+    "Let the coach plan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach planen lassen"
+          }
+        }
+      }
+    },
+    "Load now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt laden"
+          }
+        }
+      }
+    },
+    "Load runs": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läufe laden"
+          }
+        }
+      }
+    },
+    "Load runs (%@)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läufe laden (%@)"
+          }
+        }
+      }
+    },
+    "Loaded from %@. The coach adds the rating, analysis and exact split names during the weekly review — or right away via “Review”.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geladen von %@. Bewertung, Analyse und genaue Split-Namen ergänzt der Coach bei der Wochenauswertung — oder jetzt über „Auswerten“."
+          }
+        }
+      }
+    },
+    "Loaded, but not yet reviewed by the coach": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geladen, aber noch nicht vom Coach ausgewertet"
+          }
+        }
+      }
+    },
+    "Loading %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lädt %@"
+          }
+        }
+      }
+    },
+    "Loading tools": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lädt Werkzeuge"
+          }
+        }
+      }
+    },
+    "Loading …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lade …"
+          }
+        }
+      }
+    },
+    "Local (LM Studio / Bionic)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokal (LM Studio / Bionic)"
+          }
+        }
+      }
+    },
+    "Local model (LM Studio / Bionic)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lokales Modell (LM Studio / Bionic)"
+          }
+        }
+      }
+    },
+    "Looks good. Create the prepared workouts on Garmin now and briefly confirm what was uploaded.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passt so. Lege die vorbereiteten Workouts jetzt auf Garmin an und bestätige kurz, was hochgeladen wurde."
+          }
+        }
+      }
+    },
+    "Manage CLIs …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CLIs verwalten …"
+          }
+        }
+      }
+    },
+    "Mark as done": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als erledigt markieren"
+          }
+        }
+      }
+    },
+    "Mark as done (completed.json)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als erledigt markieren (completed.json)"
+          }
+        }
+      }
+    },
+    "Mark as open": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als offen markieren"
+          }
+        }
+      }
+    },
+    "Mark as open (completed.json)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als offen markieren (completed.json)"
+          }
+        }
+      }
+    },
+    "Max HR": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max HF"
+          }
+        }
+      }
+    },
+    "Message to %@ …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nachricht an %@ …"
+          }
+        }
+      }
+    },
+    "Model": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modell"
+          }
+        }
+      }
+    },
+    "Model name": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modellname"
+          }
+        }
+      }
+    },
+    "NEW": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NEU"
+          }
+        }
+      }
+    },
+    "Name, tag, analysis …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name, Tag, Analyse …"
+          }
+        }
+      }
+    },
+    "Needs Claude Code (step 3).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Braucht Claude Code (Schritt 3)."
+          }
+        }
+      }
+    },
+    "Needs Claude Code or Codex — a text-only CLI can’t fetch runs or change files.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Braucht Claude Code oder Codex — eine reine Text-CLI kann keine Läufe abrufen oder Dateien ändern."
+          }
+        }
+      }
+    },
+    "Needs attention": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beachten"
+          }
+        }
+      }
+    },
+    "New block: %@\n\nThe previous plan “%@” is now in %@/%@.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuer Block: %1$@\n\nDer bisherige Plan „%2$@“ liegt jetzt in %3$@/%4$@."
+          }
+        }
+      }
+    },
+    "New block: %@ · %lld weeks starting %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuer Block: %1$@ · %2$lld Wochen ab %3$@"
+          }
+        }
+      }
+    },
+    "New conversation": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neues Gespräch"
+          }
+        }
+      }
+    },
+    "New pace band %@: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neues Pace-Band %1$@: %2$@"
+          }
+        }
+      }
+    },
+    "New plan: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuer Plan: %@"
+          }
+        }
+      }
+    },
+    "Next session": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächstes Training"
+          }
+        }
+      }
+    },
+    "No .mcp.json with “garmin-workouts” in the training folder.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine .mcp.json mit „garmin-workouts“ im Trainingsordner."
+          }
+        }
+      }
+    },
+    "No Garmin server registered.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Garmin-Server eingetragen."
+          }
+        }
+      }
+    },
+    "No Garmin server set up (.mcp.json is missing).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Garmin-Server eingerichtet (.mcp.json fehlt)."
+          }
+        }
+      }
+    },
+    "No Garmin server set up: the training folder has no .mcp.json with “garmin-workouts”.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Garmin-Server eingerichtet: Im Trainingsordner fehlt die .mcp.json mit „garmin-workouts“."
+          }
+        }
+      }
+    },
+    "No data yet — open Pace Lab once.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Daten — öffne Pace Lab einmal."
+          }
+        }
+      }
+    },
+    "No new runs from %@.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine neuen Läufe bei %@."
+          }
+        }
+      }
+    },
+    "No reply received.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Antwort erhalten."
+          }
+        }
+      }
+    },
+    "No runs yet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Läufe"
+          }
+        }
+      }
+    },
+    "No training data": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Trainingsdaten"
+          }
+        }
+      }
+    },
+    "No versions older than %lld days.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Stände älter als %lld Tage."
+          }
+        }
+      }
+    },
+    "No versions yet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Stände"
+          }
+        }
+      }
+    },
+    "No workout in plan.json.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Workout in plan.json."
+          }
+        }
+      }
+    },
+    "None": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keiner"
+          }
+        }
+      }
+    },
+    "Not a plan day: this run is outside the block.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Plan-Tag: Der Lauf liegt außerhalb des Blocks."
+          }
+        }
+      }
+    },
+    "Not assigned to a session yet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keiner Einheit zugeordnet"
+          }
+        }
+      }
+    },
+    "Not executed because not approved: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht ausgeführt, weil nicht freigegeben: %@"
+          }
+        }
+      }
+    },
+    "Not reviewed yet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch nicht ausgewertet"
+          }
+        }
+      }
+    },
+    "Off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus"
+          }
+        }
+      }
+    },
+    "Old": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alt"
+          }
+        }
+      }
+    },
+    "Older versions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ältere Versionen"
+          }
+        }
+      }
+    },
+    "On the watch as “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf der Uhr als „%@“"
+          }
+        }
+      }
+    },
+    "Only these changes are reverted; later ones are kept. This is itself recorded as a new version.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur diese Änderungen werden zurückgenommen, spätere bleiben erhalten. Das wird selbst als neuer Stand festgehalten."
+          }
+        }
+      }
+    },
+    "Open Pace Lab": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace Lab öffnen"
+          }
+        }
+      }
+    },
+    "Open Pace Lab once": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne Pace Lab einmal"
+          }
+        }
+      }
+    },
+    "Open README": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "README öffnen"
+          }
+        }
+      }
+    },
+    "Open analysis": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse öffnen"
+          }
+        }
+      }
+    },
+    "Open draft": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ansehen"
+          }
+        }
+      }
+    },
+    "Open history": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verlauf öffnen"
+          }
+        }
+      }
+    },
+    "Open in Garmin": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Garmin öffnen"
+          }
+        }
+      }
+    },
+    "Open in Strava": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Strava öffnen"
+          }
+        }
+      }
+    },
+    "Open settings …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen öffnen …"
+          }
+        }
+      }
+    },
+    "Open setup …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einrichtung öffnen …"
+          }
+        }
+      }
+    },
+    "Or just write below what’s going on — e.g. “city run on Saturday, rework the week” or “legs feel heavy, what does that mean for Thursday?”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oder schreib unten einfach, was los ist — z. B. „Stadtlauf am Samstag, bau die Woche um“ oder „Beine schwer, was heißt das für Donnerstag?“"
+          }
+        }
+      }
+    },
+    "Overview": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übersicht"
+          }
+        }
+      }
+    },
+    "Pace band %@: %@ → %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace-Band %1$@: %2$@ → %3$@"
+          }
+        }
+      }
+    },
+    "Pace band removed: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace-Band entfernt: %@"
+          }
+        }
+      }
+    },
+    "Pace bands": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace-Bänder"
+          }
+        }
+      }
+    },
+    "Pace per km · color = HR zone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace je km · Farbe = HF-Zone"
+          }
+        }
+      }
+    },
+    "Parameters": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rahmen"
+          }
+        }
+      }
+    },
+    "Password": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwort"
+          }
+        }
+      }
+    },
+    "Placeholders: {model}, {prompt} = your question with training status and history, {system} = instructions for the coach. Without {prompt} the question goes through standard input, without {system} the instructions come before the question. Examples: Ollama “run {model}”, LM Studio/Bionic “chat {model} -p {prompt} -s {system}”.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Platzhalter: {model}, {prompt} = deine Frage mit Trainingsstand und Verlauf, {system} = Anweisungen an den Coach. Ohne {prompt} geht die Frage über die Standardeingabe, ohne {system} stehen die Anweisungen vor der Frage. Beispiele: Ollama „run {model}“, LM Studio/Bionic „chat {model} -p {prompt} -s {system}“."
+          }
+        }
+      }
+    },
+    "Plan a new training block as a draft. Requirements:\n- Goal: %@\n- Target race: %@\n- Start: %@\n- Duration: %lld weeks, %lld runs per week\n- Special considerations: %@\nCurrent block for comparison: %@ (%@).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plane einen neuen Trainingsblock als Entwurf. Vorgaben:\n- Ziel: %1$@\n- Zielrennen: %2$@\n- Start: %3$@\n- Dauer: %4$lld Wochen, %5$lld Läufe pro Woche\n- Besonderheiten: %6$@\nAktueller Block zum Vergleich: %7$@ (%8$@)."
+          }
+        }
+      }
+    },
+    "Plan new block": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuen Block planen"
+          }
+        }
+      }
+    },
+    "Plan new block …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuen Block planen …"
+          }
+        }
+      }
+    },
+    "Plan with the coach": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit dem Coach planen"
+          }
+        }
+      }
+    },
+    "Plan with the coach (⇧⌘P)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit dem Coach planen (⇧⌘P)"
+          }
+        }
+      }
+    },
+    "Plan …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planen …"
+          }
+        }
+      }
+    },
+    "Plan, runs and coach README are in place.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan, Läufe und Coach-README sind da."
+          }
+        }
+      }
+    },
+    "Planned vs. actual": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geplant vs. gelaufen"
+          }
+        }
+      }
+    },
+    "Planning": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planen"
+          }
+        }
+      }
+    },
+    "Planning next steps": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plant die nächsten Schritte"
+          }
+        }
+      }
+    },
+    "Please choose": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bitte wählen"
+          }
+        }
+      }
+    },
+    "Preparation failed: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorbereitung fehlgeschlagen: %@"
+          }
+        }
+      }
+    },
+    "Prepare next week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächste Woche vorbereiten"
+          }
+        }
+      }
+    },
+    "Prepare the next training week: take the latest review and everything I told you about this week into account. Adjust plan.json if needed — sessions and their “workout”; garmin_workouts.py builds the Garmin workouts from it. Show me the sessions of the week. Don’t upload anything to Garmin yet — I will approve that afterwards.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bereite die nächste Trainingswoche vor: Berücksichtige die letzte Auswertung und alles, was ich dir zu dieser Woche gesagt habe. Passe plan.json an, falls nötig — Einheiten und ihr „workout“; garmin_workouts.py baut die Garmin-Workouts daraus. Zeig mir die Einheiten der Woche. Lade noch nichts auf Garmin hoch — das gebe ich danach frei."
+          }
+        }
+      }
+    },
+    "Preparing: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorbereitung: %@"
+          }
+        }
+      }
+    },
+    "Program": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Programm"
+          }
+        }
+      }
+    },
+    "Python 3.10 or newer is missing. Install it e.g. with “brew install python” or from python.org and then try again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Python 3.10 oder neuer fehlt. Installiere es z. B. mit „brew install python“ oder von python.org und versuch es dann noch einmal."
+          }
+        }
+      }
+    },
+    "Querying the available models …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frage die verfügbaren Modelle ab …"
+          }
+        }
+      }
+    },
+    "Quit Pace Lab": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace Lab beenden"
+          }
+        }
+      }
+    },
+    "RACE": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RENNEN"
+          }
+        }
+      }
+    },
+    "Race": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rennen"
+          }
+        }
+      }
+    },
+    "Race day": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renntag"
+          }
+        }
+      }
+    },
+    "Rain": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regen"
+          }
+        }
+      }
+    },
+    "Re-plan week %lld (%@, %@).\nReason: %@\n\nPlanned so far:\n%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plane Woche %1$lld (%2$@, %3$@) um.\nAnlass: %4$@\n\nBisher geplant:\n%5$@"
+          }
+        }
+      }
+    },
+    "Reading %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liest %@"
+          }
+        }
+      }
+    },
+    "Reason": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anlass"
+          }
+        }
+      }
+    },
+    "Recovery": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
+          }
+        }
+      }
+    },
+    "Refresh": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualisieren"
+          }
+        }
+      }
+    },
+    "Reinstall server": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server neu installieren"
+          }
+        }
+      }
+    },
+    "Reload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut laden"
+          }
+        }
+      }
+    },
+    "Reload files": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dateien neu einlesen"
+          }
+        }
+      }
+    },
+    "Remove selected CLI": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgewählte CLI entfernen"
+          }
+        }
+      }
+    },
+    "Repeat with Garmin approval": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Garmin-Freigabe wiederholen"
+          }
+        }
+      }
+    },
+    "Reply: “%@” · %@ s": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antwort: „%1$@“ · %2$@ s"
+          }
+        }
+      }
+    },
+    "Request": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wunsch"
+          }
+        }
+      }
+    },
+    "Reset files to the state before the coach": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dateien auf den Stand vor dem Coach setzen"
+          }
+        }
+      }
+    },
+    "Revert": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rückgängig"
+          }
+        }
+      }
+    },
+    "Reverted: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zurückgenommen: %@"
+          }
+        }
+      }
+    },
+    "Review": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auswerten"
+          }
+        }
+      }
+    },
+    "Review my run “%@” from %@ (add an entry to analysis.json, assign the session and tick it off). ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werte meinen Lauf „%1$@“ vom %2$@ aus (Eintrag in analysis.json ergänzen, Einheit zuordnen und abhaken). "
+          }
+        }
+      }
+    },
+    "Review week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche auswerten"
+          }
+        }
+      }
+    },
+    "Revise the draft in plan-entwurf.json: ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überarbeite den Entwurf in plan-entwurf.json: "
+          }
+        }
+      }
+    },
+    "Revise with coach": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Coach überarbeiten"
+          }
+        }
+      }
+    },
+    "Rework a week, change a session or draft a new block": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche umbauen, Einheit ändern oder einen neuen Block entwerfen"
+          }
+        }
+      }
+    },
+    "Run": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lauf"
+          }
+        }
+      }
+    },
+    "Run %@ in analysis.json": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lauf %@ in analysis.json"
+          }
+        }
+      }
+    },
+    "Run first": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorher ausführen"
+          }
+        }
+      }
+    },
+    "Run loaded (%@): %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lauf geladen (%1$@): %2$@"
+          }
+        }
+      }
+    },
+    "Runs": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läufe"
+          }
+        }
+      }
+    },
+    "Runs are being loaded right now — try again in a moment.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es werden gerade Läufe geladen — gleich noch einmal versuchen."
+          }
+        }
+      }
+    },
+    "Runs loaded: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läufe geladen: %@"
+          }
+        }
+      }
+    },
+    "Same ID prefix as the current block — the draft can’t be applied like this.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gleiches ID-Präfix wie der aktuelle Block — so kann der Entwurf nicht übernommen werden."
+          }
+        }
+      }
+    },
+    "Save as draft": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als Entwurf ablegen"
+          }
+        }
+      }
+    },
+    "Saved as a draft; the current block keeps running until you apply it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird als Entwurf abgelegt; der aktuelle Block läuft weiter, bis du übernimmst."
+          }
+        }
+      }
+    },
+    "Searching the project": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durchsucht das Projekt"
+          }
+        }
+      }
+    },
+    "Searching …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suche …"
+          }
+        }
+      }
+    },
+    "Select a CLI": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CLI auswählen"
+          }
+        }
+      }
+    },
+    "Select a run": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lauf auswählen"
+          }
+        }
+      }
+    },
+    "Select a session": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einheit auswählen"
+          }
+        }
+      }
+    },
+    "Select a version": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand auswählen"
+          }
+        }
+      }
+    },
+    "Send": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senden"
+          }
+        }
+      }
+    },
+    "Send the week we discussed to the watch as workouts": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die besprochene Woche als Workouts auf die Uhr"
+          }
+        }
+      }
+    },
+    "Send training status": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trainingsstand mitschicken"
+          }
+        }
+      }
+    },
+    "Server registered: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server eingetragen: %@"
+          }
+        }
+      }
+    },
+    "Session": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einheit"
+          }
+        }
+      }
+    },
+    "Sessions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einheiten"
+          }
+        }
+      }
+    },
+    "Set up": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einrichten"
+          }
+        }
+      }
+    },
+    "Set up Garmin server": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garmin-Server einrichten"
+          }
+        }
+      }
+    },
+    "Set up Pace Lab": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace Lab einrichten"
+          }
+        }
+      }
+    },
+    "Set up the Garmin server first.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erst den Garmin-Server einrichten."
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen"
+          }
+        }
+      }
+    },
+    "Settings (⌘,)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen (⌘,)"
+          }
+        }
+      }
+    },
+    "Settings …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen …"
+          }
+        }
+      }
+    },
+    "Setup": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einrichtung"
+          }
+        }
+      }
+    },
+    "Setup …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einrichtung …"
+          }
+        }
+      }
+    },
+    "Show": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anzeigen"
+          }
+        }
+      }
+    },
+    "Show in Finder": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Finder zeigen"
+          }
+        }
+      }
+    },
+    "Show in plan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Plan zeigen"
+          }
+        }
+      }
+    },
+    "Show or hide details for the selected session": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details zur ausgewählten Einheit ein-/ausblenden"
+          }
+        }
+      }
+    },
+    "Sign in": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmelden"
+          }
+        }
+      }
+    },
+    "Sign in again": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu anmelden"
+          }
+        }
+      }
+    },
+    "Sign in to Strava …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Strava anmelden …"
+          }
+        }
+      }
+    },
+    "Sign in …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmelden …"
+          }
+        }
+      }
+    },
+    "Signed in (token present)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Angemeldet (Token vorhanden)"
+          }
+        }
+      }
+    },
+    "Signing in to Garmin …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melde bei Garmin an …"
+          }
+        }
+      }
+    },
+    "Solid": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solide"
+          }
+        }
+      }
+    },
+    "Source": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelle"
+          }
+        }
+      }
+    },
+    "Special considerations": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Besonderheiten"
+          }
+        }
+      }
+    },
+    "Splits · pace & heart rate": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Splits · Pace & Herzfrequenz"
+          }
+        }
+      }
+    },
+    "Start (Monday)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start (Montag)"
+          }
+        }
+      }
+    },
+    "Start a new conversation": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neues Gespräch beginnen"
+          }
+        }
+      }
+    },
+    "Starting …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starte …"
+          }
+        }
+      }
+    },
+    "Starts %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start %@"
+          }
+        }
+      }
+    },
+    "Starts %@ · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start %1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "Still open": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch offen"
+          }
+        }
+      }
+    },
+    "Stop": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stopp"
+          }
+        }
+      }
+    },
+    "Strava (optional, via Claude Code)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava (optional, über Claude Code)"
+          }
+        }
+      }
+    },
+    "Strava (via Claude Code)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava (über Claude Code)"
+          }
+        }
+      }
+    },
+    "Strava MCP is not set up for this folder": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava-MCP ist für diesen Ordner nicht eingerichtet"
+          }
+        }
+      }
+    },
+    "Strava connected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava verbunden"
+          }
+        }
+      }
+    },
+    "Strava is not connected in Claude Code (status: %@). In Terminal, start “claude” in the training folder and sign in to “strava-mcp” under /mcp.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava ist in Claude Code nicht verbunden (Status: %@). Im Terminal im Trainingsordner „claude“ starten und unter /mcp „strava-mcp“ anmelden."
+          }
+        }
+      }
+    },
+    "Strava is only reachable through Strava’s own MCP server in Claude Code. The app registers it for this folder; you sign in in the browser.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava ist nur über Stravas eigenen MCP-Server in Claude Code erreichbar. Die App trägt ihn für diesen Ordner ein; angemeldet wird im Browser."
+          }
+        }
+      }
+    },
+    "Strava: Claude was not allowed to use the tools (%@).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: Claude durfte die Werkzeuge nicht nutzen (%@)."
+          }
+        }
+      }
+    },
+    "Strava: HR zones": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: HF-Zonen"
+          }
+        }
+      }
+    },
+    "Strava: connecting": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: verbinden"
+          }
+        }
+      }
+    },
+    "Strava: fetching activities": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: Aktivitäten abrufen"
+          }
+        }
+      }
+    },
+    "Strava: found %lld new runs, but without details — please load again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: %lld neue Läufe gefunden, aber ohne Details — bitte erneut laden."
+          }
+        }
+      }
+    },
+    "Strava: profile": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: Profil"
+          }
+        }
+      }
+    },
+    "Strava: run details": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: Lauf-Details"
+          }
+        }
+      }
+    },
+    "Strava: run details (%lld)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: Lauf-Details (%lld)"
+          }
+        }
+      }
+    },
+    "Strava: second attempt": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: zweiter Versuch"
+          }
+        }
+      }
+    },
+    "Strava: starting Claude Code": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: Claude Code startet"
+          }
+        }
+      }
+    },
+    "Strava: time series (pace/HR)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: Zeitreihen (Pace/HF)"
+          }
+        }
+      }
+    },
+    "Strava: your Claude usage limit has been reached — load again later or choose Garmin as the source.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava: Dein Claude-Nutzungslimit ist erreicht — später erneut laden oder Garmin als Quelle wählen."
+          }
+        }
+      }
+    },
+    "Subtask: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teilaufgabe: %@"
+          }
+        }
+      }
+    },
+    "Suggestion applied: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschlag übernommen: %@"
+          }
+        }
+      }
+    },
+    "Suggestion for a new block": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschlag für einen neuen Block"
+          }
+        }
+      }
+    },
+    "Suggestion for week %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschlag für Woche %lld"
+          }
+        }
+      }
+    },
+    "Suggestion not applied: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschlag nicht übernommen: %@"
+          }
+        }
+      }
+    },
+    "Suggestions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschläge"
+          }
+        }
+      }
+    },
+    "Switch between the current plan and the draft for the next block": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zwischen aktuellem Plan und dem Entwurf für den nächsten Block wechseln"
+          }
+        }
+      }
+    },
+    "Target race": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zielrennen"
+          }
+        }
+      }
+    },
+    "Test": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testen"
+          }
+        }
+      }
+    },
+    "Text only — advises from the status sent along, changes nothing.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur Text — berät anhand des mitgeschickten Stands, ändert nichts."
+          }
+        }
+      }
+    },
+    "Text only — your training status is sent along": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur Text — bekommt deinen Trainingsstand mitgeschickt"
+          }
+        }
+      }
+    },
+    "Text only: answers from the training status sent along, but cannot fetch runs or change files.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur Text: antwortet anhand des mitgeschickten Trainingsstands, kann aber keine Läufe abrufen oder Dateien ändern."
+          }
+        }
+      }
+    },
+    "The CLI could not be started: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die CLI ließ sich nicht starten: %@"
+          }
+        }
+      }
+    },
+    "The Garmin server is missing from the app bundle.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Garmin-Server fehlt im App-Bundle."
+          }
+        }
+      }
+    },
+    "The Garmin server is not responding (%@, %lld s).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Garmin-Server antwortet nicht (%1$@, %2$lld s)."
+          }
+        }
+      }
+    },
+    "The Garmin server was terminated.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Garmin-Server wurde beendet."
+          }
+        }
+      }
+    },
+    "The Garmin server was terminated: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Garmin-Server wurde beendet: %@"
+          }
+        }
+      }
+    },
+    "The app reads and writes the files right there — the same ones the coach uses.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die App liest und schreibt die Dateien direkt dort — dieselben, die auch der Coach benutzt."
+          }
+        }
+      }
+    },
+    "The app records a version before and after every coach run, for ticks, loaded runs and applied plans. Under “History” you see every change and can undo it. Everything stays local in the folder (.git) — nothing is uploaded.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die App hält vor und nach jedem Coach-Lauf, bei Häkchen, geladenen Läufen und übernommenen Plänen einen Stand fest. Unter „Verlauf“ siehst du jede Änderung und kannst sie zurücknehmen. Alles bleibt lokal im Ordner (.git) — nichts wird hochgeladen."
+          }
+        }
+      }
+    },
+    "The app starts the Garmin server from the .mcp.json in read-only mode and queries the latest runs directly — without a language model and without using any quota. Takes a few seconds.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die App startet den Garmin-Server aus der .mcp.json im Nur-Lese-Modus und fragt die letzten Läufe direkt ab — ohne Sprachmodell und ohne Kontingent. Dauert ein paar Sekunden."
+          }
+        }
+      }
+    },
+    "The coach (%@) plans according to the README and your reviews. You’ll see the result in the plan afterwards and can undo it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Coach (%@) plant nach README und deinen Auswertungen. Du siehst das Ergebnis danach im Plan und kannst es rückgängig machen."
+          }
+        }
+      }
+    },
+    "The coach is Claude Code on your Mac — with the same README, the same memory and the same Strava and Garmin connection as in the chat. Whatever it changes in the plan and analyses, you see right away in the app.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Coach ist Claude Code auf deinem Mac — mit derselben README, demselben Gedächtnis und derselben Strava- und Garmin-Verbindung wie im Chat. Was er an Plan und Analysen ändert, siehst du sofort in der App."
+          }
+        }
+      }
+    },
+    "The coach is Codex on your Mac — it works in the training folder following the README. Whatever it changes in the plan and analyses, you see right away in the app.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Coach ist Codex auf deinem Mac — er arbeitet im Trainingsordner nach der README. Was er an Plan und Analysen ändert, siehst du sofort in der App."
+          }
+        }
+      }
+    },
+    "The coach is a CLI on your Mac that you install yourself and use with your own account. One is enough.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Coach ist eine CLI auf deinem Mac, die du selbst installierst und mit deinem eigenen Konto nutzt. Eine reicht."
+          }
+        }
+      }
+    },
+    "The coach is working right now — load runs afterwards.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Coach arbeitet gerade — danach laden."
+          }
+        }
+      }
+    },
+    "The coach is “%@”. The app sends it your current training status.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Coach ist „%@“. Die App schickt ihm deinen aktuellen Trainingsstand mit."
+          }
+        }
+      }
+    },
+    "The coach may only do this after you approve.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Coach darf das erst nach deiner Freigabe."
+          }
+        }
+      }
+    },
+    "The conversation disappears from the app. Changes the coach made stay — you can still undo them in the “History” section.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Gespräch verschwindet aus der App. Änderungen, die der Coach dabei gemacht hat, bleiben — im Bereich „Verlauf“ lassen sie sich weiter zurücknehmen."
+          }
+        }
+      }
+    },
+    "The conversations disappear from the app. Plan, runs and the version history stay unchanged.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Gespräche verschwinden aus der App. Plan, Läufe und der Verlauf der Stände bleiben unverändert."
+          }
+        }
+      }
+    },
+    "The data could not be loaded.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Daten konnten nicht geladen werden."
+          }
+        }
+      }
+    },
+    "The default from ~/.codex/config.toml (%@) is not offered for your account — better pick a model from the list here.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Standard aus ~/.codex/config.toml (%@) wird von deinem Konto nicht angeboten — hier besser ein Modell aus der Liste wählen."
+          }
+        }
+      }
+    },
+    "The draft becomes the active plan. The previous plan is saved under plans/; ticks and analyses are kept.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Entwurf wird zum aktiven Plan. Der bisherige Plan wird unter plans/ abgelegt; Häkchen und Analysen bleiben erhalten."
+          }
+        }
+      }
+    },
+    "The draft uses the same idPrefix as the current block — please have the coach assign a new one.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Entwurf nutzt dasselbe idPrefix wie der aktuelle Block — bitte den Coach ein neues vergeben lassen."
+          }
+        }
+      }
+    },
+    "The engine reports an error.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Engine meldet einen Fehler."
+          }
+        }
+      }
+    },
+    "The files go back to the previous version. This is itself recorded as a new version.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Dateien kommen auf den Stand davor. Das wird selbst als neuer Stand festgehalten."
+          }
+        }
+      }
+    },
+    "The history is not linear — please clean it up in Terminal.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Verlauf ist nicht linear — bitte im Terminal aufräumen."
+          }
+        }
+      }
+    },
+    "The list comes from Codex’s own model list for your account.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Liste kommt aus Codex' eigener Modellliste für dein Konto."
+          }
+        }
+      }
+    },
+    "The list comes straight from the installed Claude Code version. “Always the latest” moves along with updates (opus then points to e.g. 5.5), a fixed version stays.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Liste kommt direkt aus der installierten Claude-Code-Version. „Immer das neueste“ wandert mit Updates mit (opus zeigt dann z. B. auf 5.5), eine feste Version bleibt."
+          }
+        }
+      }
+    },
+    "The next open session — large with the whole week and the last run.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die nächste offene Einheit — groß mit der ganzen Woche und dem letzten Lauf."
+          }
+        }
+      }
+    },
+    "The program exited with code %d.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Programm endete mit Code %d."
+          }
+        }
+      }
+    },
+    "The reply contained no valid JSON suggestion — ask whether the coach can send the plan as a JSON code block.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der Antwort war kein gültiger JSON-Vorschlag — frag nach, ob der Coach den Plan als JSON-Codeblock schicken kann."
+          }
+        }
+      }
+    },
+    "The shared app group container is not available.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der gemeinsame App-Group-Container ist nicht verfügbar."
+          }
+        }
+      }
+    },
+    "The suggestion matches the current plan.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Vorschlag entspricht dem aktuellen Plan."
+          }
+        }
+      }
+    },
+    "The template is missing from the app bundle.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Vorlage fehlt im App-Bundle."
+          }
+        }
+      }
+    },
+    "The test sends “Reply only with the word: ready”. For Claude and Codex this counts minimally against your quota; local models are loaded for it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Test schickt „Reply only with the word: ready“. Bei Claude und Codex zählt das minimal aufs Kontingent, lokale Modelle werden dafür geladen."
+          }
+        }
+      }
+    },
+    "The widgets show the state the app last read. As long as Pace Lab is running (even just in the menu bar), it updates the widgets automatically on every change.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Widgets zeigen den Stand, den die App zuletzt gelesen hat. Solange Pace Lab läuft (auch nur in der Menüleiste), aktualisiert sie die Widgets bei jeder Änderung automatisch."
+          }
+        }
+      }
+    },
+    "The workouts then appear on the watch under Training › Workouts. They are not added to the calendar automatically.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Workouts erscheinen danach auf der Uhr unter Training › Workouts. Sie werden nicht automatisch in den Kalender gelegt."
+          }
+        }
+      }
+    },
+    "There are no versions before %@ — nothing will happen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es gibt keine Stände vor dem %@ — es passiert nichts."
+          }
+        }
+      }
+    },
+    "There is only the current version — nothing to delete.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es gibt nur den aktuellen Stand — nichts zu löschen."
+          }
+        }
+      }
+    },
+    "Thinking depth": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denktiefe"
+          }
+        }
+      }
+    },
+    "This also discards later changes to %@ (they remain readable in the history).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dabei gehen auch spätere Änderungen an %@ verloren (sie bleiben im Verlauf nachlesbar)."
+          }
+        }
+      }
+    },
+    "This can’t be done automatically": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geht nicht automatisch"
+          }
+        }
+      }
+    },
+    "This is where your plan (plan.json), your runs (analysis.json), ticks and the README with the rules for the coach live. The app creates it with an example plan; every change is recorded as a version (git).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hier liegen dein Plan (plan.json), deine Läufe (analysis.json), Häkchen und die README mit den Regeln für den Coach. Die App legt ihn mit einem Beispielplan an; jede Änderung wird als Stand festgehalten (git)."
+          }
+        }
+      }
+    },
+    "This week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Woche"
+          }
+        }
+      }
+    },
+    "Time": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeit"
+          }
+        }
+      }
+    },
+    "Title: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titel: %@"
+          }
+        }
+      }
+    },
+    "Today": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heute"
+          }
+        }
+      }
+    },
+    "Tool": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werkzeug"
+          }
+        }
+      }
+    },
+    "Training folder": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trainingsordner"
+          }
+        }
+      }
+    },
+    "Type": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Typ"
+          }
+        }
+      }
+    },
+    "Unassign": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zuordnung lösen"
+          }
+        }
+      }
+    },
+    "Unassigned": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht zugeordnet"
+          }
+        }
+      }
+    },
+    "Unchecked": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Häkchen entfernt"
+          }
+        }
+      }
+    },
+    "Undo": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rückgängig machen"
+          }
+        }
+      }
+    },
+    "Undo failed: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rückgängig ging nicht: %@"
+          }
+        }
+      }
+    },
+    "Undo the changes of this coach run?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Änderungen dieses Coach-Laufs zurücknehmen?"
+          }
+        }
+      }
+    },
+    "Undo this change": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Änderung rückgängig machen"
+          }
+        }
+      }
+    },
+    "Undo “%@”?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ rückgängig machen?"
+          }
+        }
+      }
+    },
+    "Undone: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rückgängig: %@"
+          }
+        }
+      }
+    },
+    "Unexpected response from %@.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unerwartete Antwort von %@."
+          }
+        }
+      }
+    },
+    "Unplanned": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Außerplanmäßig"
+          }
+        }
+      }
+    },
+    "Up next · Week %lld · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als Nächstes · Woche %1$lld · %2$@"
+          }
+        }
+      }
+    },
+    "Update widgets now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widgets jetzt aktualisieren"
+          }
+        }
+      }
+    },
+    "Upload to Garmin": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf Garmin hochladen"
+          }
+        }
+      }
+    },
+    "Use for new conversations": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für neue Gespräche verwenden"
+          }
+        }
+      }
+    },
+    "Version control (git)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versionsverwaltung (git)"
+          }
+        }
+      }
+    },
+    "Version control is off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versionsverwaltung ist aus"
+          }
+        }
+      }
+    },
+    "Version deleted from the history": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand aus dem Verlauf gelöscht"
+          }
+        }
+      }
+    },
+    "View": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ansicht"
+          }
+        }
+      }
+    },
+    "View draft": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf ansehen"
+          }
+        }
+      }
+    },
+    "View in plan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Plan ansehen"
+          }
+        }
+      }
+    },
+    "W = block week, otherwise Monday of the week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W = Blockwoche, sonst Montag der Woche"
+          }
+        }
+      }
+    },
+    "W%lld · Starts %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "W%1$lld · Start %2$@"
+          }
+        }
+      }
+    },
+    "Warm-up": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einlaufen"
+          }
+        }
+      }
+    },
+    "Warm-up, cool-down and jog breaks have no target. On warm days (>25 °C) cap heart rate rather than chase pace.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf-/Auslaufen und Trabpausen ohne Ziel. An warmen Tagen (>25 °C) lieber die HF deckeln als die Pace jagen."
+          }
+        }
+      }
+    },
+    "Watch temperature avg %lld °C": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uhrtemperatur Ø %lld °C"
+          }
+        }
+      }
+    },
+    "Weather": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wetter"
+          }
+        }
+      }
+    },
+    "Web search: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Websuche: %@"
+          }
+        }
+      }
+    },
+    "Week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche"
+          }
+        }
+      }
+    },
+    "Week %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %lld"
+          }
+        }
+      }
+    },
+    "Week %lld in plan.json": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %lld in plan.json"
+          }
+        }
+      }
+    },
+    "Week %lld of %lld · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %1$lld von %2$lld · %3$@"
+          }
+        }
+      }
+    },
+    "Week %lld · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %1$lld · %2$@"
+          }
+        }
+      }
+    },
+    "Week %lld · %@ · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %1$lld · %2$@ · %3$@"
+          }
+        }
+      }
+    },
+    "Week %lld/%lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "Week %lld: %lld/%lld sessions · %@ of %@ km": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %1$lld: %2$lld/%3$lld Einheiten · %4$@ von %5$@ km"
+          }
+        }
+      }
+    },
+    "Week %lld: adjust or create on Garmin": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %lld: anpassen oder auf Garmin anlegen"
+          }
+        }
+      }
+    },
+    "Week progress": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wochenfortschritt"
+          }
+        }
+      }
+    },
+    "Week summary": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wochenfazit"
+          }
+        }
+      }
+    },
+    "Weekly distance": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wochenkilometer"
+          }
+        }
+      }
+    },
+    "Went well": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gut gelaufen"
+          }
+        }
+      }
+    },
+    "What": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was"
+          }
+        }
+      }
+    },
+    "What should be different?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was soll anders sein?"
+          }
+        }
+      }
+    },
+    "What’s going on?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was ist los?"
+          }
+        }
+      }
+    },
+    "With git, the app records every change to the training folder as a version — from the coach, ticks and loaded runs — and can undo them.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit git hält die App jede Änderung am Trainingsordner als Stand fest — vom Coach, von Häkchen und geladenen Läufen — und kann sie rückgängig machen."
+          }
+        }
+      }
+    },
+    "Writes straight to completed.json — the coach sees it too.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreibt direkt in completed.json — der Coach sieht es auch."
+          }
+        }
+      }
+    },
+    "Writing %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreibt %@"
+          }
+        }
+      }
+    },
+    "Yesterday": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestern"
+          }
+        }
+      }
+    },
+    "You choose the source for “Load runs” in Settings → Runs.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelle für „Läufe laden“ wählst du in den Einstellungen → Läufe."
+          }
+        }
+      }
+    },
+    "You now have approval for Garmin. Carry out the step that was just blocked.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du hast jetzt die Freigabe für Garmin. Führe den Schritt aus, der eben blockiert war."
+          }
+        }
+      }
+    },
+    "Your analyzed runs appear here after the weekly review.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach der Wochenauswertung erscheinen hier deine analysierten Läufe."
+          }
+        }
+      }
+    },
+    "Your data stays on your Mac: in the training folder, in your CLIs and with Garmin or Strava themselves. Garmin and Strava are optional — without them you plan and tick off by hand.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Daten bleiben auf deinem Mac: im Trainingsordner, in deinen CLIs und bei Garmin bzw. Strava selbst. Garmin und Strava sind optional — ohne sie planst und hakst du von Hand ab."
+          }
+        }
+      }
+    },
+    "Your files — plan, runs, ticks — stay exactly as they are now. Deleted versions are gone for good and cannot be restored.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Dateien — Plan, Läufe, Häkchen — bleiben genau so, wie sie jetzt sind. Gelöschte Stände sind endgültig weg und lassen sich nicht mehr zurücknehmen."
+          }
+        }
+      }
+    },
+    "Your most recently analyzed run with pace, heart rate and rating.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein zuletzt analysierter Lauf mit Pace, Puls und Bewertung."
+          }
+        }
+      }
+    },
+    "Your name": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Name"
+          }
+        }
+      }
+    },
+    "Your name (how the coach addresses you)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Name (so spricht dich der Coach an)"
+          }
+        }
+      }
+    },
+    "Your running coach": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Lauf-Coach"
+          }
+        }
+      }
+    },
+    "Your usage limit has been reached — try again later.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Nutzungslimit ist erreicht — später erneut versuchen."
+          }
+        }
+      }
+    },
+    "Your usage limit will be reached soon.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Nutzungslimit ist bald erreicht."
+          }
+        }
+      }
+    },
+    "\\u followed by four hex digits expected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\u mit vier Hex-Ziffern erwartet"
+          }
+        }
+      }
+    },
+    "a web page": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eine Webseite"
+          }
+        }
+      }
+    },
+    "about %lld °C": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ca. %lld °C"
+          }
+        }
+      }
+    },
+    "actual": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gelaufen"
+          }
+        }
+      }
+    },
+    "analyzed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "analysiert"
+          }
+        }
+      }
+    },
+    "automatic (%@)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "automatisch (%@)"
+          }
+        }
+      }
+    },
+    "clear": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "klar"
+          }
+        }
+      }
+    },
+    "cloudy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bewölkt"
+          }
+        }
+      }
+    },
+    "code %d": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code %d"
+          }
+        }
+      }
+    },
+    "cold": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kalt"
+          }
+        }
+      }
+    },
+    "completed.json could not be written: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "completed.json konnte nicht geschrieben werden: %@"
+          }
+        }
+      }
+    },
+    "cool": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kühl"
+          }
+        }
+      }
+    },
+    "drizzle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieselregen"
+          }
+        }
+      }
+    },
+    "e.g. gpt-5.5": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "z. B. gpt-5.5"
+          }
+        }
+      }
+    },
+    "e.g. holidays, races, wishes for the structure": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "z. B. Urlaub, Wettkämpfe, Wünsche zur Struktur"
+          }
+        }
+      }
+    },
+    "e.g. lms, ollama or /path/to/program": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "z. B. lms, ollama oder /pfad/zum/programm"
+          }
+        }
+      }
+    },
+    "e.g. run {model} or chat {model} -p {prompt}": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "z. B. run {model} oder chat {model} -p {prompt}"
+          }
+        }
+      }
+    },
+    "e.g. “10 km under 55 min” or “half marathon in spring”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "z. B. „10 km unter 55 min“ oder „HM Sub-2:00 im Frühjahr“"
+          }
+        }
+      }
+    },
+    "e.g. “5×1000 m instead of 6×800 m”, “move to Sunday, only 10 km”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "z. B. „lieber 5×1000 m statt 6×800 m“, „auf Sonntag verschieben, nur 10 km“"
+          }
+        }
+      }
+    },
+    "e.g. “city run on Saturday”, “knee is sore”, “only 2 days available” — leave empty for a check-in": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "z. B. „Stadtlauf am Samstag“, „Knie zwickt“, „nur 2 Tage Zeit“ — leer lassen für einen Check"
+          }
+        }
+      }
+    },
+    "east": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ost"
+          }
+        }
+      }
+    },
+    "east-northeast": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ostnordost"
+          }
+        }
+      }
+    },
+    "east-southeast": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ostsüdost"
+          }
+        }
+      }
+    },
+    "efficient for routine tasks": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "effizient für Routineaufgaben"
+          }
+        }
+      }
+    },
+    "fair": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "heiter"
+          }
+        }
+      }
+    },
+    "fastest, for quick answers": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "am schnellsten, für kurze Antworten"
+          }
+        }
+      }
+    },
+    "feels like about %lld °C": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gefühlt ca. %lld °C"
+          }
+        }
+      }
+    },
+    "fixed version — stays after updates": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "feste Version — bleibt auch nach Updates"
+          }
+        }
+      }
+    },
+    "fog": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nebel"
+          }
+        }
+      }
+    },
+    "for everyday, complex tasks": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "für alltägliche, komplexe Aufgaben"
+          }
+        }
+      }
+    },
+    "from ~/.codex/config.toml": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aus ~/.codex/config.toml"
+          }
+        }
+      }
+    },
+    "from ~/.codex/config.toml — not available for your account": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aus ~/.codex/config.toml — für dein Konto nicht verfügbar"
+          }
+        }
+      }
+    },
+    "full name, e.g. claude-opus-4-6": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "voller Name, z. B. claude-opus-4-6"
+          }
+        }
+      }
+    },
+    "git %@ failed (code %d).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "git %1$@ ist fehlgeschlagen (Code %2$d)."
+          }
+        }
+      }
+    },
+    "git was not found (install Xcode or the Command Line Tools).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "git wurde nicht gefunden (Xcode oder die Command Line Tools installieren)."
+          }
+        }
+      }
+    },
+    "good": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gut"
+          }
+        }
+      }
+    },
+    "high": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hoch"
+          }
+        }
+      }
+    },
+    "hot": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "heiß"
+          }
+        }
+      }
+    },
+    "how the coach addresses you": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "so spricht dich der Coach an"
+          }
+        }
+      }
+    },
+    "in %lld days": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in %lld Tagen"
+          }
+        }
+      }
+    },
+    "invalid number": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ungültige Zahl"
+          }
+        }
+      }
+    },
+    "key expected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schlüssel erwartet"
+          }
+        }
+      }
+    },
+    "last %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "letzte %@"
+          }
+        }
+      }
+    },
+    "legacy coding model": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "altes Coding-Modell"
+          }
+        }
+      }
+    },
+    "light": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "schwacher"
+          }
+        }
+      }
+    },
+    "light rain": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "leichter Regen"
+          }
+        }
+      }
+    },
+    "low": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "niedrig"
+          }
+        }
+      }
+    },
+    "maximum": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "maximal"
+          }
+        }
+      }
+    },
+    "medium": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mittel"
+          }
+        }
+      }
+    },
+    "mist": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dunst"
+          }
+        }
+      }
+    },
+    "model list not available": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modellliste nicht verfügbar"
+          }
+        }
+      }
+    },
+    "moderate": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mäßiger"
+          }
+        }
+      }
+    },
+    "most capable, for the hardest and longest-running tasks": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "am stärksten, für die schwierigsten und längsten Aufgaben"
+          }
+        }
+      }
+    },
+    "mostly cloudy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "überwiegend bewölkt"
+          }
+        }
+      }
+    },
+    "mostly sunny": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "überwiegend sonnig"
+          }
+        }
+      }
+    },
+    "needs usage credits": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "braucht Nutzungs-Guthaben"
+          }
+        }
+      }
+    },
+    "no session": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "keine Einheit"
+          }
+        }
+      }
+    },
+    "none": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "keins"
+          }
+        }
+      }
+    },
+    "none given — check from the latest runs and reviews whether the week works as planned": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "keiner angegeben — prüfe anhand der letzten Läufe und Auswertungen, ob die Woche so passt"
+          }
+        }
+      }
+    },
+    "none given — suggest a sensible adjustment": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "keiner angegeben — schlag eine sinnvolle Anpassung vor"
+          }
+        }
+      }
+    },
+    "north": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nord"
+          }
+        }
+      }
+    },
+    "north-northeast": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nordnordost"
+          }
+        }
+      }
+    },
+    "north-northwest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nordnordwest"
+          }
+        }
+      }
+    },
+    "northeast": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nordost"
+          }
+        }
+      }
+    },
+    "northwest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nordwest"
+          }
+        }
+      }
+    },
+    "not adjustable for this model": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bei diesem Modell nicht einstellbar"
+          }
+        }
+      }
+    },
+    "not connected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nicht verbunden"
+          }
+        }
+      }
+    },
+    "not installed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nicht installiert"
+          }
+        }
+      }
+    },
+    "nothing in particular": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "keine"
+          }
+        }
+      }
+    },
+    "of %@ km": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "von %@ km"
+          }
+        }
+      }
+    },
+    "older version — no longer offered by Claude Code": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ältere Version — von Claude Code nicht mehr angeboten"
+          }
+        }
+      }
+    },
+    "older, balanced model for simple tasks": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "älteres, ausgewogenes Modell für einfache Aufgaben"
+          }
+        }
+      }
+    },
+    "older, fast and economical model": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "älteres, schnelles und sparsames Modell"
+          }
+        }
+      }
+    },
+    "open — suggest something suitable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "offen — schlag etwas Passendes vor"
+          }
+        }
+      }
+    },
+    "optional, e.g. lms load {model} -y": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "optional, z. B. lms load {model} -y"
+          }
+        }
+      }
+    },
+    "overcast": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bedeckt"
+          }
+        }
+      }
+    },
+    "partly cloudy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "teils bewölkt"
+          }
+        }
+      }
+    },
+    "plan-entwurf.json will be deleted. It stays available in the history.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "plan-entwurf.json wird gelöscht. Im Verlauf bleibt er erhalten."
+          }
+        }
+      }
+    },
+    "planned": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "geplant"
+          }
+        }
+      }
+    },
+    "rain": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regen"
+          }
+        }
+      }
+    },
+    "recommended by Claude Code": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "von Claude Code empfohlen"
+          }
+        }
+      }
+    },
+    "running": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "läuft"
+          }
+        }
+      }
+    },
+    "showers": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schauer"
+          }
+        }
+      }
+    },
+    "snow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnee"
+          }
+        }
+      }
+    },
+    "south": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Süd"
+          }
+        }
+      }
+    },
+    "south-southeast": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Südsüdost"
+          }
+        }
+      }
+    },
+    "south-southwest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Südsüdwest"
+          }
+        }
+      }
+    },
+    "southeast": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Südost"
+          }
+        }
+      }
+    },
+    "southwest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Südwest"
+          }
+        }
+      }
+    },
+    "string without end": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "String ohne Ende"
+          }
+        }
+      }
+    },
+    "strong": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "starker"
+          }
+        }
+      }
+    },
+    "sunny": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sonnig"
+          }
+        }
+      }
+    },
+    "text after the end": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text nach dem Ende"
+          }
+        }
+      }
+    },
+    "the watch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "der Uhr"
+          }
+        }
+      }
+    },
+    "thunderstorm": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gewitter"
+          }
+        }
+      }
+    },
+    "today": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "heute"
+          }
+        }
+      }
+    },
+    "tomorrow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "morgen"
+          }
+        }
+      }
+    },
+    "unexpected character": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unerwartetes Zeichen"
+          }
+        }
+      }
+    },
+    "unexpected end": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unerwartetes Ende"
+          }
+        }
+      }
+    },
+    "unknown": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unbekannt"
+          }
+        }
+      }
+    },
+    "unknown escape sequence": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unbekannte Escape-Sequenz"
+          }
+        }
+      }
+    },
+    "very high": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sehr hoch"
+          }
+        }
+      }
+    },
+    "west": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "West"
+          }
+        }
+      }
+    },
+    "west-northwest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Westnordwest"
+          }
+        }
+      }
+    },
+    "west-southwest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Westsüdwest"
+          }
+        }
+      }
+    },
+    "“%@” is now the active plan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ ist jetzt der aktive Plan"
+          }
+        }
+      }
+    },
+    "“%@” not found — enter the full path.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ nicht gefunden — vollständigen Pfad eintragen."
+          }
+        }
+      }
+    },
+    "“%@” was not found. Enter the full path in Settings → Coach.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ wurde nicht gefunden. Trag in den Einstellungen → Coach den vollständigen Pfad ein."
+          }
+        }
+      }
+    },
+    "“,” or “]” expected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„,“ oder „]“ erwartet"
+          }
+        }
+      }
+    },
+    "“,” or “}” expected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„,“ oder „}“ erwartet"
+          }
+        }
+      }
+    },
+    "“:” expected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„:“ erwartet"
+          }
+        }
+      }
+    },
+    "“Load runs” (⌘R, button at the top left) fetches all runs from three days before the newest saved one and adds new ones to analysis.json — without a rating yet. A run that already exists from the other source is recognized and not entered twice.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Läufe laden“ (⌘R, Knopf oben links) holt alle Läufe ab drei Tagen vor dem neuesten gespeicherten und trägt neue in analysis.json ein — noch ohne Bewertung. Ein Lauf, der schon von der anderen Quelle da ist, wird erkannt und nicht doppelt eingetragen."
+          }
+        }
+      }
+    },
+    "… and %lld more changes": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "… und %lld weitere Änderung"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "… und %lld weitere Änderungen"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "… and %lld more change"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "… and %lld more changes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "… truncated": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "… gekürzt"
+          }
+        }
+      }
+    },
+    "≈ %@× usage compared to %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$@× Verbrauch gegenüber %2$@"
+          }
+        }
+      }
+    },
+    "✓ done on %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✓ erledigt am %@"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -116,8 +116,8 @@ struct DoneToggle: View {
                 .contentTransition(.symbolEffect(.replace))
         }
         .buttonStyle(.plain)
-        .help(isDone ? "Als offen markieren (completed.json)" : "Als erledigt markieren (completed.json)")
-        .accessibilityLabel(isDone ? "Als offen markieren" : "Als erledigt markieren")
+        .help(isDone ? "Mark as open (completed.json)" : "Mark as done (completed.json)")
+        .accessibilityLabel(isDone ? "Mark as open" : "Mark as done")
     }
 }
 
@@ -141,7 +141,7 @@ struct SessionRowContent: View {
                     Image(systemName: "chart.bar.xaxis")
                         .font(.caption)
                         .foregroundStyle(.blue)
-                        .help("Analyse vorhanden")
+                        .help("Analysis available")
                 }
             }
             Text(session.desc)
@@ -149,7 +149,7 @@ struct SessionRowContent: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             if let doneDate {
-                Text("✓ erledigt am \(doneDate)")
+                Text("✓ done on \(doneDate)")
                     .font(.caption)
                     .foregroundStyle(.green)
             }
@@ -176,10 +176,10 @@ struct RunRow: View {
                             .foregroundStyle(.secondary)
                     }
                     if !run.isAnalyzed {
-                        Text("NEU")
+                        Text("NEW")
                             .font(.caption2.weight(.bold))
                             .foregroundStyle(.blue)
-                            .help("Geladen, aber noch nicht vom Coach ausgewertet")
+                            .help("Loaded, but not yet reviewed by the coach")
                     }
                     Spacer()
                     Text("\(Fmt.km(run.distanceKm)) km")
@@ -189,7 +189,7 @@ struct RunRow: View {
                     .font(.headline)
                     .lineLimit(2)
                 HStack(spacing: 8) {
-                    Text(label ?? run.tag ?? (run.isAnalyzed ? "Außerplanmäßig" : "Noch keiner Einheit zugeordnet"))
+                    Text(label ?? run.tag ?? (run.isAnalyzed ? String(localized: "Unplanned") : String(localized: "Not assigned to a session yet")))
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(label != nil ? Color.blue : run.isAnalyzed ? Color.purple : Color.secondary)
                         .lineLimit(1)
@@ -391,16 +391,16 @@ struct LoadErrorView: View {
 
     var body: some View {
         ContentUnavailableView {
-            Label("Keine Trainingsdaten", systemImage: "folder.badge.questionmark")
+            Label("No training data", systemImage: "folder.badge.questionmark")
         } description: {
-            Text(model.loadError ?? "Die Daten konnten nicht geladen werden.")
+            Text(model.loadError ?? String(localized: "The data could not be loaded."))
             Text(model.folder.url.path).font(.caption).foregroundStyle(.secondary)
         } actions: {
             HStack {
-                Button("Einrichtung öffnen …") { openWindow(id: "setup") }
+                Button("Open setup …") { openWindow(id: "setup") }
                     .buttonStyle(.borderedProminent)
-                Button("Erneut laden") { model.reload(force: true) }
-                SettingsLink { Text("Ordner ändern …") }
+                Button("Reload") { model.reload(force: true) }
+                SettingsLink { Text("Change folder …") }
             }
         }
     }

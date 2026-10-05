@@ -22,6 +22,7 @@ struct GarminServerConfig: Sendable {
         guard let executable = CLIResolver.find(command) else { throw CoachError.notFound(command) }
         var env = environment.merging(extraEnvironment) { _, new in new }
         if readOnly { env["GARMIN_READONLY"] = "1" }
+        env["PACELAB_LANG"] = AppLanguage.code   // Meldungen des Servers in der Sprache der App
         let client = MCPClient(executable: executable, arguments: arguments, environment: env, directory: folder)
         try await client.start()
         return client
@@ -94,13 +95,13 @@ final class MCPClient: @unchecked Sendable {
         let data = try await request("tools/call", params: ["name": name, "arguments": arguments], timeout: timeout)
         guard let message = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let result = message["result"] as? [String: Any] else {
-            throw Failure(message: "Unerwartete Antwort von \(name).")
+            throw Failure(message: String(localized: "Unexpected response from \(name)."))
         }
         let text = (result["content"] as? [[String: Any]] ?? [])
             .compactMap { $0["type"] as? String == "text" ? $0["text"] as? String : nil }
             .joined(separator: "\n")
         if result["isError"] as? Bool == true {
-            throw Failure(message: text.isEmpty ? "\(name) ist fehlgeschlagen." : text)
+            throw Failure(message: text.isEmpty ? String(localized: "\(name) failed.") : text)
         }
         return text
     }
@@ -142,7 +143,7 @@ final class MCPClient: @unchecked Sendable {
             }
             Task { [weak self] in
                 try? await Task.sleep(for: .seconds(timeout))
-                self?.resume(id, with: .failure(Failure(message: "Der Garmin-Server antwortet nicht (\(method), \(Int(timeout)) s).")))
+                self?.resume(id, with: .failure(Failure(message: String(localized: "The Garmin server is not responding (\(method), \(Int(timeout)) s)."))))
             }
         }
     }
@@ -163,13 +164,13 @@ final class MCPClient: @unchecked Sendable {
             guard let id = message["id"] else { return }
             let reply: [String: Any] = method == "ping"
                 ? ["jsonrpc": "2.0", "id": id, "result": [String: String]()]
-                : ["jsonrpc": "2.0", "id": id, "error": ["code": -32601, "message": "Nicht unterstützt"]]
+                : ["jsonrpc": "2.0", "id": id, "error": ["code": -32601, "message": "Not supported"]]
             try? send(reply)
             return
         }
         guard let id = (message["id"] as? NSNumber)?.intValue else { return }
         if let error = message["error"] as? [String: Any] {
-            resume(id, with: .failure(Failure(message: error["message"] as? String ?? "Fehler vom Garmin-Server.")))
+            resume(id, with: .failure(Failure(message: error["message"] as? String ?? String(localized: "Error from the Garmin server."))))
         } else {
             resume(id, with: .success(data))
         }
@@ -192,6 +193,6 @@ final class MCPClient: @unchecked Sendable {
 
     private var stoppedMessage: String {
         let tail = errorTail.tail()
-        return tail.isEmpty ? "Der Garmin-Server wurde beendet." : "Der Garmin-Server wurde beendet: \(tail)"
+        return tail.isEmpty ? String(localized: "The Garmin server was terminated.") : String(localized: "The Garmin server was terminated: \(tail)")
     }
 }

@@ -24,7 +24,7 @@ struct RunDetailView: View {
                 }
                 if let splits = run.splits, !splits.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        SectionTitle(text: "Splits · Pace & Herzfrequenz")
+                        SectionTitle(text: String(localized: "Splits · pace & heart rate"))
                         VStack(alignment: .leading, spacing: 12) {
                             SplitsView(splits: splits, snapshot: snapshot)
                             ZoneLegend(snapshot: snapshot)
@@ -33,10 +33,10 @@ struct RunDetailView: View {
                     }
                 }
                 if let analysis = run.analysis {
-                    TextBlock(title: "Analyse", text: analysis, color: .brand)
+                    TextBlock(title: String(localized: "Analysis"), text: analysis, color: .brand)
                 }
                 if let adjustments = run.adjustments {
-                    TextBlock(title: "Anpassung Folgewoche", text: adjustments, color: Color(hex: 0xE0A800))
+                    TextBlock(title: String(localized: "Adjustment for next week"), text: adjustments, color: Color(hex: 0xE0A800))
                 }
             }
             .padding(24)
@@ -56,7 +56,7 @@ struct RunDetailView: View {
                 if let label = snapshot.label(for: run) {
                     Pill(text: label, symbol: "calendar", color: .blue)
                 } else {
-                    Pill(text: run.tag ?? (run.isAnalyzed ? "Außerplanmäßig" : "Nicht zugeordnet"),
+                    Pill(text: run.tag ?? (run.isAnalyzed ? String(localized: "Unplanned") : String(localized: "Unassigned")),
                          color: run.isAnalyzed ? .purple : .gray)
                 }
                 if let verdict = run.verdict { VerdictPill(verdict: verdict) }
@@ -65,15 +65,15 @@ struct RunDetailView: View {
                 Button {
                     model.askCoach(about: run)
                 } label: {
-                    Label(run.isAnalyzed ? "Coach fragen" : "Auswerten", systemImage: "sparkles")
+                    Label(run.isAnalyzed ? "Ask coach" : "Review", systemImage: "sparkles")
                 }
                 if let url = run.stravaURL {
                     Link(destination: url) {
-                        Label("In Strava öffnen", systemImage: "arrow.up.right.square")
+                        Label("Open in Strava", systemImage: "arrow.up.right.square")
                     }
                 } else if let url = run.garminURL {
                     Link(destination: url) {
-                        Label("In Garmin öffnen", systemImage: "arrow.up.right.square")
+                        Label("Open in Garmin", systemImage: "arrow.up.right.square")
                     }
                 }
             }
@@ -87,8 +87,9 @@ struct RunDetailView: View {
                 .font(.title3)
                 .foregroundStyle(.blue)
             VStack(alignment: .leading, spacing: 4) {
-                Text("Noch nicht ausgewertet").font(.headline)
-                Text("Geladen von \(run.source == "strava" ? "Strava" : run.source == "garmin" ? "Garmin" : "der Uhr"). Bewertung, Analyse und genaue Split-Namen ergänzt der Coach bei der Wochenauswertung — oder jetzt über „Auswerten“.")
+                Text("Not reviewed yet").font(.headline)
+                let origin = run.source == "strava" ? "Strava" : run.source == "garmin" ? "Garmin" : String(localized: "the watch")
+                Text("Loaded from \(origin). The coach adds the rating, analysis and exact split names during the weekly review — or right away via “Review”.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -99,27 +100,27 @@ struct RunDetailView: View {
 
     private var metrics: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 130), spacing: 8)], spacing: 8) {
-            MetricTile(value: "\(Fmt.km(run.distanceKm, digits: 2)) km", label: "Distanz", symbol: "ruler")
-            MetricTile(value: Fmt.duration(run.movingTimeS), label: "Zeit", symbol: "stopwatch")
-            MetricTile(value: "\(Fmt.pace(run.paceSeconds))/km", label: "Ø Pace", symbol: "speedometer")
+            MetricTile(value: "\(Fmt.km(run.distanceKm, digits: 2)) km", label: String(localized: "Distance"), symbol: "ruler")
+            MetricTile(value: Fmt.duration(run.movingTimeS), label: String(localized: "Time"), symbol: "stopwatch")
+            MetricTile(value: "\(Fmt.pace(run.paceSeconds))/km", label: String(localized: "Avg pace"), symbol: "speedometer")
             if let hr = run.avgHr {
-                MetricTile(value: "\(Fmt.int(hr)) bpm", label: "Ø HF", symbol: "heart.fill")
+                MetricTile(value: "\(Fmt.int(hr)) bpm", label: String(localized: "Avg HR"), symbol: "heart.fill")
             }
             if let hr = run.maxHr {
-                MetricTile(value: "\(Fmt.int(hr)) bpm", label: "Max HF", symbol: "heart.circle")
+                MetricTile(value: "\(Fmt.int(hr)) bpm", label: String(localized: "Max HR"), symbol: "heart.circle")
             }
             if let effort = run.relativeEffort {
-                MetricTile(value: Fmt.int(effort), label: "Anstrengung", symbol: "flame.fill")
+                MetricTile(value: Fmt.int(effort), label: String(localized: "Effort"), symbol: "flame.fill")
             }
             if let elevation = run.elevationGain {
-                MetricTile(value: "\(Fmt.int(elevation)) m", label: "Anstieg", symbol: "mountain.2.fill")
+                MetricTile(value: "\(Fmt.int(elevation)) m", label: String(localized: "Climb"), symbol: "mountain.2.fill")
             }
             if let cadence = run.cadence {
-                MetricTile(value: "\(Fmt.int(cadence)) spm", label: "Kadenz", symbol: "metronome.fill")
+                MetricTile(value: "\(Fmt.int(cadence)) spm", label: String(localized: "Cadence"), symbol: "metronome.fill")
             }
             if let weather = run.weather {
                 let info = WeatherInfo(weather)
-                MetricTile(value: info.label, label: "Bedingungen", symbol: info.symbol)
+                MetricTile(value: info.label, label: String(localized: "Conditions"), symbol: info.symbol)
                     .help(weather)
             }
         }
@@ -137,7 +138,7 @@ private struct AssignMenu: View {
         let runDay = run.day.map(DateUtil.germanDay)
         Menu {
             if suggestions.isEmpty {
-                Text("Kein Plan-Tag: Der Lauf liegt außerhalb des Blocks.")
+                Text(String(localized: "Not a plan day: this run is outside the block."))
             }
             ForEach(suggestions) { session in
                 Button {
@@ -145,19 +146,19 @@ private struct AssignMenu: View {
                 } label: {
                     let other = snapshot.isDone(session) && snapshot.doneDate(session) != runDay && session.id != run.sessionId
                     Text("W\(session.week) · \(session.kind.label) \(session.dist)"
-                         + (session.id == run.sessionId ? "  ✓" : other ? "  (schon erledigt)" : ""))
+                         + (session.id == run.sessionId ? "  ✓" : other ? String(localized: "  (already done)") : ""))
                 }
                 .disabled(session.id == run.sessionId)
             }
             if run.sessionId != nil {
                 Divider()
-                Button("Zuordnung lösen") { model.assign(run, to: nil) }
+                Button(String(localized: "Unassign")) { model.assign(run, to: nil) }
             }
         } label: {
-            Label("Zuordnen", systemImage: "link")
+            Label(String(localized: "Assign"), systemImage: "link")
         }
         .fixedSize()
-        .help("Lauf einer Einheit im Plan zuordnen und sie abhaken")
+        .help(String(localized: "Assign this run to a session in the plan and tick it off"))
         .disabled(model.coach.isRunning || model.sync.isRunning)
     }
 }
@@ -192,11 +193,11 @@ private struct WeatherInfo {
 
     init(_ text: String) {
         let t = text.lowercased()
-        if t.contains("heiß") { (label, symbol) = ("heiß", "thermometer.sun.fill") }
-        else if t.contains("warm") { (label, symbol) = ("warm", "thermometer.medium") }
-        else if t.contains("kühl") { (label, symbol) = ("kühl", "thermometer.low") }
-        else if t.contains("kalt") { (label, symbol) = ("kalt", "snowflake") }
-        else if t.contains("regen") { (label, symbol) = ("Regen", "cloud.rain.fill") }
-        else { (label, symbol) = ("Wetter", "cloud.sun.fill") }
+        if t.contains("heiß") || t.contains("hot") { (label, symbol) = (String(localized: "hot"), "thermometer.sun.fill") }
+        else if t.contains("warm") { (label, symbol) = (String(localized: "warm"), "thermometer.medium") }
+        else if t.contains("kühl") || t.contains("cool") { (label, symbol) = (String(localized: "cool"), "thermometer.low") }
+        else if t.contains("kalt") || t.contains("cold") { (label, symbol) = (String(localized: "cold"), "snowflake") }
+        else if t.contains("regen") || t.contains("rain") { (label, symbol) = (String(localized: "Rain"), "cloud.rain.fill") }
+        else { (label, symbol) = (String(localized: "Weather"), "cloud.sun.fill") }
     }
 }

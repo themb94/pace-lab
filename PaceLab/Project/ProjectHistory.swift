@@ -37,14 +37,14 @@ actor ProjectHistory {
 
         var errorDescription: String? {
             switch self {
-            case .gitMissing: "git wurde nicht gefunden (Xcode oder die Command Line Tools installieren)."
+            case .gitMissing: String(localized: "git was not found (install Xcode or the Command Line Tools).")
             case .command(let message): message
             }
         }
     }
 
     /// Nachricht für Änderungen, die niemand über die App gemacht hat (z. B. im Chat oder von Hand).
-    static let externalChanges = "Änderungen außerhalb der App"
+    static var externalChanges: String { String(localized: "Changes outside the app") }
 
     nonisolated let folder: URL
 
@@ -75,14 +75,14 @@ actor ProjectHistory {
         if !FileManager.default.fileExists(atPath: ignore.path) {
             try Self.defaultIgnore.write(to: ignore, atomically: true, encoding: .utf8)
         }
-        try commit("Ausgangsstand")
+        try commit(String(localized: "Initial state"))
     }
 
     static let defaultIgnore = """
     # macOS
     .DS_Store
 
-    # Python (Garmin-Server)
+    # Python (Garmin server)
     garmin-mcp/.venv/
     __pycache__/
     *.pyc
@@ -93,7 +93,7 @@ actor ProjectHistory {
     build/
     DerivedData/
 
-    # Lokale Freigaben von Claude Code
+    # Local Claude Code permissions
     .claude/settings.local.json
 
     """
@@ -255,7 +255,7 @@ actor ProjectHistory {
                                            "GIT_AUTHOR_DATE": String(f[5]), "GIT_COMMITTER_NAME": String(f[6]),
                                            "GIT_COMMITTER_EMAIL": String(f[7]), "GIT_COMMITTER_DATE": String(f[8])])
             }
-        guard entries.last?.hash == head else { throw Failure.command("Der Verlauf ist nicht linear — bitte im Terminal aufräumen.") }
+        guard entries.last?.hash == head else { throw Failure.command(String(localized: "The history is not linear — please clean it up in Terminal.")) }
 
         // Alles vor `split` wird gelöscht; entries[split - 1] liefert den Inhalt des neuen Ausgangsstands.
         let split = cutoff.map { cut in entries.firstIndex { $0.time >= cut.timeIntervalSince1970 } ?? entries.count } ?? entries.count
@@ -264,10 +264,10 @@ actor ProjectHistory {
             return PruneResult(removed: 0, kept: entries.count, mapping: [:])
         }
         let base = entries[split - 1]
-        let when = Date.now.formatted(.dateTime.day().month().year().locale(Locale(identifier: "de_DE")))
+        let when = Date.now.formatted(.dateTime.day().month().year().locale(Fmt.locale))
         let message = cutoff == nil
-            ? "Ausgangsstand (Verlauf am \(when) gelöscht)"
-            : "Ausgangsstand (\(split) ältere Stände am \(when) gelöscht)"
+            ? String(localized: "Initial state (history deleted on \(when))")
+            : String(localized: "Initial state (\(split) older versions deleted on \(when))")
         var mapping: [String: String] = [:]
         var parent = try git(["commit-tree", base.tree, "-m", message],
                              environment: cutoff == nil ? [:] : base.environment)
@@ -279,7 +279,7 @@ actor ProjectHistory {
             mapping[entry.hash] = parent
         }
         let branch = try git(["symbolic-ref", "--short", "HEAD"]).trimmingCharacters(in: .whitespacesAndNewlines)
-        try git(["update-ref", "-m", "Verlauf gelöscht", "refs/heads/\(branch)", parent, head])
+        try git(["update-ref", "-m", "History deleted", "refs/heads/\(branch)", parent, head])
         // Alte Stände endgültig entfernen.
         _ = try? git(["update-ref", "-d", "ORIG_HEAD"])
         try git(["reflog", "expire", "--expire=now", "--all"])
@@ -298,7 +298,7 @@ actor ProjectHistory {
                                        environment: env)
         guard result.status == 0 else {
             let message = result.error.trimmingCharacters(in: .whitespacesAndNewlines)
-            throw Failure.command(message.isEmpty ? "git \(arguments.first ?? "") ist fehlgeschlagen (Code \(result.status))." : message)
+            throw Failure.command(message.isEmpty ? String(localized: "git \(arguments.first ?? "") failed (code \(result.status)).") : message)
         }
         return result.output
     }

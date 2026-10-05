@@ -4,11 +4,11 @@ import SwiftUI
 enum GarminUpload {
     /// Namen der Workouts, die schon im Garmin-Konto liegen.
     static func existingNames(folder: URL) async throws -> Set<String> {
-        guard let config = GarminServerConfig.load(from: folder) else { throw SyncFailure(message: "Kein Garmin-Server eingerichtet (.mcp.json fehlt).") }
+        guard let config = GarminServerConfig.load(from: folder) else { throw SyncFailure(message: String(localized: "No Garmin server set up (.mcp.json is missing).")) }
         let client = try await config.connect(in: folder, readOnly: true)
         defer { client.close() }
         let text = try await client.callTool("list_workouts", timeout: 60)
-        if text.hasPrefix("❌") { throw SyncFailure(message: "Garmin meldet: \(text.dropFirst().trimmingCharacters(in: .whitespaces))") }
+        if text.hasPrefix("❌") { throw SyncFailure(message: String(localized: "Garmin reports: \(text.dropFirst().trimmingCharacters(in: .whitespaces))")) }
         // "12 Workouts:\n<id>  <name>\n…"
         return Set(text.split(separator: "\n").dropFirst().compactMap { line in
             line.range(of: "  ").map { String(line[$0.upperBound...]).trimmingCharacters(in: .whitespaces) }
@@ -17,11 +17,11 @@ enum GarminUpload {
 
     /// Legt alle Nicht-Locker-Workouts der Woche an; gleichnamige werden vorher gelöscht.
     static func upload(week: Int, folder: URL) async throws -> [String] {
-        guard let config = GarminServerConfig.load(from: folder) else { throw SyncFailure(message: "Kein Garmin-Server eingerichtet (.mcp.json fehlt).") }
+        guard let config = GarminServerConfig.load(from: folder) else { throw SyncFailure(message: String(localized: "No Garmin server set up (.mcp.json is missing).")) }
         let client = try await config.connect(in: folder, readOnly: false)
         defer { client.close() }
         let text = try await client.callTool("create_plan", arguments: ["week": week, "replace_existing": true], timeout: 240)
-        if text.hasPrefix("❌") { throw SyncFailure(message: "Garmin meldet: \(text.dropFirst().trimmingCharacters(in: .whitespaces))") }
+        if text.hasPrefix("❌") { throw SyncFailure(message: String(localized: "Garmin reports: \(text.dropFirst().trimmingCharacters(in: .whitespaces))")) }
         return text.split(separator: "\n").map(String.init)
     }
 }
@@ -43,7 +43,7 @@ struct GarminUploadSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label("Woche \(week) auf Garmin anlegen", systemImage: "applewatch")
+            Label("Create week \(week) on Garmin", systemImage: "applewatch")
                 .font(.title2.bold())
             if let snapshot = model.snapshot {
                 content(snapshot)
@@ -71,10 +71,10 @@ struct GarminUploadSheet: View {
                             .font(.headline)
                         Text(session.desc).font(.callout).foregroundStyle(.secondary)
                         if !session.isUploadable {
-                            Text(session.kind == .easy ? "Lockere Läufe kommen nicht auf die Uhr (Plan-Option uploadEasyRuns)." : "Kein Workout in plan.json.")
+                            Text(session.kind == .easy ? "Easy runs are not sent to the watch (plan option uploadEasyRuns)." : "No workout in plan.json.")
                                 .font(.caption).foregroundStyle(.secondary)
                         } else if let name = session.garminName, existing.contains(name) {
-                            Label("Schon auf Garmin — wird ersetzt", systemImage: "arrow.triangle.2.circlepath")
+                            Label("Already on Garmin — will be replaced", systemImage: "arrow.triangle.2.circlepath")
                                 .font(.caption).foregroundStyle(.orange)
                         }
                     }
@@ -86,12 +86,12 @@ struct GarminUploadSheet: View {
 
         switch phase {
         case .checking:
-            Label("Prüfe, was schon auf Garmin liegt …", systemImage: "magnifyingglass").foregroundStyle(.secondary)
+            Label("Checking what is already on Garmin …", systemImage: "magnifyingglass").foregroundStyle(.secondary)
         case .ready:
-            Text("Die Workouts erscheinen danach auf der Uhr unter Training › Workouts. Sie werden nicht automatisch in den Kalender gelegt.")
+            Text("The workouts then appear on the watch under Training › Workouts. They are not added to the calendar automatically.")
                 .font(.callout).foregroundStyle(.secondary)
         case .uploading:
-            HStack { ProgressView().controlSize(.small); Text("Lege Workouts an …") }
+            HStack { ProgressView().controlSize(.small); Text("Creating workouts …") }
         case .done(let lines):
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(lines, id: \.self) { Text($0).font(.callout) }
@@ -108,18 +108,18 @@ struct GarminUploadSheet: View {
     private var buttons: some View {
         switch phase {
         case .done:
-            Button("Fertig") { dismiss() }.keyboardShortcut(.defaultAction)
+            Button("Close") { dismiss() }.keyboardShortcut(.defaultAction)
         case .checking:
-            Button("Abbrechen", role: .cancel) { dismiss() }
+            Button("Cancel", role: .cancel) { dismiss() }
         case .uploading:
             EmptyView()
         case .ready, .failed:
-            Button("Abbrechen", role: .cancel) { dismiss() }
+            Button("Cancel", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
             Button {
                 Task { await upload() }
             } label: {
-                Label("Auf Garmin anlegen", systemImage: "arrow.up.circle.fill")
+                Label("Create on Garmin", systemImage: "arrow.up.circle.fill")
             }
             .buttonStyle(.borderedProminent)
             .tint(.brand)

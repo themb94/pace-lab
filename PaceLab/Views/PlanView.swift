@@ -16,7 +16,7 @@ struct PlanView: View {
                 LoadErrorView()
             }
         }
-        .navigationTitle(draftMode ? "Entwurf" : "Plan")
+        .navigationTitle(draftMode ? "Draft" : "Plan")
         .inspector(isPresented: Binding(get: { model.showSessionInspector && !draftMode },
                                         set: { model.showSessionInspector = $0 })) {
             inspector
@@ -25,26 +25,26 @@ struct PlanView: View {
         .toolbar {
             if model.draft != nil {
                 ToolbarItem {
-                    Picker("Ansicht", selection: $model.showDraft) {
-                        Text("Aktueller Block").tag(false)
-                        Text("Entwurf").tag(true)
+                    Picker("View", selection: $model.showDraft) {
+                        Text("Current block").tag(false)
+                        Text("Draft").tag(true)
                     }
                     .pickerStyle(.segmented)
-                    .help("Zwischen aktuellem Plan und dem Entwurf für den nächsten Block wechseln")
+                    .help("Switch between the current plan and the draft for the next block")
                 }
             }
             ToolbarItem {
                 Menu {
-                    Button("Woche anpassen …") { model.requestPlan(.week) }
-                    Button("Einheit ändern …") {
+                    Button("Adjust week …") { model.requestPlan(.week) }
+                    Button("Change session …") {
                         model.requestPlan(.session, session: model.selectedSessionID.flatMap { model.snapshot?.session(id: $0) })
                     }
                     Divider()
-                    Button("Neuen Block planen …") { model.requestPlan(.block) }
+                    Button("Plan new block …") { model.requestPlan(.block) }
                 } label: {
-                    Label("Planen", systemImage: "wand.and.stars")
+                    Label("Planning", systemImage: "wand.and.stars")
                 }
-                .help("Mit dem Coach planen (⇧⌘P)")
+                .help("Plan with the coach (⇧⌘P)")
                 .disabled(model.coach.isRunning || model.snapshot == nil)
             }
             ToolbarItem {
@@ -53,7 +53,7 @@ struct PlanView: View {
                 } label: {
                     Label("Details", systemImage: "sidebar.trailing")
                 }
-                .help("Details zur ausgewählten Einheit ein-/ausblenden")
+                .help("Show or hide details for the selected session")
                 .disabled(draftMode)
             }
         }
@@ -64,8 +64,8 @@ struct PlanView: View {
         if let snapshot = model.snapshot, let id = model.selectedSessionID, let session = snapshot.session(id: id) {
             SessionDetailView(session: session, snapshot: snapshot)
         } else {
-            ContentUnavailableView("Einheit auswählen", systemImage: "calendar",
-                                   description: Text("Klick auf eine Einheit, um Details zu sehen."))
+            ContentUnavailableView("Select a session", systemImage: "calendar",
+                                   description: Text("Click a session to see its details."))
         }
     }
 
@@ -79,12 +79,12 @@ struct PlanView: View {
                         HStack(spacing: 10) {
                             Image(systemName: "pencil.and.list.clipboard").foregroundStyle(.purple)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Entwurf für den nächsten Block: \(draft.title)").font(.headline)
-                                Text("\(draft.weeks.count) Wochen ab \(DateUtil.day(fromISO: draft.startMonday).map(Fmt.longDate) ?? draft.startMonday)")
+                                Text("Draft for the next block: \(draft.title)").font(.headline)
+                                Text("\(draft.weeks.count) weeks starting \(DateUtil.day(fromISO: draft.startMonday).map(Fmt.longDate) ?? draft.startMonday)")
                                     .font(.callout).foregroundStyle(.secondary)
                             }
                             Spacer()
-                            Button("Ansehen") { model.showDraft = true }
+                            Button("Open draft") { model.showDraft = true }
                         }
                         .padding(.vertical, 4)
                         .selectionDisabled()
@@ -97,7 +97,7 @@ struct PlanView: View {
                     }
                 }
 
-                Section("Geplant vs. gelaufen") {
+                Section("Planned vs. actual") {
                     WeeklyKmChart(
                         buckets: snapshot.weeklyBuckets(from: snapshot.startMonday, count: snapshot.weekCount),
                         currentMonday: DateUtil.startOfWeek(.now))
@@ -123,7 +123,7 @@ struct PlanView: View {
                 }
 
                 if let bands = snapshot.plan.paceBands, !bands.isEmpty {
-                    Section("Pace-Bänder") {
+                    Section("Pace bands") {
                         ForEach(bands, id: \.self) { band in
                             HStack(alignment: .firstTextBaseline) {
                                 VStack(alignment: .leading) {
@@ -137,14 +137,14 @@ struct PlanView: View {
                             }
                             .selectionDisabled()
                         }
-                        Text("Locker-Läufe nach Gefühl, Long Runs nur Distanz. Pace-Vorgaben gelten nur für die harten Abschnitte.")
+                        Text("Easy runs by feel, long runs distance only. Pace targets apply to the hard segments only.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .selectionDisabled()
                     }
                 }
 
-                Section("HF-Zonen" + (snapshot.plan.athlete.map { " (HFmax \($0.maxHr))" } ?? "")) {
+                Section(String(localized: "HR zones") + (snapshot.plan.athlete.map { String(localized: " (HRmax \($0.maxHr))") } ?? "")) {
                     ZoneLegend(snapshot: snapshot)
                         .padding(.vertical, 4)
                         .selectionDisabled()
@@ -176,10 +176,10 @@ private struct WeekHeader: View {
         let sessions = snapshot.sessions(inWeek: week)
         let done = sessions.filter(snapshot.isDone).count
         HStack(spacing: 8) {
-            Text("Woche \(week)")
+            Text("Week \(week)")
                 .font(.headline)
                 .foregroundStyle(.primary)
-            if isCurrent { Pill(text: "AKTUELL", color: .brand) }
+            if isCurrent { Pill(text: String(localized: "CURRENT"), color: .brand) }
             PhasePill(phase: snapshot.phase(ofWeek: week))
             Text(Fmt.range(snapshot.monday(ofWeek: week), snapshot.sunday(ofWeek: week))
                  + (snapshot.note(ofWeek: week).map { " · \($0)" } ?? ""))
@@ -208,13 +208,13 @@ private struct WeekMenu: View {
             Button {
                 model.requestPlan(.week, week: week)
             } label: {
-                Label("Mit Coach anpassen …", systemImage: "wand.and.stars")
+                Label("Adjust with coach …", systemImage: "wand.and.stars")
             }
             .disabled(model.coach.isRunning)
             Button {
                 model.garminUploadWeek = week
             } label: {
-                Label("Auf Garmin anlegen …", systemImage: "applewatch")
+                Label("Create on Garmin …", systemImage: "applewatch")
             }
             .disabled(!uploadable)
         } label: {
@@ -223,7 +223,7 @@ private struct WeekMenu: View {
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
         .fixedSize()
-        .help("Woche \(week): anpassen oder auf Garmin anlegen")
+        .help("Week \(week): adjust or create on Garmin")
     }
 }
 
@@ -246,14 +246,14 @@ private struct PlanSessionRow: View {
         }
         .padding(.vertical, 4)
         .contextMenu {
-            Button(isDone ? "Als offen markieren" : "Als erledigt markieren") { model.toggleDone(session) }
+            Button(isDone ? "Mark as open" : "Mark as done") { model.toggleDone(session) }
             if let run = snapshot.linkedRun(for: session) {
-                Button("Analyse öffnen") { model.show(run) }
+                Button("Open analysis") { model.show(run) }
             }
             Divider()
-            Button("Mit Coach ändern …") { model.requestPlan(.session, session: session) }
+            Button("Change with coach …") { model.requestPlan(.session, session: session) }
                 .disabled(model.coach.isRunning)
-            Button("Woche mit Coach anpassen …") { model.requestPlan(.week, week: session.week) }
+            Button("Adjust week with coach …") { model.requestPlan(.week, week: session.week) }
                 .disabled(model.coach.isRunning)
         }
     }
@@ -266,11 +266,11 @@ private struct WeekSummaryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             if let analysis = summary.analysis {
-                Text("Wochenfazit").font(.caption.weight(.bold)).foregroundStyle(Color.brand)
+                Text("Week summary").font(.caption.weight(.bold)).foregroundStyle(Color.brand)
                 Text(analysis).font(.callout)
             }
             if let changes = summary.nextWeekChanges {
-                Text("Anpassungen Woche \(week + 1)").font(.caption.weight(.bold)).foregroundStyle(.orange)
+                Text("Adjustments for week \(week + 1)").font(.caption.weight(.bold)).foregroundStyle(.orange)
                 Text(changes).font(.callout)
             }
         }

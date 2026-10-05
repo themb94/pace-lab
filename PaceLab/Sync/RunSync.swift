@@ -87,7 +87,7 @@ final class RunSyncModel {
         let knownStrava = snapshot.runs.filter { $0.date >= since }.compactMap(\.stravaId)
         let model = SyncSettings.stravaModel
         let autoAssign = SyncSettings.autoAssign
-        state = .running("\(source.shortLabel): starte …")
+        state = .running(String(localized: "\(source.shortLabel): starting …"))
 
         let progress: SyncProgress = { [weak self] step in
             Task { @MainActor in
@@ -154,9 +154,9 @@ final class RunSyncModel {
 
     private static func summary(_ runs: [ImportedRun], ticks: Int, source: RunSource) -> String {
         switch runs.count {
-        case 0: return "Keine neuen Läufe bei \(source.shortLabel)."
-        case 1: return "1 neuer Lauf von \(source.shortLabel)" + (ticks > 0 ? " · Einheit abgehakt" : "")
-        default: return "\(runs.count) neue Läufe von \(source.shortLabel)" + (ticks > 0 ? " · \(ticks) Einheiten abgehakt" : "")
+        case 0: return String(localized: "No new runs from \(source.shortLabel).")
+        case 1: return String(localized: "1 new run from \(source.shortLabel)") + (ticks > 0 ? String(localized: " · session ticked off") : "")
+        default: return String(localized: "\(runs.count) new runs from \(source.shortLabel)") + (ticks > 0 ? String(localized: " · \(ticks) sessions ticked off") : "")
         }
     }
 
@@ -165,8 +165,8 @@ final class RunSyncModel {
             let session = run.sessionID.flatMap(snapshot.session(id:))
             return "- \(run.shortDescription)" + (session.map { " → W\($0.week) \($0.kind.label) ✓" } ?? "")
         }
-        let title = runs.count == 1 ? "Lauf geladen (\(source.shortLabel)): \(runs[0].shortDescription)"
-                                    : "\(runs.count) Läufe geladen (\(source.shortLabel))"
+        let title = runs.count == 1 ? String(localized: "Run loaded (\(source.shortLabel)): \(runs[0].shortDescription)")
+                                    : String(localized: "\(runs.count) runs loaded (\(source.shortLabel))")
         return title + "\n\n" + lines.joined(separator: "\n")
     }
 }

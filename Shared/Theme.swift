@@ -39,9 +39,9 @@ extension SessionType {
     var label: String {
         switch self {
         case .tempo: "Tempo"
-        case .easy: "Locker"
+        case .easy: String(localized: "Easy")
         case .long: "Long Run"
-        case .race: "Rennen"
+        case .race: String(localized: "Race")
         }
     }
 
@@ -49,9 +49,9 @@ extension SessionType {
     var shortLabel: String {
         switch self {
         case .tempo: "TEMPO"
-        case .easy: "LOCKER"
+        case .easy: String(localized: "EASY")
         case .long: "LONG"
-        case .race: "RENNEN"
+        case .race: String(localized: "RACE")
         }
     }
 
@@ -77,9 +77,9 @@ extension SessionType {
 extension Verdict {
     var label: String {
         switch self {
-        case .gut: "Gut gelaufen"
-        case .ok: "Solide"
-        case .achtung: "Beachten"
+        case .gut: String(localized: "Went well")
+        case .ok: String(localized: "Solid")
+        case .achtung: String(localized: "Needs attention")
         }
     }
 

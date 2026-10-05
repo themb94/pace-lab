@@ -22,8 +22,8 @@ struct HistoryView: View {
             if !model.history.isRepository {
                 setUpView
             } else if loaded && entries.isEmpty {
-                ContentUnavailableView("Noch keine Stände", systemImage: "clock.arrow.circlepath",
-                                       description: Text(loadError ?? "Sobald du etwas abhakst, Läufe lädst oder der Coach arbeitet, erscheint es hier."))
+                ContentUnavailableView("No versions yet", systemImage: "clock.arrow.circlepath",
+                                       description: Text(loadError ?? String(localized: "As soon as you tick something off, load runs or the coach works, it shows up here.")))
             } else {
                 HSplitView {
                     List(selection: $selection) {
@@ -43,8 +43,8 @@ struct HistoryView: View {
                             HistoryDetail(entry: entry, isLatest: entry.id == entries.first?.id)
                                 .id(entry.id)
                         } else {
-                            ContentUnavailableView("Stand auswählen", systemImage: "clock.arrow.circlepath",
-                                                   description: Text("Links einen Stand wählen, um die Änderungen zu sehen."))
+                            ContentUnavailableView("Select a version", systemImage: "clock.arrow.circlepath",
+                                                   description: Text("Choose a version on the left to see the changes."))
                         }
                     }
                     .frame(minWidth: 440, maxWidth: .infinity, maxHeight: .infinity)
@@ -52,27 +52,27 @@ struct HistoryView: View {
                 }
             }
         }
-        .navigationTitle("Verlauf")
-        .navigationSubtitle(entries.isEmpty ? "" : "\(entries.count) Stände")
+        .navigationTitle("History")
+        .navigationSubtitle(entries.isEmpty ? "" : "\(entries.count) versions")
         .task(id: model.historyRevision) { await load() }
         .toolbar {
             ToolbarItem {
                 Menu {
-                    Button("Stände älter als 7 Tage löschen …") { deleteRequest = DeleteRequest(days: 7) }
-                    Button("Stände älter als 30 Tage löschen …") { deleteRequest = DeleteRequest(days: 30) }
+                    Button("Delete versions older than 7 days …") { deleteRequest = DeleteRequest(days: 7) }
+                    Button("Delete versions older than 30 days …") { deleteRequest = DeleteRequest(days: 30) }
                     Divider()
-                    Button("Gesamten Verlauf löschen …", role: .destructive) { deleteRequest = DeleteRequest(days: nil) }
+                    Button("Delete entire history …", role: .destructive) { deleteRequest = DeleteRequest(days: nil) }
                 } label: {
-                    Label("Verlauf löschen", systemImage: "trash")
+                    Label("Delete history", systemImage: "trash")
                 }
-                .help("Alte Stände oder den ganzen Verlauf löschen — deine Dateien bleiben unverändert")
+                .help("Delete old versions or the whole history — your files stay unchanged")
                 .disabled(!model.history.isRepository || entries.count < 2 || deleting
                           || model.coach.isRunning || model.sync.isRunning)
             }
         }
         .confirmationDialog(deleteTitle, isPresented: Binding(get: { deleteRequest != nil }, set: { if !$0 { deleteRequest = nil } }),
                             presenting: deleteRequest) { request in
-            Button(request.days == nil ? "Verlauf löschen" : "Ältere Stände löschen", role: .destructive) {
+            Button(request.days == nil ? "Delete history" : "Delete older versions", role: .destructive) {
                 deleting = true
                 Task {
                     await model.deleteHistory(olderThan: request.days)
@@ -84,7 +84,7 @@ struct HistoryView: View {
         }
         .overlay {
             if deleting {
-                ProgressView("Lösche …")
+                ProgressView("Deleting …")
                     .padding(20)
                     .background(.regularMaterial, in: .rect(cornerRadius: 12))
             }
@@ -93,25 +93,25 @@ struct HistoryView: View {
 
     private var deleteTitle: String {
         guard let request = deleteRequest else { return "" }
-        return request.days.map { "Stände älter als \($0) Tage löschen?" } ?? "Gesamten Verlauf löschen?"
+        return request.days.map { String(localized: "Delete versions older than \($0) days?") } ?? String(localized: "Delete the entire history?")
     }
 
     private func deleteMessage(_ request: DeleteRequest) -> String {
-        let keep = "Deine Dateien — Plan, Läufe, Häkchen — bleiben genau so, wie sie jetzt sind. Gelöschte Stände sind endgültig weg und lassen sich nicht mehr zurücknehmen."
+        let keep = String(localized: "Your files — plan, runs, ticks — stay exactly as they are now. Deleted versions are gone for good and cannot be restored.")
         guard let days = request.days else {
-            return "Alle \(entries.count) Stände werden gelöscht; der jetzige Stand wird der neue Ausgangspunkt. " + keep
+            return String(localized: "All \(entries.count) versions will be deleted; the current state becomes the new starting point. ") + keep
         }
         let cutoff = Date.now.addingTimeInterval(-Double(days) * 86_400)
         let older = entries.filter { $0.date < cutoff }.count
-        guard older > 0 else { return "Es gibt keine Stände vor dem \(Fmt.dayMonth(cutoff)) — es passiert nichts." }
-        return "\(older) Stände vor dem \(Fmt.dayMonth(cutoff)) werden gelöscht; alles danach bleibt mit „Rückgängig“ erhalten. " + keep
+        guard older > 0 else { return String(localized: "There are no versions before \(Fmt.dayMonth(cutoff)) — nothing will happen.") }
+        return String(localized: "\(older) versions before \(Fmt.dayMonth(cutoff)) will be deleted; everything after stays available through “Undo”. ") + keep
     }
 
     private var setUpView: some View {
         ContentUnavailableView {
-            Label("Versionsverwaltung ist aus", systemImage: "clock.badge.questionmark")
+            Label("Version control is off", systemImage: "clock.badge.questionmark")
         } description: {
-            Text("Mit git hält die App jede Änderung am Trainingsordner als Stand fest — vom Coach, von Häkchen und geladenen Läufen — und kann sie rückgängig machen.")
+            Text("With git, the app records every change to the training folder as a version — from the coach, ticks and loaded runs — and can undo them.")
         } actions: {
             Button {
                 settingUp = true
@@ -120,7 +120,7 @@ struct HistoryView: View {
                     settingUp = false
                 }
             } label: {
-                Label("Einrichten", systemImage: "checkmark.circle")
+                Label("Set up", systemImage: "checkmark.circle")
             }
             .disabled(settingUp)
             if let loadError { Text(loadError).foregroundStyle(.orange) }
@@ -162,9 +162,9 @@ struct HistoryView: View {
 
     private func dayTitle(_ date: Date) -> String {
         let cal = DateUtil.calendar
-        if cal.isDateInToday(date) { return "Heute" }
-        if cal.isDateInYesterday(date) { return "Gestern" }
-        return date.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(Fmt.de))
+        if cal.isDateInToday(date) { return String(localized: "Today") }
+        if cal.isDateInYesterday(date) { return String(localized: "Yesterday") }
+        return date.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(Fmt.locale))
     }
 }
 
@@ -182,7 +182,7 @@ private struct HistoryRow: View {
                     .truncationMode(.tail)
                     .help(entry.subject)
                 HStack(spacing: 6) {
-                    Text(entry.date.formatted(.dateTime.hour().minute().locale(Fmt.de)))
+                    Text(entry.date.formatted(.dateTime.hour().minute().locale(Fmt.locale)))
                     Text(entry.files.map { ($0.path as NSString).lastPathComponent }.prefix(3).joined(separator: ", ")
                          + (entry.files.count > 3 ? " +\(entry.files.count - 3)" : ""))
                         .lineLimit(1)
@@ -197,27 +197,27 @@ private struct HistoryRow: View {
 
 enum HistoryStyle {
     static func symbol(for subject: String) -> String {
-        switch true {
-        case subject.hasPrefix("Coach"): "sparkles"
-        case subject.hasPrefix("Abgehakt"): "checkmark.circle"
-        case subject.hasPrefix("Häkchen"): "circle"
-        case subject.contains("geladen"): "figure.run"
-        case subject.hasPrefix("Zugeordnet"): "link"
-        case subject.hasPrefix("Rückgängig"): "arrow.uturn.backward"
-        case subject.hasPrefix("Neuer Block"), subject.hasPrefix("Entwurf"), subject.hasPrefix("Vorschlag"): "calendar"
-        case subject.hasPrefix("Ausgangsstand"): "flag"
-        case subject.hasPrefix(ProjectHistory.externalChanges): "pencil"
-        default: "circle.dashed"
+        switch HistorySubject.kind(of: subject) {
+        case .coach: "sparkles"
+        case .checkedOff: "checkmark.circle"
+        case .unchecked: "circle"
+        case .runsLoaded: "figure.run"
+        case .assigned: "link"
+        case .undone: "arrow.uturn.backward"
+        case .plan: "calendar"
+        case .initial: "flag"
+        case .external: "pencil"
+        case .other: "circle.dashed"
         }
     }
 
     static func color(for subject: String) -> Color {
-        switch true {
-        case subject.hasPrefix("Coach"): .brand
-        case subject.hasPrefix("Abgehakt"): .green
-        case subject.contains("geladen"): .blue
-        case subject.hasPrefix("Rückgängig"): .orange
-        case subject.hasPrefix("Neuer Block"), subject.hasPrefix("Entwurf"), subject.hasPrefix("Vorschlag"): .purple
+        switch HistorySubject.kind(of: subject) {
+        case .coach: .brand
+        case .checkedOff: .green
+        case .runsLoaded: .blue
+        case .undone: .orange
+        case .plan: .purple
         default: .secondary
         }
     }
@@ -238,7 +238,7 @@ private struct HistoryDetail: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(entry.date.formatted(.dateTime.weekday(.wide).day().month(.wide).year().hour().minute().locale(Fmt.de)))
+                    Text(entry.date.formatted(.dateTime.weekday(.wide).day().month(.wide).year().hour().minute().locale(Fmt.locale)))
                         .foregroundStyle(.secondary)
                     Label {
                         Text(entry.subject).font(.title2.bold()).fixedSize(horizontal: false, vertical: true)
@@ -258,7 +258,7 @@ private struct HistoryDetail: View {
                             Button {
                                 confirmRevert = true
                             } label: {
-                                Label("Diese Änderung rückgängig machen", systemImage: "arrow.uturn.backward")
+                                Label("Undo this change", systemImage: "arrow.uturn.backward")
                             }
                             .disabled(working || model.coach.isRunning || model.sync.isRunning)
                         }
@@ -273,7 +273,7 @@ private struct HistoryDetail: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    SectionTitle(text: "Geänderte Dateien")
+                    SectionTitle(text: String(localized: "Changed files"))
                     VStack(alignment: .leading, spacing: 4) {
                         ForEach(entry.files, id: \.path) { file in
                             HStack {
@@ -292,7 +292,7 @@ private struct HistoryDetail: View {
 
                 if entry.canRevert {
                     VStack(alignment: .leading, spacing: 6) {
-                        SectionTitle(text: "Änderungen")
+                        SectionTitle(text: String(localized: "Changes"))
                         DiffView(lines: diff, truncated: truncated)
                     }
                 }
@@ -301,17 +301,17 @@ private struct HistoryDetail: View {
             .frame(maxWidth: 1000, alignment: .leading)
         }
         .task { await loadDiff() }
-        .confirmationDialog("„\(entry.subject)“ rückgängig machen?", isPresented: $confirmRevert) {
-            Button("Rückgängig machen") { Task { await revert() } }
+        .confirmationDialog("Undo “\(entry.subject)”?", isPresented: $confirmRevert) {
+            Button("Undo") { Task { await revert() } }
         } message: {
             Text(isLatest
-                 ? "Die Dateien kommen auf den Stand davor. Das wird selbst als neuer Stand festgehalten."
-                 : "Nur diese Änderungen werden zurückgenommen, spätere bleiben erhalten. Das wird selbst als neuer Stand festgehalten.")
+                 ? "The files go back to the previous version. This is itself recorded as a new version."
+                 : "Only these changes are reverted; later ones are kept. This is itself recorded as a new version.")
         }
-        .alert("Geht nicht automatisch", isPresented: $conflict) {
+        .alert("This can’t be done automatically", isPresented: $conflict) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Spätere Änderungen betreffen dieselben Stellen. Nimm zuerst die späteren Stände zurück oder bitte den Coach, es von Hand zu korrigieren.")
+            Text("Later changes touch the same places. Undo the later versions first or ask the coach to fix it by hand.")
         }
     }
 
@@ -391,7 +391,7 @@ struct DiffView: View {
                 }
             }
             if truncated {
-                Text("… gekürzt")
+                Text("… truncated")
                     .foregroundStyle(.secondary)
                     .padding(8)
             }

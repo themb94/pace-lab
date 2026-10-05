@@ -23,14 +23,14 @@ struct PaceLabApp: App {
                 SetupCommand()
             }
             CommandGroup(replacing: .newItem) {
-                Button("Läufe laden (\(SyncSettings.source.shortLabel))") { model.syncRuns() }
+                Button("Load runs (\(SyncSettings.source.shortLabel))") { model.syncRuns() }
                     .keyboardShortcut("r")
                     .disabled(model.sync.isRunning || model.coach.isRunning || model.snapshot == nil)
-                Button("Dateien neu einlesen") { model.reload(force: true) }
+                Button("Reload files") { model.reload(force: true) }
                     .keyboardShortcut("r", modifiers: [.command, .shift])
             }
             CommandMenu("Coach") {
-                Button("Planen …") { model.requestPlan(.week) }
+                Button("Plan …") { model.requestPlan(.week) }
                     .keyboardShortcut("p", modifiers: [.command, .shift])
                     .disabled(model.coach.isRunning || model.snapshot == nil)
                 Divider()
@@ -40,19 +40,19 @@ struct PaceLabApp: App {
                                   || (action.needsConversation && model.coach.current == nil))
                 }
                 Divider()
-                Button("Neues Gespräch") {
+                Button("New conversation") {
                     model.section = .coach
                     model.coach.newConversation()
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
                 .disabled(model.coach.isRunning)
-                Button("Abbrechen") { model.coach.cancel() }
+                Button("Cancel") { model.coach.cancel() }
                     .keyboardShortcut(".")
                     .disabled(!model.coach.isRunning)
             }
         }
 
-        Window("Einrichtung", id: "setup") {
+        Window("Setup", id: "setup") {
             SetupView()
                 .environment(model)
         }
@@ -90,7 +90,7 @@ private struct SetupCommand: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        Button("Einrichtung …") { openWindow(id: "setup") }
+        Button("Setup …") { openWindow(id: "setup") }
     }
 }
 
@@ -103,18 +103,18 @@ struct RootView: View {
         NavigationSplitView {
             List(selection: $model.section) {
                 Section("Training") {
-                    Label("Übersicht", systemImage: "gauge.with.dots.needle.67percent")
+                    Label("Overview", systemImage: "gauge.with.dots.needle.67percent")
                         .tag(SidebarItem.overview)
                     Label("Plan", systemImage: "calendar")
                         .tag(SidebarItem.plan)
-                    Label("Läufe", systemImage: "figure.run")
+                    Label("Runs", systemImage: "figure.run")
                         .tag(SidebarItem.runs)
                 }
-                Section("Assistent") {
+                Section("Assistant") {
                     Label("Coach", systemImage: "sparkles")
-                        .badge(model.coach.isRunning ? Text("läuft") : nil)
+                        .badge(model.coach.isRunning ? Text("running") : nil)
                         .tag(SidebarItem.coach)
-                    Label("Verlauf", systemImage: "clock.arrow.circlepath")
+                    Label("History", systemImage: "clock.arrow.circlepath")
                         .tag(SidebarItem.history)
                 }
             }
@@ -166,7 +166,7 @@ private struct SyncButton: View {
         if sync.isRunning {
             HStack(spacing: 6) {
                 ProgressView().controlSize(.small)
-                Text(sync.step ?? "Lade …")
+                Text(sync.step ?? String(localized: "Loading …"))
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -177,16 +177,16 @@ private struct SyncButton: View {
                     Image(systemName: "xmark.circle.fill")
                 }
                 .buttonStyle(.borderless)
-                .help("Abbrechen")
+                .help("Cancel")
             }
         } else {
             Button {
                 model.syncRuns()
             } label: {
-                Label("Läufe laden", systemImage: "arrow.down.circle")
+                Label("Load runs", systemImage: "arrow.down.circle")
             }
-            .help("Neue Läufe von \(SyncSettings.source.shortLabel) holen (⌘R)"
-                  + (sync.lastSync.map { " — zuletzt \($0.formatted(.relative(presentation: .named).locale(Fmt.de)))" } ?? ""))
+            .help(String(localized: "Fetch new runs from \(SyncSettings.source.shortLabel) (⌘R)")
+                  + (sync.lastSync.map { String(localized: " — updated \($0.formatted(.relative(presentation: .named).locale(Fmt.locale)))") } ?? ""))
             .disabled(model.coach.isRunning || model.snapshot == nil)
         }
     }
@@ -234,9 +234,9 @@ private struct ToastView: View {
 
     private func actionTitle(_ action: Toast.Action) -> String {
         switch action {
-        case .showRuns: "Anzeigen"
-        case .showPlan: "Zum Plan"
-        case .showHistory: "Verlauf"
+        case .showRuns: String(localized: "Show")
+        case .showPlan: String(localized: "Go to plan")
+        case .showHistory: String(localized: "History")
         }
     }
 }
@@ -259,8 +259,8 @@ private struct SidebarStatus: View {
             }
             .buttonStyle(.borderless)
             .foregroundStyle(.secondary)
-            .help("Einstellungen (⌘,)")
-            .accessibilityLabel("Einstellungen")
+            .help("Settings (⌘,)")
+            .accessibilityLabel("Settings")
         }
         .padding(12)
     }
@@ -272,12 +272,12 @@ private struct SidebarStatus: View {
                     .font(.caption.weight(.semibold))
             }
             if let synced = model.sync.lastSync {
-                Text("Läufe geladen: \(synced.formatted(.dateTime.day().month().hour().minute().locale(Fmt.de)))")
+                Text("Runs loaded: \(synced.formatted(.dateTime.day().month().hour().minute().locale(Fmt.locale)))")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
             if let loaded = model.lastLoaded {
-                Text("Dateien: \(loaded.formatted(.dateTime.hour().minute().second().locale(Fmt.de)))")
+                Text("Files: \(loaded.formatted(.dateTime.hour().minute().second().locale(Fmt.locale)))")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .help(model.folder.url.path)

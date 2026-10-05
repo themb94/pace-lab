@@ -13,7 +13,13 @@ struct SetupError: LocalizedError {
 enum TrainingFolderSetup {
     static let files = ["plan.json", "analysis.json", "completed.json", "README.md"]
 
-    static var templateURL: URL? { Bundle.main.url(forResource: "Template", withExtension: nil) }
+    /// Vorlage in der Sprache der App (Template/<Sprache> im App-Bundle), sonst die englische.
+    static var templateURL: URL? {
+        guard let root = Bundle.main.url(forResource: "Template", withExtension: nil) else { return nil }
+        let localized = root.appending(path: AppLanguage.code, directoryHint: .isDirectory)
+        let folder = FileManager.default.fileExists(atPath: localized.path) ? localized : root.appending(path: "en", directoryHint: .isDirectory)
+        return folder
+    }
 
     static func isReady(_ folder: URL) -> Bool {
         let fm = FileManager.default
@@ -24,7 +30,7 @@ enum TrainingFolderSetup {
     /// Legt fehlende Dateien an (vorhandene bleiben unangetastet) und startet den Verlauf (git).
     /// Der Beispielplan beginnt am nächsten Montag.
     static func create(at folder: URL, today: Date = .now) async throws {
-        guard let template = templateURL else { throw SetupError("Die Vorlage fehlt im App-Bundle.") }
+        guard let template = templateURL else { throw SetupError(String(localized: "The template is missing from the app bundle.")) }
         let fm = FileManager.default
         try fm.createDirectory(at: folder, withIntermediateDirectories: true)
         for name in files {
@@ -94,10 +100,10 @@ enum GarminSetup {
     /// Kopiert den Server, legt die Python-Umgebung an und installiert garminconnect + mcp.
     static func install(progress: @Sendable (String) -> Void) throws {
         guard let bundled = Bundle.main.url(forResource: "garmin-mcp", withExtension: nil) else {
-            throw SetupError("Der Garmin-Server fehlt im App-Bundle.")
+            throw SetupError(String(localized: "The Garmin server is missing from the app bundle."))
         }
         guard let python = PythonFinder.find() else {
-            throw SetupError("Python 3.10 oder neuer fehlt. Installiere es z. B. mit „brew install python“ oder von python.org und versuch es dann noch einmal.")
+            throw SetupError(String(localized: "Python 3.10 or newer is missing. Install it e.g. with “brew install python” or from python.org and then try again."))
         }
         let fm = FileManager.default
         try fm.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -107,10 +113,10 @@ enum GarminSetup {
             try fm.copyItem(at: bundled.appending(path: name), to: target)
         }
         if !fm.isExecutableFile(atPath: self.python.path) {
-            progress("Python-Umgebung anlegen (Python \(python.version)) …")
+            progress(String(localized: "Creating Python environment (Python \(python.version)) …"))
             try run(python.url, ["-m", "venv", directory.appending(path: ".venv").path])
         }
-        progress("Pakete installieren (garminconnect, mcp) — kann eine Minute dauern …")
+        progress(String(localized: "Installing packages (garminconnect, mcp) — may take a minute …"))
         try run(self.python, ["-m", "pip", "install", "--disable-pip-version-check", "-q", "-r",
                               directory.appending(path: "requirements.txt").path])
     }
@@ -134,7 +140,7 @@ enum GarminSetup {
         let result = ProcessRunner.run(executable, arguments)
         guard result.status == 0 else {
             let details = (result.error + result.output).split(separator: "\n").suffix(4).joined(separator: "\n")
-            throw SetupError("\(executable.lastPathComponent) \(arguments.prefix(2).joined(separator: " ")) ist fehlgeschlagen:\n\(details)")
+            throw SetupError(String(localized: "\(executable.lastPathComponent) \(arguments.prefix(2).joined(separator: " ")) failed:\n\(details)"))
         }
     }
 }
@@ -156,7 +162,7 @@ final class GarminLogin {
 
     func start(folder: URL) async {
         guard let config = GarminServerConfig.load(from: folder) else {
-            phase = .failed("Erst den Garmin-Server einrichten.")
+            phase = .failed(String(localized: "Set up the Garmin server first."))
             return
         }
         phase = .working
@@ -222,7 +228,7 @@ enum StravaSetup {
         if text.contains("No MCP server named") { return .missing }
         if text.contains("Connected") { return .connected }
         if text.localizedCaseInsensitiveContains("auth") { return .needsLogin }
-        return .unknown(text.split(separator: "\n").first(where: { $0.contains("Status") }).map(String.init) ?? "unbekannt")
+        return .unknown(text.split(separator: "\n").first(where: { $0.contains("Status") }).map(String.init) ?? String(localized: "unknown"))
     }
 
     /// Trägt den Strava-Server für diesen Ordner in Claude Code ein (nur für dich, nicht im Ordner).
@@ -276,7 +282,7 @@ enum CLISetup {
 enum Terminal {
     static func run(_ command: String, name: String) {
         let url = FileManager.default.temporaryDirectory.appending(path: "pacelab-\(name).command")
-        let script = "#!/bin/zsh -l\nclear\n\(command)\necho\necho \"Fertig — dieses Fenster kann geschlossen werden.\"\n"
+        let script = "#!/bin/zsh -l\nclear\n\(command)\necho\necho \(quote(String(localized: "Done — you can close this window.")))\n"
         do {
             try script.write(to: url, atomically: true, encoding: .utf8)
             try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: url.path)

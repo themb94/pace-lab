@@ -18,9 +18,9 @@ struct OverviewView: View {
                 Button {
                     model.startCoach(.reviewWeek)
                 } label: {
-                    Label("Woche auswerten", systemImage: "sparkles")
+                    Label("Review week", systemImage: "sparkles")
                 }
-                .help("Claude wertet die letzte Woche aus (Strava → Analyse)")
+                .help("Claude reviews the last week (Strava → analysis)")
                 .disabled(model.coach.isRunning)
             }
         }
@@ -43,7 +43,7 @@ struct OverviewView: View {
                 } trailing: {
                     if let run = snapshot.lastRun {
                         VStack(alignment: .leading, spacing: 8) {
-                            SectionTitle(text: "Letzter Lauf")
+                            SectionTitle(text: String(localized: "Last run"))
                             Button { model.show(run) } label: {
                                 LastRunCard(run: run, label: snapshot.label(for: run))
                             }
@@ -51,7 +51,7 @@ struct OverviewView: View {
                         }
                     }
                     VStack(alignment: .leading, spacing: 8) {
-                        SectionTitle(text: "Wochenkilometer")
+                        SectionTitle(text: String(localized: "Weekly distance"))
                         WeeklyKmChart(
                             buckets: snapshot.weeklyBuckets(
                                 from: DateUtil.calendar.date(byAdding: .day, value: -42, to: monday)!, count: 10),
@@ -94,9 +94,9 @@ private struct BlockHeaderCard: View {
             }
             Spacer(minLength: 12)
             HStack(spacing: 28) {
-                StatBlock(value: weekValue, total: "/\(snapshot.weekCount)", label: "Block-Woche", color: .brand)
-                StatBlock(value: "\(done)", total: "/\(total)", label: "Einheiten", color: .green)
-                StatBlock(value: Fmt.km(snapshot.totalKm, digits: 0), total: " km", label: "analysiert", color: .blue)
+                StatBlock(value: weekValue, total: "/\(snapshot.weekCount)", label: String(localized: "Block week"), color: .brand)
+                StatBlock(value: "\(done)", total: "/\(total)", label: String(localized: "Sessions"), color: .green)
+                StatBlock(value: Fmt.km(snapshot.totalKm, digits: 0), total: " km", label: String(localized: "analyzed"), color: .blue)
             }
         }
         .overlay(alignment: .bottom) {
@@ -118,11 +118,11 @@ private struct BlockHeaderCard: View {
     private var statusText: String {
         switch snapshot.status(on: today) {
         case .upcoming(let days):
-            "Start \(Fmt.relativeDays(days)) · \(Fmt.weekdayDayMonth(snapshot.startMonday))"
+            String(localized: "Starts \(Fmt.relativeDays(days)) · \(Fmt.weekdayDayMonth(snapshot.startMonday))")
         case .running(let week):
-            "Woche \(week) von \(snapshot.weekCount) · \(snapshot.phase(ofWeek: week))"
+            String(localized: "Week \(week) of \(snapshot.weekCount) · \(snapshot.phase(ofWeek: week))")
         case .finished:
-            "Block abgeschlossen"
+            String(localized: "Block completed")
         }
     }
 
@@ -160,7 +160,7 @@ private struct NextSessionCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Als Nächstes · Woche \(session.week) · \(session.phase)")
+            Text("Up next · Week \(session.week) · \(session.phase)")
                 .font(.caption.weight(.bold))
                 .foregroundStyle(Color.brand)
                 .textCase(.uppercase)
@@ -176,7 +176,7 @@ private struct NextSessionCard: View {
                 Button {
                     withAnimation { model.toggleDone(session) }
                 } label: {
-                    Label("Erledigt", systemImage: "checkmark")
+                    Label("Done", systemImage: "checkmark")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.green)
@@ -184,7 +184,7 @@ private struct NextSessionCard: View {
                 Button {
                     model.show(session)
                 } label: {
-                    Label("Im Plan zeigen", systemImage: "calendar")
+                    Label("Show in plan", systemImage: "calendar")
                 }
             }
             .controlSize(.large)
@@ -212,7 +212,7 @@ private struct WeekCard: View {
             SectionTitle(text: title)
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("Woche \(week)").font(.headline)
+                    Text("Week \(week)").font(.headline)
                     PhasePill(phase: snapshot.phase(ofWeek: week))
                     Text(Fmt.range(snapshot.monday(ofWeek: week), snapshot.sunday(ofWeek: week))
                          + (snapshot.note(ofWeek: week).map { " · \($0)" } ?? ""))
@@ -224,7 +224,7 @@ private struct WeekCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("\(Fmt.km(actual)) von \(Fmt.km(planned, digits: 0)) km")
+                    Text("\(Fmt.km(actual)) of \(Fmt.km(planned, digits: 0)) km")
                         .font(.caption.weight(.semibold).monospacedDigit())
                     ProgressBar(value: planned > 0 ? actual / planned : 0)
                 }
@@ -257,9 +257,9 @@ private struct WeekCard: View {
 
     private var title: String {
         switch snapshot.status(on: today) {
-        case .upcoming: "Erste Woche"
-        case .running: "Diese Woche"
-        case .finished: "Letzte Woche"
+        case .upcoming: String(localized: "First week")
+        case .running: String(localized: "This week")
+        case .finished: String(localized: "Last week")
         }
     }
 }
@@ -283,9 +283,9 @@ private struct LastRunCard: View {
                 if let verdict = run.verdict { VerdictPill(verdict: verdict) }
             }
             HStack(spacing: 8) {
-                MetricTile(value: "\(Fmt.km(run.distanceKm, digits: 2)) km", label: "Distanz", symbol: "ruler")
-                MetricTile(value: Fmt.pace(run.paceSeconds), label: "Ø Pace", symbol: "speedometer")
-                MetricTile(value: Fmt.int(run.avgHr), label: "Ø HF", symbol: "heart.fill")
+                MetricTile(value: "\(Fmt.km(run.distanceKm, digits: 2)) km", label: String(localized: "Distance"), symbol: "ruler")
+                MetricTile(value: Fmt.pace(run.paceSeconds), label: String(localized: "Avg pace"), symbol: "speedometer")
+                MetricTile(value: Fmt.int(run.avgHr), label: String(localized: "Avg HR"), symbol: "heart.fill")
             }
             if let label {
                 Pill(text: label, color: .blue)
@@ -307,12 +307,12 @@ struct WeeklyKmChart: View {
         VStack(alignment: .leading, spacing: 10) {
             Chart(buckets) { bucket in
                 if let planned = bucket.plannedKm {
-                    BarMark(x: .value("Woche", label(bucket)), y: .value("km", planned),
+                    BarMark(x: .value("Week", label(bucket)), y: .value("km", planned),
                             width: .ratio(0.62), stacking: .unstacked)
                         .foregroundStyle(Color.primary.opacity(0.13))
                         .clipShape(.rect(cornerRadius: 4))
                 }
-                BarMark(x: .value("Woche", label(bucket)), y: .value("km", bucket.actualKm),
+                BarMark(x: .value("Week", label(bucket)), y: .value("km", bucket.actualKm),
                         width: .ratio(0.62), stacking: .unstacked)
                     .foregroundStyle(bucket.monday == currentMonday ? Color.brand : Color.brand.opacity(0.55))
                     .clipShape(.rect(cornerRadius: 4))
@@ -333,10 +333,10 @@ struct WeeklyKmChart: View {
             .frame(height: 200)
 
             HStack(spacing: 14) {
-                legendItem(Color.brand, "gelaufen")
-                legendItem(Color.primary.opacity(0.13), "geplant")
+                legendItem(Color.brand, String(localized: "actual"))
+                legendItem(Color.primary.opacity(0.13), String(localized: "planned"))
                 Spacer()
-                Text("W = Blockwoche, sonst Montag der Woche")
+                Text("W = block week, otherwise Monday of the week")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }

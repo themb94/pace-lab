@@ -117,7 +117,7 @@ final class AppModel {
                 var draft = DraftState()
                 if let data = try? Data(contentsOf: folder.file(PlanFiles.draft)) {
                     do { draft.plan = try PlanFiles.decode(data) } catch {
-                        draft.error = "\(PlanFiles.draft) ist ungültig: \(error.localizedDescription)"
+                        draft.error = String(localized: "\(PlanFiles.draft) is invalid: \(error.localizedDescription)")
                     }
                 }
                 do {
@@ -208,12 +208,12 @@ final class AppModel {
             coach.remapCommits(result.mapping)
             historyRevision += 1
             toast = result.removed == 0
-                ? Toast(message: days == nil ? "Es gibt nur den aktuellen Stand — nichts zu löschen." : "Keine Stände älter als \(days!) Tage.",
+                ? Toast(message: days == nil ? String(localized: "There is only the current version — nothing to delete.") : String(localized: "No versions older than \(days!) days."),
                         symbol: "checkmark.circle")
-                : Toast(message: "\(result.removed) Stände gelöscht" + (result.kept > 0 ? ", \(result.kept) behalten" : ""),
+                : Toast(message: String(localized: "\(result.removed) versions deleted") + (result.kept > 0 ? String(localized: ", \(result.kept) kept") : ""),
                         symbol: "trash.circle.fill")
         } catch {
-            toast = Toast(message: "Verlauf nicht gelöscht: \(error.localizedDescription)", symbol: "exclamationmark.triangle.fill", isError: true)
+            toast = Toast(message: String(localized: "History not deleted: \(error.localizedDescription)"), symbol: "exclamationmark.triangle.fill", isError: true)
         }
     }
 
@@ -221,7 +221,7 @@ final class AppModel {
     /// wird nachgefragt, ob die Dateien auf den Stand vor dem Lauf gesetzt werden sollen.
     func undo(_ turn: CoachTurn, force: Bool = false) async -> ProjectHistory.RevertOutcome? {
         guard let commit = turn.commit else { return nil }
-        let message = "Rückgängig: \(turn.title ?? String(turn.prompt.prefix(60)))"
+        let message = String(localized: "Undone: \(turn.title ?? String(turn.prompt.prefix(60)))")
         do {
             if force, let base = turn.baseCommit {
                 let files = turn.changedFiles ?? []
@@ -238,7 +238,7 @@ final class AppModel {
             }
             return outcome
         } catch {
-            toast = Toast(message: "Rückgängig ging nicht: \(error.localizedDescription)", symbol: "exclamationmark.triangle.fill", isError: true)
+            toast = Toast(message: String(localized: "Undo failed: \(error.localizedDescription)"), symbol: "exclamationmark.triangle.fill", isError: true)
             return nil
         }
     }
@@ -246,11 +246,11 @@ final class AppModel {
     /// Nimmt einen beliebigen Stand aus dem Verlauf zurück.
     func revert(_ entry: ProjectHistory.Entry) async -> ProjectHistory.RevertOutcome? {
         do {
-            let outcome = try await history.revert(entry.id, message: "Rückgängig: \(entry.subject)")
+            let outcome = try await history.revert(entry.id, message: String(localized: "Undone: \(entry.subject)"))
             if case .reverted = outcome { finishUndo() }
             return outcome
         } catch {
-            toast = Toast(message: "Rückgängig ging nicht: \(error.localizedDescription)", symbol: "exclamationmark.triangle.fill", isError: true)
+            toast = Toast(message: String(localized: "Undo failed: \(error.localizedDescription)"), symbol: "exclamationmark.triangle.fill", isError: true)
             return nil
         }
     }
@@ -258,7 +258,7 @@ final class AppModel {
     private func finishUndo() {
         historyRevision += 1
         reload(force: true)
-        toast = Toast(message: "Änderungen zurückgenommen", symbol: "arrow.uturn.backward.circle.fill", action: .showHistory)
+        toast = Toast(message: String(localized: "Changes undone"), symbol: "arrow.uturn.backward.circle.fill", action: .showHistory)
     }
 
     // MARK: - Häkchen & Zuordnung
@@ -268,11 +268,12 @@ final class AppModel {
         let done = !snapshot.isDone(session)
         do {
             try folder.setCompleted(done, sessionID: session.id)
-            record("\(done ? "Abgehakt" : "Häkchen entfernt"): W\(session.week) · \(session.kind.label) \(session.dist)",
+            let verb = done ? String(localized: "Checked off") : String(localized: "Unchecked")
+            record("\(verb): W\(session.week) · \(session.kind.label) \(session.dist)",
                    paths: [TrainingFiles.completed])
             reload(force: true)
         } catch {
-            loadError = "completed.json konnte nicht geschrieben werden: \(error.localizedDescription)"
+            loadError = String(localized: "completed.json could not be written: \(error.localizedDescription)")
         }
     }
 
@@ -289,12 +290,12 @@ final class AppModel {
             if let session, !snapshot.isDone(session) {
                 try folder.setCompleted(true, sessionID: session.id, on: day)
             }
-            let target = session.map { "W\($0.week) · \($0.kind.label)" } ?? "keine Einheit"
-            record("Zugeordnet: \(Fmt.dayMonth(day)) \(run.name) → \(target)",
+            let target = session.map { "W\($0.week) · \($0.kind.label)" } ?? String(localized: "no session")
+            record(String(localized: "Assigned: \(Fmt.dayMonth(day)) \(run.name) → \(target)"),
                    paths: [TrainingFiles.analysis, TrainingFiles.completed])
             reload(force: true)
         } catch {
-            toast = Toast(message: "Zuordnung fehlgeschlagen: \(error.localizedDescription)", symbol: "exclamationmark.triangle.fill", isError: true)
+            toast = Toast(message: String(localized: "Assignment failed: \(error.localizedDescription)"), symbol: "exclamationmark.triangle.fill", isError: true)
         }
     }
 
@@ -303,7 +304,7 @@ final class AppModel {
     func syncRuns() {
         guard let snapshot, !sync.isRunning else { return }
         guard !coach.isRunning else {
-            toast = Toast(message: "Der Coach arbeitet gerade — danach laden.", symbol: "hourglass", isError: true)
+            toast = Toast(message: String(localized: "The coach is working right now — load runs afterwards."), symbol: "hourglass", isError: true)
             return
         }
         sync.start(folder: folder, snapshot: snapshot, history: history, claudeCommand: claudeCommand) { [weak self] changed in
@@ -345,12 +346,12 @@ final class AppModel {
         do {
             let paths = try proposal.apply(in: folder)
             coach.markProposalApplied(turn: turn.id)
-            record("Vorschlag übernommen: \(turn.title ?? "Plan")", paths: paths)
+            record(String(localized: "Suggestion applied: \(turn.title ?? "Plan")"), paths: paths)
             reload(force: true)
             if case .draft = proposal.scope { showDraft = true }
             section = .plan
         } catch {
-            toast = Toast(message: "Vorschlag nicht übernommen: \(error.localizedDescription)", symbol: "exclamationmark.triangle.fill", isError: true)
+            toast = Toast(message: String(localized: "Suggestion not applied: \(error.localizedDescription)"), symbol: "exclamationmark.triangle.fill", isError: true)
         }
     }
 
@@ -364,7 +365,7 @@ final class AppModel {
             let currentPlan = try PlanFiles.decode(current)
             let newPlan = try PlanFiles.decode(proposed)
             guard newPlan.idPrefix != currentPlan.idPrefix else {
-                toast = Toast(message: "Der Entwurf nutzt dasselbe idPrefix wie der aktuelle Block — bitte den Coach ein neues vergeben lassen.",
+                toast = Toast(message: String(localized: "The draft uses the same idPrefix as the current block — please have the coach assign a new one."),
                               symbol: "exclamationmark.triangle.fill", isError: true)
                 return
             }
@@ -377,25 +378,25 @@ final class AppModel {
             }
             try proposed.write(to: planURL, options: .atomic)
             try FileManager.default.removeItem(at: draftURL)
-            record("Neuer Block: \(newPlan.title)\n\nDer bisherige Plan „\(currentPlan.title)“ liegt jetzt in \(PlanFiles.archive)/\(archiveName).",
+            record(String(localized: "New block: \(newPlan.title)\n\nThe previous plan “\(currentPlan.title)” is now in \(PlanFiles.archive)/\(archiveName)."),
                    paths: [TrainingFiles.plan, PlanFiles.draft, "\(PlanFiles.archive)/\(archiveName)"])
             showDraft = false
             reload(force: true)
-            toast = Toast(message: "„\(newPlan.title)“ ist jetzt der aktive Plan", symbol: "calendar.badge.checkmark", action: .showPlan)
+            toast = Toast(message: String(localized: "“\(newPlan.title)” is now the active plan"), symbol: "calendar.badge.checkmark", action: .showPlan)
         } catch {
-            toast = Toast(message: "Entwurf nicht übernommen: \(error.localizedDescription)", symbol: "exclamationmark.triangle.fill", isError: true)
+            toast = Toast(message: String(localized: "Draft not applied: \(error.localizedDescription)"), symbol: "exclamationmark.triangle.fill", isError: true)
         }
     }
 
     func discardDraft() {
-        let title = draft?.title ?? "Entwurf"
+        let title = draft?.title ?? String(localized: "Draft")
         do {
             try FileManager.default.removeItem(at: folder.file(PlanFiles.draft))
-            record("Entwurf verworfen: \(title)", paths: [PlanFiles.draft])
+            record(String(localized: "Draft discarded: \(title)"), paths: [PlanFiles.draft])
             showDraft = false
             reload(force: true)
         } catch {
-            toast = Toast(message: "Entwurf nicht gelöscht: \(error.localizedDescription)", symbol: "exclamationmark.triangle.fill", isError: true)
+            toast = Toast(message: String(localized: "Draft not deleted: \(error.localizedDescription)"), symbol: "exclamationmark.triangle.fill", isError: true)
         }
     }
 
@@ -424,7 +425,7 @@ final class AppModel {
 
     func startCoach(_ action: CoachAction) {
         guard !sync.isRunning else {
-            toast = Toast(message: "Es werden gerade Läufe geladen — gleich noch einmal versuchen.", symbol: "hourglass", isError: true)
+            toast = Toast(message: String(localized: "Runs are being loaded right now — try again in a moment."), symbol: "hourglass", isError: true)
             return
         }
         section = .coach
@@ -436,8 +437,8 @@ final class AppModel {
         coach.newConversation()
         let day = run.day.map(Fmt.weekdayDayMonth) ?? run.date
         coach.draft = run.isAnalyzed
-            ? "Zu meinem Lauf „\(run.name)“ vom \(day): "
-            : "Werte meinen Lauf „\(run.name)“ vom \(day) aus (Eintrag in analysis.json ergänzen, Einheit zuordnen und abhaken). "
+            ? String(localized: "About my run “\(run.name)” from \(day): ")
+            : String(localized: "Review my run “\(run.name)” from \(day) (add an entry to analysis.json, assign the session and tick it off). ")
         section = .coach
     }
 

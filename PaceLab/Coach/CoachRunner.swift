@@ -55,9 +55,9 @@ enum CoachError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notFound(let command):
-            "„\(command)“ wurde nicht gefunden. Trag in den Einstellungen → Coach den vollständigen Pfad ein."
+            String(localized: "“\(command)” was not found. Enter the full path in Settings → Coach.")
         case .launchFailed(let reason):
-            "Die CLI ließ sich nicht starten: \(reason)"
+            String(localized: "The CLI could not be started: \(reason)")
         }
     }
 }
@@ -308,7 +308,7 @@ enum CLIEnvironment {
         }
         env["PATH"] = path.joined(separator: ":")
         env["HOME"] = NSHomeDirectory()
-        if env["LANG"] == nil { env["LANG"] = "de_DE.UTF-8" }
+        if env["LANG"] == nil { env["LANG"] = "en_US.UTF-8" }
         return env
     }
 }

@@ -33,19 +33,19 @@ struct MenuBarContent: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Woche \(week): \(sessions.filter(snapshot.isDone).count)/\(sessions.count) Einheiten · \(Fmt.km(actual)) von \(Fmt.km(planned, digits: 0)) km")
+                    Text("Week \(week): \(sessions.filter(snapshot.isDone).count)/\(sessions.count) sessions · \(Fmt.km(actual)) of \(Fmt.km(planned, digits: 0)) km")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     ProgressBar(value: planned > 0 ? actual / planned : 0)
                 }
             } else {
-                Text(model.loadError ?? "Keine Trainingsdaten").foregroundStyle(.secondary)
+                Text(model.loadError ?? String(localized: "No training data")).foregroundStyle(.secondary)
             }
 
             if model.coach.isRunning {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
-                    Text(model.coach.liveStep ?? "Coach arbeitet …")
+                    Text(model.coach.liveStep ?? String(localized: "Coach is working …"))
                         .font(.callout)
                         .lineLimit(1)
                 }
@@ -71,20 +71,20 @@ struct MenuBarContent: View {
             Button {
                 model.syncRuns()
             } label: {
-                Label("Läufe laden (\(SyncSettings.source.shortLabel))", systemImage: "arrow.down.circle")
+                Label("Load runs (\(SyncSettings.source.shortLabel))", systemImage: "arrow.down.circle")
             }
             .disabled(model.sync.isRunning || model.coach.isRunning || model.snapshot == nil)
 
             Button {
                 open(.overview)
             } label: {
-                Label("Pace Lab öffnen", systemImage: "macwindow")
+                Label("Open Pace Lab", systemImage: "macwindow")
             }
             Button {
                 model.startCoach(.reviewWeek)
                 open(.coach)
             } label: {
-                Label("Woche auswerten", systemImage: "sparkles")
+                Label("Review week", systemImage: "sparkles")
             }
             .disabled(model.coach.isRunning || model.sync.isRunning || !model.coach.activeEngine.kind.isAgent)
 
@@ -94,9 +94,9 @@ struct MenuBarContent: View {
                 openSettings()
                 NSApp.activate()
             } label: {
-                Label("Einstellungen …", systemImage: "gearshape")
+                Label("Settings …", systemImage: "gearshape")
             }
-            Button("Pace Lab beenden") { NSApp.terminate(nil) }
+            Button("Quit Pace Lab") { NSApp.terminate(nil) }
         }
         .buttonStyle(.borderless)
         .padding(16)

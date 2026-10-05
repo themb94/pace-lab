@@ -35,20 +35,20 @@ struct SetupView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Label("Pace Lab einrichten", systemImage: "figure.run.circle.fill")
+                    Label("Set up Pace Lab", systemImage: "figure.run.circle.fill")
                         .font(.largeTitle.bold())
                         .foregroundStyle(Color.brand)
-                    Text("Deine Daten bleiben auf deinem Mac: im Trainingsordner, in deinen CLIs und bei Garmin bzw. Strava selbst. Garmin und Strava sind optional — ohne sie planst und hakst du von Hand ab.")
+                    Text("Your data stays on your Mac: in the training folder, in your CLIs and with Garmin or Strava themselves. Garmin and Strava are optional — without them you plan and tick off by hand.")
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                step(1, "Trainingsordner", done: folderReady) { folderStep }
-                step(2, "Über dich", done: !athleteName.trimmingCharacters(in: .whitespaces).isEmpty) { aboutStep }
+                step(1, String(localized: "Training folder"), done: folderReady) { folderStep }
+                step(2, String(localized: "About you"), done: !athleteName.trimmingCharacters(in: .whitespaces).isEmpty) { aboutStep }
                 step(3, "Coach", done: claude?.loggedIn == true || codex?.loggedIn == true || lms?.path != nil) { coachStep }
                 step(4, "Garmin (optional)", done: garminConfigured != nil && GarminSetup.hasToken) { garminStep }
-                step(5, "Strava (optional, über Claude Code)", done: strava == .connected) { stravaStep }
-                step(6, "Loslegen", done: false) { startStep }
+                step(5, String(localized: "Strava (optional, via Claude Code)"), done: strava == .connected) { stravaStep }
+                step(6, String(localized: "Get started"), done: false) { startStep }
             }
             .padding(28)
             .frame(maxWidth: 760, alignment: .leading)
@@ -64,9 +64,9 @@ struct SetupView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(projectPath).font(.callout.monospaced()).textSelection(.enabled).lineLimit(2)
             if folderReady {
-                Label("Plan, Läufe und Coach-README sind da.", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                Label("Plan, runs and coach README are in place.", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
             } else {
-                Text("Hier liegen dein Plan (plan.json), deine Läufe (analysis.json), Häkchen und die README mit den Regeln für den Coach. Die App legt ihn mit einem Beispielplan an; jede Änderung wird als Stand festgehalten (git).")
+                Text("This is where your plan (plan.json), your runs (analysis.json), ticks and the README with the rules for the coach live. The app creates it with an example plan; every change is recorded as a version (git).")
                     .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             HStack {
@@ -85,14 +85,14 @@ struct SetupView: View {
                             await refresh()
                         }
                     } label: {
-                        Label("Ordner anlegen", systemImage: "folder.badge.plus")
+                        Label("Create folder", systemImage: "folder.badge.plus")
                     }
                     .buttonStyle(.borderedProminent).tint(.brand)
                     .disabled(creating)
                 }
-                Button("Anderen Ordner wählen …", action: chooseFolder)
+                Button("Choose another folder …", action: chooseFolder)
                 if folderReady {
-                    Button("Im Finder zeigen") { NSWorkspace.shared.activateFileViewerSelecting([folder]) }
+                    Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([folder]) }
                 }
                 if creating { ProgressView().controlSize(.small) }
             }
@@ -102,29 +102,29 @@ struct SetupView: View {
 
     private var aboutStep: some View {
         VStack(alignment: .leading, spacing: 10) {
-            TextField("Dein Name (so spricht dich der Coach an)", text: $athleteName)
+            TextField("Your name (how the coach addresses you)", text: $athleteName)
                 .textFieldStyle(.roundedBorder)
                 .frame(maxWidth: 360)
-            Text("Ziel, Maximalpuls, Trainingstage oder Besonderheiten stehen im Abschnitt „Athletenprofil“ der README im Trainingsordner. Füll ihn aus oder erzähl es einfach dem Coach — er trägt es selbst ein.")
+            Text("Goal, max heart rate, training days or special considerations go in the “Athlete profile” section of the README in the training folder. Fill it in or just tell the coach — it will enter it itself.")
                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            Button("README öffnen") { NSWorkspace.shared.open(folder.appending(path: "README.md")) }
+            Button("Open README") { NSWorkspace.shared.open(folder.appending(path: "README.md")) }
                 .disabled(!folderReady)
         }
     }
 
     private var coachStep: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Der Coach ist eine CLI auf deinem Mac, die du selbst installierst und mit deinem eigenen Konto nutzt. Eine reicht.")
+            Text("The coach is a CLI on your Mac that you install yourself and use with your own account. One is enough.")
                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            cliRow("Claude Code", info: claude, detail: "Agent — plant, wertet aus, Strava und Garmin.",
+            cliRow("Claude Code", info: claude, detail: String(localized: "Agent — plans, reviews, Strava and Garmin."),
                    login: "claude auth login", install: "https://docs.claude.com/en/docs/claude-code/setup")
-            cliRow("Codex", info: codex, detail: "Agent — plant, wertet aus, Garmin (kein Strava).",
+            cliRow("Codex", info: codex, detail: String(localized: "Agent — plans, reviews, Garmin (no Strava)."),
                    login: "codex login", install: "https://developers.openai.com/codex/cli")
-            cliRow("Lokales Modell (LM Studio / Bionic)", info: lms, detail: "Nur Text — berät anhand des mitgeschickten Stands, ändert nichts.",
+            cliRow(String(localized: "Local model (LM Studio / Bionic)"), info: lms, detail: String(localized: "Text only — advises from the status sent along, changes nothing."),
                    login: nil, install: "https://lmstudio.ai")
             HStack {
-                Button("Erneut prüfen") { Task { await refresh() } }
-                SettingsLink { Text("Coach-Einstellungen …") }
+                Button("Check again") { Task { await refresh() } }
+                SettingsLink { Text("Coach settings …") }
             }
         }
     }
@@ -139,35 +139,35 @@ struct SetupView: View {
                 Text(detail).font(.caption).foregroundStyle(.secondary)
                 Group {
                     if info == nil {
-                        Text("Prüfe …")
+                        Text("Checking …")
                     } else if let path = info?.path {
                         Text(([info?.version, path].compactMap { $0 }).joined(separator: " · ")
-                             + (info?.loggedIn == false ? " · nicht angemeldet" : info?.loggedIn == true ? " · angemeldet" : ""))
+                             + (info?.loggedIn == false ? String(localized: " · not signed in") : info?.loggedIn == true ? String(localized: " · signed in") : ""))
                     } else {
-                        Text("nicht installiert")
+                        Text("not installed")
                     }
                 }
                 .font(.caption.monospaced()).foregroundStyle(.secondary)
             }
             Spacer()
             if info?.path == nil {
-                Link("Installieren …", destination: URL(string: install)!)
+                Link("Install …", destination: URL(string: install)!)
             } else if info?.loggedIn == false, let login {
-                Button("Anmelden …") { Terminal.run(login, name: "login") }
+                Button("Sign in …") { Terminal.run(login, name: "login") }
             }
         }
     }
 
     private var garminStep: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Für „Läufe laden“ direkt von Garmin und um Workouts auf die Uhr zu schicken. Die App installiert dafür einen kleinen lokalen Server (braucht Python 3.10+). Angemeldet wird mit deinem Garmin-Konto; gespeichert wird nur ein Token in ~/.garminconnect, nie dein Passwort.")
+            Text("For “Load runs” directly from Garmin and to send workouts to your watch. The app installs a small local server for this (needs Python 3.10+). You sign in with your Garmin account; only a token is stored in ~/.garminconnect, never your password.")
                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             if let configured = garminConfigured {
-                Label("Server eingetragen: \(configured)", systemImage: "checkmark.circle.fill")
+                Label("Server registered: \(configured)", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green).font(.callout).lineLimit(2)
             }
             HStack {
-                Button(garminConfigured == nil ? "Garmin-Server einrichten" : "Server neu installieren") { installGarmin() }
+                Button(garminConfigured == nil ? "Set up Garmin server" : "Reinstall server") { installGarmin() }
                     .disabled(garminInstalling != nil || !folderReady)
                 if garminInstalling != nil { ProgressView().controlSize(.small) }
                 if let step = garminInstalling { Text(step).font(.caption).foregroundStyle(.secondary) }
@@ -186,26 +186,26 @@ struct SetupView: View {
         switch login.phase {
         case .needsCode:
             HStack {
-                TextField("Code aus der E-Mail / App", text: $login.code).textFieldStyle(.roundedBorder).frame(maxWidth: 220)
-                Button("Bestätigen") { Task { await login.submitCode() } }
+                TextField("Code from the email / app", text: $login.code).textFieldStyle(.roundedBorder).frame(maxWidth: 220)
+                Button("Confirm") { Task { await login.submitCode() } }
                     .disabled(login.code.trimmingCharacters(in: .whitespaces).isEmpty)
-                Button("Abbrechen") { login.cancel() }
+                Button("Cancel") { login.cancel() }
             }
         case .working:
-            HStack { ProgressView().controlSize(.small); Text("Melde bei Garmin an …") }
+            HStack { ProgressView().controlSize(.small); Text("Signing in to Garmin …") }
         default:
             VStack(alignment: .leading, spacing: 8) {
                 if GarminSetup.hasToken {
-                    Label("Angemeldet (Token vorhanden)", systemImage: "checkmark.circle.fill").foregroundStyle(.green).font(.callout)
+                    Label("Signed in (token present)", systemImage: "checkmark.circle.fill").foregroundStyle(.green).font(.callout)
                 }
                 HStack {
-                    TextField("Garmin-E-Mail", text: $login.email).textFieldStyle(.roundedBorder).frame(maxWidth: 240)
-                    SecureField("Passwort", text: $login.password).textFieldStyle(.roundedBorder).frame(maxWidth: 180)
-                    Button(GarminSetup.hasToken ? "Neu anmelden" : "Anmelden") { Task { await login.start(folder: folder) } }
+                    TextField("Garmin email", text: $login.email).textFieldStyle(.roundedBorder).frame(maxWidth: 240)
+                    SecureField("Password", text: $login.password).textFieldStyle(.roundedBorder).frame(maxWidth: 180)
+                    Button(GarminSetup.hasToken ? "Sign in again" : "Sign in") { Task { await login.start(folder: folder) } }
                         .disabled(login.email.isEmpty || login.password.isEmpty)
                 }
                 HStack {
-                    Button("Verbindung prüfen") { checkGarmin() }
+                    Button("Check connection") { checkGarmin() }
                     if let garminCheck {
                         Label(garminCheck.text, systemImage: garminCheck.ok ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                             .foregroundStyle(garminCheck.ok ? Color.green : Color.orange).font(.callout).lineLimit(2)
@@ -219,31 +219,31 @@ struct SetupView: View {
 
     private var stravaStep: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Strava ist nur über Stravas eigenen MCP-Server in Claude Code erreichbar. Die App trägt ihn für diesen Ordner ein; angemeldet wird im Browser.")
+            Text("Strava is only reachable through Strava’s own MCP server in Claude Code. The app registers it for this folder; you sign in in the browser.")
                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             switch strava {
             case nil:
-                HStack { ProgressView().controlSize(.small); Text("Prüfe …") }
+                HStack { ProgressView().controlSize(.small); Text("Checking …") }
             case .noClaude:
-                Label("Braucht Claude Code (Schritt 3).", systemImage: "info.circle").foregroundStyle(.secondary)
+                Label("Needs Claude Code (step 3).", systemImage: "info.circle").foregroundStyle(.secondary)
             case .missing:
-                Button("Strava in Claude Code eintragen") {
+                Button("Add Strava to Claude Code") {
                     do { try StravaSetup.add(folder: folder); stravaError = nil } catch { stravaError = error.localizedDescription }
                     Task { await refreshStrava() }
                 }
                 .disabled(!folderReady)
             case .needsLogin:
-                Button("Bei Strava anmelden …") { StravaSetup.openLogin(folder: folder) }
+                Button("Sign in to Strava …") { StravaSetup.openLogin(folder: folder) }
             case .connected:
-                Label("Strava verbunden", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                Label("Strava connected", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
             case .unknown(let text):
                 Label("Status: \(text)", systemImage: "questionmark.circle").foregroundStyle(.secondary)
-                Button("Bei Strava anmelden …") { StravaSetup.openLogin(folder: folder) }
+                Button("Sign in to Strava …") { StravaSetup.openLogin(folder: folder) }
             }
             HStack {
-                Button("Erneut prüfen") { Task { await refreshStrava() } }
+                Button("Check again") { Task { await refreshStrava() } }
                 if strava == .connected || strava == .needsLogin {
-                    Text("Quelle für „Läufe laden“ wählst du in den Einstellungen → Läufe.").font(.caption).foregroundStyle(.secondary)
+                    Text("You choose the source for “Load runs” in Settings → Runs.").font(.caption).foregroundStyle(.secondary)
                 }
             }
             if let stravaError { Label(stravaError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
@@ -252,18 +252,18 @@ struct SetupView: View {
 
     private var startStep: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Lass dir vom Coach deinen ersten eigenen Block planen — er richtet sich nach dem Athletenprofil in der README. Der Beispielplan wird dabei abgelegt.")
+            Text("Have the coach plan your first block of your own — it follows the athlete profile in the README. The example plan is archived in the process.")
                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             HStack {
                 Button {
                     model.requestPlan(.block)
                     openWindow(id: "main")
                 } label: {
-                    Label("Ersten Plan erstellen", systemImage: "wand.and.stars")
+                    Label("Create first plan", systemImage: "wand.and.stars")
                 }
                 .buttonStyle(.borderedProminent).tint(.brand)
                 .disabled(!folderReady || model.snapshot == nil)
-                Button("Zur App") { openWindow(id: "main") }
+                Button("Go to the app") { openWindow(id: "main") }
             }
         }
     }
@@ -306,7 +306,7 @@ struct SetupView: View {
     }
 
     private func installGarmin() {
-        garminInstalling = "Starte …"
+        garminInstalling = String(localized: "Starting …")
         garminError = nil
         let folder = self.folder
         let tracker = garminProgress
@@ -336,7 +336,7 @@ struct SetupView: View {
         let folder = self.folder
         Task {
             do {
-                guard let config = GarminServerConfig.load(from: folder) else { throw SetupError("Kein Garmin-Server eingetragen.") }
+                guard let config = GarminServerConfig.load(from: folder) else { throw SetupError(String(localized: "No Garmin server registered.")) }
                 let client = try await config.connect(in: folder, readOnly: true)
                 let text = try await client.callTool("garmin_status", timeout: 60)
                 client.close()
@@ -352,8 +352,8 @@ struct SetupView: View {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.canCreateDirectories = true
-        panel.prompt = "Auswählen"
-        panel.message = "Wähle den Trainingsordner (oder einen leeren Ordner, in dem die App ihn anlegt)."
+        panel.prompt = String(localized: "Choose")
+        panel.message = String(localized: "Choose the training folder (or an empty folder where the app will create it).")
         if panel.runModal() == .OK, let url = panel.url {
             projectPath = url.path
             model.folderChanged()

@@ -4,7 +4,7 @@ import AppKit
 /// Nur für Entwicklung/Tests: Mit `-debugSnapshots <Ordner>` legt die App Bilder ihrer Ansichten ab.
 /// Optional: `-debugSettings YES` (Einstellungen), `-debugSync YES` (Läufe laden), `-debugPlanSheet YES`
 /// (Planungsformular), `-debugEngine "<Name>"` + `-debugCoachPrompt "<Frage>"` stellt dem Coach eine echte
-/// Frage, `-debugDark YES`, `-debugQuit YES` beendet die App danach. Mit `-projectPath <Ordner>` gegen eine Kopie (ein leerer Ordner zeigt die Einrichtung).
+/// Frage, `-debugDark YES`, `-debugCreateFolder YES` (legt den leeren Projektordner aus der Vorlage an), `-debugQuit YES` beendet die App danach. Sprache: `-AppleLanguages "(en)"` bzw. `"(de)"`. Mit `-projectPath <Ordner>` gegen eine Kopie (ein leerer Ordner zeigt die Einrichtung).
 @MainActor
 enum DebugSnapshots {
     static func runIfRequested(model: AppModel, openSettings: () -> Void) async {
@@ -14,6 +14,11 @@ enum DebugSnapshots {
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         if defaults.bool(forKey: "debugDark") { NSApp.appearance = NSAppearance(named: .darkAqua) }
 
+        // `-debugCreateFolder YES`: legt den (leeren) Projektordner aus der Vorlage an, wie die Einrichtung es tut.
+        if defaults.bool(forKey: "debugCreateFolder"), !TrainingFolderSetup.isReady(model.folder.url) {
+            try? await TrainingFolderSetup.create(at: model.folder.url)
+            model.reload(force: true)
+        }
         for _ in 0..<50 where model.snapshot == nil { try? await Task.sleep(for: .milliseconds(200)) }
         mainWindow = NSApp.windows.first { $0.isVisible && $0.canBecomeMain }
 
@@ -24,7 +29,7 @@ enum DebugSnapshots {
 
         model.section = .overview
         await shot("1-overview")
-        if let setup = NSApp.windows.first(where: { $0.isVisible && $0.title == "Einrichtung" }) {
+        if let setup = NSApp.windows.first(where: { $0.isVisible && ["Einrichtung", "Setup"].contains($0.title) }) {
             try? await Task.sleep(for: .seconds(3))
             capture(setup, "0-setup", to: dir)
         }
@@ -93,6 +98,7 @@ enum DebugSnapshots {
         }
 
         if let prompt = defaults.string(forKey: "debugCoachPrompt") {
+            model.section = .coach
             model.coach.newConversation()
             model.coach.draft = prompt
             model.coach.sendDraft(in: model.folder.url)

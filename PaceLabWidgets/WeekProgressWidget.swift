@@ -6,8 +6,8 @@ struct WeekProgressWidget: Widget {
         StaticConfiguration(kind: "WeekProgress", provider: TrainingProvider()) { entry in
             WeekProgressView(entry: entry)
         }
-        .configurationDisplayName("Wochenfortschritt")
-        .description("Gelaufene vs. geplante Kilometer und erledigte Einheiten dieser Woche.")
+        .configurationDisplayName("Week progress")
+        .description("Kilometers run vs. planned and sessions completed this week.")
         .supportedFamilies([.systemSmall])
     }
 }
@@ -29,7 +29,7 @@ struct WeekProgressContent: View {
         if let snapshot = entry.snapshot {
             content(snapshot, week: snapshot.focusWeek(on: entry.date))
         } else {
-            WidgetMessage(symbol: "figure.run", text: entry.errorMessage ?? "Öffne Pace Lab einmal")
+            WidgetMessage(symbol: "figure.run", text: entry.errorMessage ?? String(localized: "Open Pace Lab once"))
         }
     }
 
@@ -63,7 +63,7 @@ struct WeekProgressContent: View {
                     Text(Fmt.km(actual))
                         .font(.system(.title3, design: .rounded, weight: .bold).monospacedDigit())
                         .minimumScaleFactor(0.6)
-                    Text("von \(Fmt.km(planned, digits: 0)) km")
+                    Text("of \(Fmt.km(planned, digits: 0)) km")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -83,8 +83,8 @@ struct WeekProgressContent: View {
 
     private func header(_ snapshot: TrainingSnapshot, week: Int) -> String {
         if case .upcoming(let days) = snapshot.status(on: entry.date) {
-            return "Start \(Fmt.relativeDays(days))"
+            return String(localized: "Starts \(Fmt.relativeDays(days))")
         }
-        return "Woche \(week)/\(snapshot.weekCount)"
+        return String(localized: "Week \(week)/\(snapshot.weekCount)")
     }
 }

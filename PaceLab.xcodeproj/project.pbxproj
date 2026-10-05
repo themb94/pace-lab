@@ -176,9 +176,10 @@
 				};
 			};
 			buildConfigurationList = 7A0000000000000000000070 /* Build configuration list for PBXProject "PaceLab" */;
-			developmentRegion = de;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				en,
 				de,
 				Base,
 			);

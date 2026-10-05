@@ -5,7 +5,7 @@ enum DateUtil {
     static let calendar: Calendar = {
         var c = Calendar(identifier: .gregorian)
         c.firstWeekday = 2
-        c.locale = Fmt.de
+        c.locale = Fmt.locale
         return c
     }()
 
@@ -48,8 +48,15 @@ enum DateUtil {
     }
 }
 
+/// Sprache der App: die beste Übereinstimmung aus den Systemsprachen und den Übersetzungen (Deutsch bzw. Englisch).
+enum AppLanguage {
+    static var code: String { Bundle.main.preferredLocalizations.first ?? "en" }
+    static var isGerman: Bool { code == "de" }
+}
+
 enum Fmt {
-    static let de = Locale(identifier: "de_DE")
+    /// Zahlen, Daten und Wochentage richten sich nach den Systemeinstellungen (Sprache und Region).
+    static let locale = Locale.autoupdatingCurrent
 
     /// 350 → "5:50"
     static func pace(_ seconds: Double?) -> String {
@@ -66,9 +73,9 @@ enum Fmt {
         return h > 0 ? String(format: "%d:%02d:%02d", h, m, s) : String(format: "%d:%02d", m, s)
     }
 
-    /// 21.13 → "21,1"
+    /// 21.13 → "21.1" (en) bzw. "21,1" (de)
     static func km(_ value: Double?, digits: Int = 1) -> String {
-        (value ?? 0).formatted(.number.precision(.fractionLength(digits)).locale(de))
+        (value ?? 0).formatted(.number.precision(.fractionLength(digits)).locale(locale))
     }
 
     static func int(_ value: Double?) -> String {
@@ -78,22 +85,22 @@ enum Fmt {
 
     /// "20.09."
     static func dayMonth(_ date: Date) -> String {
-        date.formatted(.dateTime.day(.twoDigits).month(.twoDigits).locale(de))
+        date.formatted(.dateTime.day(.twoDigits).month(.twoDigits).locale(locale))
     }
 
     /// "So., 20.09."
     static func weekdayDayMonth(_ date: Date) -> String {
-        date.formatted(.dateTime.weekday(.abbreviated).day(.twoDigits).month(.twoDigits).locale(de))
+        date.formatted(.dateTime.weekday(.abbreviated).day(.twoDigits).month(.twoDigits).locale(locale))
     }
 
     /// "Sonntag, 20. September 2026"
     static func longDate(_ date: Date) -> String {
-        date.formatted(.dateTime.weekday(.wide).day().month(.wide).year().locale(de))
+        date.formatted(.dateTime.weekday(.wide).day().month(.wide).year().locale(locale))
     }
 
     /// "September 2026"
     static func monthYear(_ date: Date) -> String {
-        date.formatted(.dateTime.month(.wide).year().locale(de))
+        date.formatted(.dateTime.month(.wide).year().locale(locale))
     }
 
     /// "28.09.–04.10."
@@ -104,9 +111,9 @@ enum Fmt {
     /// "in 4 Tagen" / "morgen" / "heute"
     static func relativeDays(_ days: Int) -> String {
         switch days {
-        case 0: "heute"
-        case 1: "morgen"
-        default: "in \(days) Tagen"
+        case 0: String(localized: "today")
+        case 1: String(localized: "tomorrow")
+        default: String(localized: "in \(days) days")
         }
     }
 }

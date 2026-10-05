@@ -16,17 +16,17 @@ struct GarminRunSource: Sendable {
 
     func fetch(since: String, known: KnownRuns, progress: SyncProgress) async throws -> [ImportedRun] {
         guard let config = GarminServerConfig.load(from: folder) else {
-            throw SyncFailure(message: "Kein Garmin-Server eingerichtet: Im Trainingsordner fehlt die .mcp.json mit „garmin-workouts“.")
+            throw SyncFailure(message: String(localized: "No Garmin server set up: the training folder has no .mcp.json with “garmin-workouts”."))
         }
-        progress("Garmin: Verbindung aufbauen")
+        progress(String(localized: "Garmin: connecting"))
         let client = try await config.connect(in: folder, readOnly: true)
         return try await withTaskCancellationHandler {
             defer { client.close() }
-            progress("Garmin: Aktivitäten abrufen")
+            progress(String(localized: "Garmin: fetching activities"))
             let list = try Self.checked(try await client.callTool(
                 "list_activities", arguments: ["limit": 30, "activity_type": "running"]))
             guard let activities = try? JSONSerialization.jsonObject(with: Data(list.utf8)) as? [[String: Any]] else {
-                throw SyncFailure(message: "Garmin: unerwartete Antwort auf list_activities.")
+                throw SyncFailure(message: String(localized: "Garmin: unexpected response to list_activities."))
             }
 
             var candidates: [(id: String, name: String)] = []
@@ -37,7 +37,7 @@ struct GarminRunSource: Sendable {
                 let km = (RunImport.number(activity["distance_m"]) ?? 0) / 1000
                 guard date >= since, km >= 0.5,
                       !known.contains(source: .garmin, id: id, date: date, distanceKm: km) else { continue }
-                candidates.append((id, activity["activityName"] as? String ?? "Lauf"))
+                candidates.append((id, activity["activityName"] as? String ?? String(localized: "Run")))
             }
 
             var runs: [ImportedRun] = []
@@ -60,7 +60,7 @@ struct GarminRunSource: Sendable {
     private static func checked(_ text: String) throws -> String {
         guard text.hasPrefix("❌") else { return text }
         let message = text.dropFirst().trimmingCharacters(in: .whitespaces)
-        throw SyncFailure(message: "Garmin meldet: \(message)\nIst die Anmeldung abgelaufen, im Terminal im Ordner garmin-mcp „./.venv/bin/python login.py“ ausführen.")
+        throw SyncFailure(message: String(localized: "Garmin reports: \(message)\nIf the sign-in has expired, run “./.venv/bin/python login.py” in the garmin-mcp folder in Terminal."))
     }
 }
 
@@ -80,11 +80,11 @@ struct StravaViaClaudeSource: Sendable {
 
     func fetch(since: String, knownIDs: [String], known: KnownRuns, progress: SyncProgress) async throws -> [ImportedRun] {
         guard let claude = CLIResolver.find(command) else { throw CoachError.notFound(command) }
-        let skip = knownIDs.isEmpty ? "" : " — außer für diese schon bekannten IDs: \(knownIDs.joined(separator: ", "))"
+        let skip = knownIDs.isEmpty ? "" : " — except for these already known IDs: \(knownIDs.joined(separator: ", "))"
         let prompt = """
-        1. Rufe mcp__strava-mcp__list_activities auf, mit first=30 und range_start="\(since)T00:00:00".
-        2. Rufe für jede Aktivität mit sport_type Run, TrailRun oder VirtualRun mcp__strava-mcp__get_activity_performance mit ihrer id als activity_id auf\(skip). Mehrere Aufrufe gleichzeitig sind in Ordnung.
-        3. Ist nichts Neues dabei, rufe nichts weiter auf. Antworte zum Schluss nur mit: fertig
+        1. Call mcp__strava-mcp__list_activities with first=30 and range_start="\(since)T00:00:00".
+        2. For every activity with sport_type Run, TrailRun or VirtualRun, call mcp__strava-mcp__get_activity_performance with its id as activity_id\(skip). Several calls at once are fine.
+        3. If there is nothing new, make no further calls. At the end, reply only with: done
         """
         var arguments = [
             "-p", "--output-format", "stream-json", "--verbose",
@@ -93,7 +93,7 @@ struct StravaViaClaudeSource: Sendable {
             "--permission-prompts", "none",
             "--no-session-persistence",
             "--disable-slash-commands",
-            "--system-prompt", "Du holst Laufdaten über die Strava-Werkzeuge ab. Führe genau die beschriebenen Aufrufe aus und antworte danach nur mit: fertig",
+            "--system-prompt", "You fetch run data through the Strava tools. Make exactly the calls described and then reply only with: done",
         ]
         if !model.isEmpty { arguments += ["--model", model] }
 
@@ -101,7 +101,7 @@ struct StravaViaClaudeSource: Sendable {
         // und kam deshalb nichts zurück, einmal neu versuchen.
         var parser = StravaStreamParser()
         for attempt in 1...2 {
-            progress(attempt == 1 ? "Strava: Claude Code startet" : "Strava: zweiter Versuch")
+            progress(attempt == 1 ? String(localized: "Strava: starting Claude Code") : String(localized: "Strava: second attempt"))
             parser = StravaStreamParser()
             let process = CLIProcess()
             let outcome = try await withTaskCancellationHandler {
@@ -135,7 +135,7 @@ struct StravaViaClaudeSource: Sendable {
             if let run = RunImport.strava(activity, performance: performance) { runs.append(run) }
         }
         if runs.isEmpty && missing > 0 {
-            throw SyncFailure(message: "Strava: \(missing) neue Läufe gefunden, aber ohne Details — bitte erneut laden.")
+            throw SyncFailure(message: String(localized: "Strava: found \(missing) new runs, but without details — please load again."))
         }
         return runs
     }
@@ -162,8 +162,8 @@ struct StravaStreamParser {
         case "system":
             guard object["subtype"] as? String == "init" else { return nil }
             let servers = object["mcp_servers"] as? [[String: Any]] ?? []
-            stravaStatus = servers.first { $0["name"] as? String == "strava-mcp" }?["status"] as? String ?? "fehlt"
-            return "Strava: verbinden"
+            stravaStatus = servers.first { $0["name"] as? String == "strava-mcp" }?["status"] as? String ?? "missing"
+            return String(localized: "Strava: connecting")
 
         case "assistant":
             var step: String?
@@ -173,10 +173,10 @@ struct StravaStreamParser {
                 let input = block["input"] as? [String: Any] ?? [:]
                 calls[id] = (tool, RunImport.stringID(input["activity_id"]))
                 if tool.hasSuffix("list_activities") {
-                    step = "Strava: Aktivitäten abrufen"
+                    step = String(localized: "Strava: fetching activities")
                 } else {
                     detailCount += 1
-                    step = "Strava: Lauf-Details (\(detailCount))"
+                    step = String(localized: "Strava: run details (\(detailCount))")
                 }
             }
             return step
@@ -203,7 +203,7 @@ struct StravaStreamParser {
         case "result":
             sawResult = true
             if object["is_error"] as? Bool == true {
-                resultError = object["result"] as? String ?? "Claude Code meldet einen Fehler."
+                resultError = object["result"] as? String ?? String(localized: "Claude Code reports an error.")
             }
             denied = (object["permission_denials"] as? [[String: Any]] ?? []).compactMap { $0["tool_name"] as? String }
             return nil
@@ -221,26 +221,26 @@ struct StravaStreamParser {
     /// Strava war beim Start noch nicht verbunden und es kam nichts zurück.
     var shouldRetry: Bool {
         activities.isEmpty && !limitReached && stravaStatus != nil && stravaStatus != "connected" && stravaStatus != "failed"
-            && stravaStatus != "needs-auth" && stravaStatus != "fehlt"
+            && stravaStatus != "needs-auth" && stravaStatus != "missing"
     }
 
     /// Wirft eine verständliche Meldung, wenn der Abruf nicht geklappt hat.
     func check(_ outcome: CLIProcess.Outcome) throws {
         if outcome.signaled { throw CancellationError() }
         if limitReached {
-            throw SyncFailure(message: "Strava: Dein Claude-Nutzungslimit ist erreicht — später erneut laden oder Garmin als Quelle wählen.")
+            throw SyncFailure(message: String(localized: "Strava: your Claude usage limit has been reached — load again later or choose Garmin as the source."))
         }
         if activities.isEmpty, let status = stravaStatus, status != "connected" {
-            throw SyncFailure(message: "Strava ist in Claude Code nicht verbunden (Status: \(status)). Im Terminal im Trainingsordner „claude“ starten und unter /mcp „strava-mcp“ anmelden.")
+            throw SyncFailure(message: String(localized: "Strava is not connected in Claude Code (status: \(status)). In Terminal, start “claude” in the training folder and sign in to “strava-mcp” under /mcp."))
         }
         if let resultError { throw SyncFailure(message: "Strava: \(resultError)") }
         if !sawResult {
             throw SyncFailure(message: outcome.stderr.isEmpty
-                ? "Claude Code wurde unerwartet beendet (Code \(outcome.exitCode))."
-                : "Claude Code meldet: \(outcome.stderr)")
+                ? String(localized: "Claude Code quit unexpectedly (code \(outcome.exitCode)).")
+                : String(localized: "Claude Code reports: \(outcome.stderr)"))
         }
         if activities.isEmpty && !denied.isEmpty {
-            throw SyncFailure(message: "Strava: Claude durfte die Werkzeuge nicht nutzen (\(denied.joined(separator: ", "))).")
+            throw SyncFailure(message: String(localized: "Strava: Claude was not allowed to use the tools (\(denied.joined(separator: ", ")))."))
         }
     }
 }

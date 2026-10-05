@@ -141,8 +141,8 @@ struct CodexStreamParser: OutputParser {
         if done { return nil }
         if outcome.signaled { return .finished(CoachResult(isError: true, message: "Abgebrochen.")) }
         let message = Self.readable(lastError) ?? (outcome.stderr.isEmpty
-            ? "Codex wurde unerwartet beendet (Code \(outcome.exitCode))."
-            : "Codex meldet: \(outcome.stderr)")
+            ? String(localized: "Codex quit unexpectedly (code \(outcome.exitCode)).")
+            : String(localized: "Codex reports: \(outcome.stderr)"))
         return .finished(CoachResult(isError: true, message: message))
     }
 
@@ -151,15 +151,15 @@ struct CodexStreamParser: OutputParser {
     private static func label(for item: [String: Any]) -> String? {
         switch item["type"] as? String {
         case "command_execution":
-            return "Befehl: \(shortCommand(item["command"] as? String ?? ""))"
+            return String(localized: "Command: \(shortCommand(item["command"] as? String ?? ""))")
         case "mcp_tool_call":
             return ToolLabel.label(server: item["server"] as? String ?? "MCP", tool: item["tool"] as? String ?? "")
         case "file_change":
             let files = (item["changes"] as? [[String: Any]] ?? [])
                 .compactMap { ($0["path"] as? String).map { URL(filePath: $0).lastPathComponent } }
-            return files.isEmpty ? "Bearbeitet Dateien" : "Bearbeitet \(files.joined(separator: ", "))"
+            return files.isEmpty ? String(localized: "Editing files") : String(localized: "Editing \(files.joined(separator: ", "))")
         case "web_search":
-            return "Websuche: \(item["query"] as? String ?? "")"
+            return String(localized: "Web search: \(item["query"] as? String ?? "")")
         default:
             return nil   // Denken, Aufgabenlisten usw. nicht als Schritt zeigen
         }

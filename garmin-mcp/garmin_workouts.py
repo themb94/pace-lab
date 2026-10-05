@@ -1,15 +1,15 @@
 """
-Baut strukturierte Garmin-Connect-Laufworkouts aus dem Plan in plan.json (Pace Lab).
+Builds structured Garmin Connect running workouts from the plan in plan.json (Pace Lab).
 
-Reine Logik, keine Netzwerkzugriffe — dadurch offline testbar.
-Ausgabe ist das JSON-Payload, das der Endpunkt POST /workout-service/workout erwartet.
+Pure logic, no network access — so it can be tested offline.
+The output is the JSON payload that the POST /workout-service/workout endpoint expects.
 """
 import json
 import os
 import re
 
 # ---------------------------------------------------------------------------
-# Garmin-Konstanten
+# Garmin constants
 # ---------------------------------------------------------------------------
 SPORT = {"sportTypeId": 1, "sportTypeKey": "running", "displayOrder": 1}
 
@@ -50,8 +50,8 @@ def _pace_targets(pace):
 
 
 def _target_block(target):
-    """(targetType, valueOne, valueTwo, zoneNumber) für ein Ziel.
-    target: None (kein Ziel) | HF-Zonen-Dict | Pace-Tupel."""
+    """(targetType, valueOne, valueTwo, zoneNumber) for a target.
+    target: None (no target) | HR zone dict | pace tuple."""
     if target is None:
         return TARGET_NO, None, None, None
     if isinstance(target, dict) and target.get("kind") == "hr":
@@ -98,7 +98,7 @@ def _repeat_dto(order, n, gid, children):
 
 
 class WB:
-    """Sammelt Steps mit fortlaufender stepOrder, auch innerhalb von Wiederholungen."""
+    """Collects steps with a running stepOrder, including inside repeats."""
 
     def __init__(self):
         self.order = 0
@@ -136,25 +136,25 @@ def make_payload(name, steps):
 
 
 # ---------------------------------------------------------------------------
-# DER PLAN steht in plan.json im Trainingsordner — Wochen, Einheiten und je
-# Einheit ein "workout" mit Schritten. Die App Pace Lab und dieser Builder lesen
-# dieselbe Datei.
+# THE PLAN lives in plan.json in the training folder — weeks, sessions and, per
+# session, a "workout" with steps. The Pace Lab app and this builder read the
+# same file.
 #
-# Schema (Details in der README, Abschnitt "Plan-Schema"):
+# Schema (details in the README, section "Plan schema"):
 #   "workout": {"name": "6x800m", "steps": [
-#       {"type": "warmup", "time": 600, "note": "Locker einlaufen (nach Gefühl)"},
+#       {"type": "warmup", "time": 600, "note": "Easy warm-up (by feel)"},
 #       {"repeat": 6, "steps": [
-#           {"type": "interval", "distance": 800, "pace": "Intervalle 800/1000 m", "note": "800 m zügig"},
-#           {"type": "recovery", "time": 90, "note": "90 s locker traben"}]},
-#       {"type": "cooldown", "time": 600, "note": "Locker auslaufen (nach Gefühl)"}]}
-#   type:  warmup | cooldown | interval | recovery | run (durchgehender Abschnitt)
-#   Ende:  "distance" (Meter) oder "time" (Sekunden)
-#   Ziel:  "pace" = Name eines paceBands oder "m:ss-m:ss"; "hr" = "lo-hi" (bpm,
-#          optional "zone"); ohne Ziel = frei nach Gefühl.
-# Name in Garmin: "{workoutPrefix} W{Woche:02d} · {name}", z. B. "PL W01 · 6x800m".
+#           {"type": "interval", "distance": 800, "pace": "Intervalle 800/1000 m", "note": "800 m brisk"},
+#           {"type": "recovery", "time": 90, "note": "90 s easy jog"}]},
+#       {"type": "cooldown", "time": 600, "note": "Easy cool-down (by feel)"}]}
+#   type:  warmup | cooldown | interval | recovery | run (continuous segment)
+#   end:   "distance" (meters) or "time" (seconds)
+#   target: "pace" = name of a paceBand or "m:ss-m:ss"; "hr" = "lo-hi" (bpm,
+#          optional "zone"); without a target = free, by feel.
+# Name in Garmin: "{workoutPrefix} W{week:02d} · {name}", e.g. "PL W01 · 6x800m".
 # ---------------------------------------------------------------------------
-# Pfad zu plan.json: PACELAB_PLAN (setzt Pace Lab in der .mcp.json des Trainingsordners),
-# sonst plan.json im Arbeitsverzeichnis, sonst neben diesem Ordner.
+# Path to plan.json: PACELAB_PLAN (Pace Lab sets it in the .mcp.json of the training folder),
+# otherwise plan.json in the working directory, otherwise next to this folder.
 PLAN_PATH = (os.environ.get("PACELAB_PLAN")
              or next((p for p in (os.path.join(os.getcwd(), "plan.json"),) if os.path.exists(p)), None)
              or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "plan.json"))
@@ -170,11 +170,11 @@ def load_plan(path=None):
 
 
 def _pace_range(text, bands):
-    """'Steady' (Name eines Pace-Bands) oder '5:40-6:10' -> ('5:40', '6:10')."""
+    """'Steady' (name of a pace band) or '5:40-6:10' -> ('5:40', '6:10')."""
     value = bands.get(str(text).strip().lower(), str(text))
     m = _RANGE.match(value)
     if not m:
-        raise ValueError(f"Unbekanntes Pace-Ziel {text!r}: Name eines paceBands oder 'm:ss-m:ss'")
+        raise ValueError(f"Unknown pace target {text!r}: name of a paceBand or 'm:ss-m:ss'")
     return (m.group(1), m.group(2))
 
 
@@ -194,18 +194,18 @@ def _add_steps(wb, steps, bands):
             continue
         stype = _STEP_TYPES.get(step.get("type", "run"))
         if stype is None:
-            raise ValueError(f"Unbekannter Schritt-Typ {step.get('type')!r}")
+            raise ValueError(f"Unknown step type {step.get('type')!r}")
         if "distance" in step:
             end, val = "distance", step["distance"]
         elif "time" in step:
             end, val = "time", step["time"]
         else:
-            raise ValueError(f"Schritt ohne 'distance' oder 'time': {step}")
+            raise ValueError(f"Step without 'distance' or 'time': {step}")
         wb.add(stype, end, val, _step_target(step, bands), step.get("note"))
 
 
 def workout_steps(workout, bands):
-    """Garmin-Steps für ein "workout" aus plan.json."""
+    """Garmin steps for a "workout" from plan.json."""
     wb = WB()
     _add_steps(wb, workout["steps"], bands)
     return wb.steps
@@ -213,8 +213,8 @@ def workout_steps(workout, bands):
 
 def build_plan(path=None):
     """Alle Workouts des aktiven Plans: [{week, kind, name, steps, upload}] in Plan-Reihenfolge.
-    Einheiten ohne "workout" (z. B. ein Wettkampf) werden übersprungen. upload=False für lockere
-    Läufe, außer der Plan setzt "uploadEasyRuns": true."""
+    Sessions without a "workout" (e.g. a race) are skipped. upload=False for easy
+    runs, unless the plan sets "uploadEasyRuns": true."""
     plan = load_plan(path)
     upload_easy = bool(plan.get("uploadEasyRuns"))
     prefix = plan.get("workoutPrefix") or (plan.get("idPrefix") or "").upper()
@@ -233,7 +233,7 @@ def build_plan(path=None):
 
 
 # ---------------------------------------------------------------------------
-# Menschenlesbare Zusammenfassung (für Preview ohne Netzwerk)
+# Human-readable summary (for a preview without network)
 # ---------------------------------------------------------------------------
 def _pace_str(pace):
     return f"{pace[0]}-{pace[1]}/km" if pace else "frei"
@@ -281,9 +281,9 @@ def _sec_to_pace(sec_per_km):
 if __name__ == "__main__":
     import json
     plan = build_plan()
-    print(f"{len(plan)} Workouts erzeugt.\n")
+    print(f"{len(plan)} workouts generated.\n")
     for w in plan:
-        print(f"### {w['name']}  (Woche {w['week']}, {w['kind']})")
+        print(f"### {w['name']}  (week {w['week']}, {w['kind']})")
         for line in describe_steps(w["steps"]):
             print(line)
         print()

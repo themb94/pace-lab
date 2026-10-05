@@ -46,7 +46,7 @@ final class TextCLIRunner: CoachRunner, @unchecked Sendable {
                          _ continuation: AsyncThrowingStream<CoachEvent, any Error>.Continuation) async throws {
         let engine = request.engine
         guard let executable = CLIResolver.find(engine.command) else {
-            throw CoachError.notFound(engine.command.isEmpty ? "(kein Programm eingetragen)" : engine.command)
+            throw CoachError.notFound(engine.command.isEmpty ? String(localized: "(no program set)") : engine.command)
         }
         continuation.yield(.started(model: engine.model.isEmpty ? nil : engine.model, servers: []))
 
@@ -56,7 +56,7 @@ final class TextCLIRunner: CoachRunner, @unchecked Sendable {
             guard let prepareExecutable = CLIResolver.find(program) else { throw CoachError.notFound(program) }
             let stepID = "prepare"
             continuation.yield(.toolStarted(id: stepID, name: "prepare",
-                                            label: "Vorbereitung: \(prepare.joined(separator: " ").prefix(70))"))
+                                            label: String(localized: "Preparing: \(prepare.joined(separator: " ").prefix(70))")))
             guard let process = newProcess() else { return }
             var collector = CollectingParser()
             let lines = try process.start(prepareExecutable, Array(prepare.dropFirst()), in: request.workingDirectory, input: nil)
@@ -68,8 +68,8 @@ final class TextCLIRunner: CoachRunner, @unchecked Sendable {
                 return
             }
             if outcome.exitCode != 0 {
-                let details = [outcome.stderr, collector.tail].first { !$0.isEmpty } ?? "Code \(outcome.exitCode)"
-                continuation.yield(.finished(CoachResult(isError: true, message: "Vorbereitung fehlgeschlagen: \(details)")))
+                let details = [outcome.stderr, collector.tail].first { !$0.isEmpty } ?? String(localized: "code \(outcome.exitCode)")
+                continuation.yield(.finished(CoachResult(isError: true, message: String(localized: "Preparation failed: \(details)"))))
                 return
             }
         }
@@ -105,12 +105,12 @@ struct TextOutputParser: OutputParser {
     mutating func finish(_ outcome: CLIProcess.Outcome) -> CoachEvent? {
         if outcome.signaled { return .finished(CoachResult(isError: true, message: "Abgebrochen.")) }
         if outcome.exitCode != 0 {
-            let details = outcome.stderr.isEmpty ? "Das Programm endete mit Code \(outcome.exitCode)." : outcome.stderr
+            let details = outcome.stderr.isEmpty ? String(localized: "The program exited with code \(outcome.exitCode).") : outcome.stderr
             return .finished(CoachResult(isError: true, message: details))
         }
         if !gotText {
             return .finished(CoachResult(isError: true,
-                                         message: "Keine Antwort erhalten." + (outcome.stderr.isEmpty ? "" : " \(outcome.stderr)")))
+                                         message: String(localized: "No reply received.") + (outcome.stderr.isEmpty ? "" : " \(outcome.stderr)")))
         }
         return .finished(CoachResult(isError: false, message: nil))
     }

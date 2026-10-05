@@ -8,8 +8,8 @@ enum RunSource: String, CaseIterable, Identifiable, Sendable {
 
     var label: String {
         switch self {
-        case .garmin: "Garmin Connect (direkt)"
-        case .strava: "Strava (über Claude Code)"
+        case .garmin: String(localized: "Garmin Connect (direct)")
+        case .strava: String(localized: "Strava (via Claude Code)")
         }
     }
 
@@ -87,7 +87,7 @@ enum RunImport {
               let start = summary["startTimeLocal"] as? String,
               let meters = number(summary["distance"]), meters > 0 else { return nil }
         let date = String(start.prefix(10))
-        let name = detail["activityName"] as? String ?? "Lauf"
+        let name = detail["activityName"] as? String ?? String(localized: "Run")
         let seconds = number(summary["movingDuration"]) ?? number(summary["duration"]) ?? 0
         let km = meters / 1000
         let laps = (detail["laps"] as? [[String: Any]] ?? []).map { lap in
@@ -125,7 +125,7 @@ enum RunImport {
               let summary = activity["summary"] as? [String: Any],
               let meters = number(summary["distance"]), meters > 0 else { return nil }
         let date = String(start.prefix(10))
-        let name = activity["name"] as? String ?? "Lauf"
+        let name = activity["name"] as? String ?? String(localized: "Run")
         let seconds = number(summary["moving_time"]) ?? number(summary["elapsed_time"]) ?? 0
         let km = meters / 1000
         let laps = (performance["laps"] as? [[String: Any]] ?? []).map { lap in
@@ -169,8 +169,8 @@ enum RunImport {
                 return .object([("km", .number(String(index + 1))), ("pace_s", pace), ("hr", hr)])
             }
             let label = autoKilometers
-                ? "letzte \(distanceText(lap.distance))"
-                : "Runde \(index + 1) · \(distanceText(lap.distance))"
+                ? String(localized: "last \(distanceText(lap.distance))")
+                : String(localized: "Lap \(index + 1) · \(distanceText(lap.distance))")
             return .object([("label", .string(label)), ("pace_s", pace), ("hr", hr)])
         }
     }
@@ -189,38 +189,38 @@ enum RunImport {
         var parts: [String] = []
         if let weather, weather["error"] == nil {
             func celsius(_ key: String) -> Int? { number(weather[key]).map { Int((($0 - 32) * 5 / 9).rounded()) } }
-            if let temp = celsius("temp") { parts.append("ca. \(temp) °C") }
-            if let feels = celsius("apparentTemp") { parts.append("gefühlt ca. \(feels) °C") }
-            if let humidity = number(weather["relativeHumidity"]) { parts.append("\(Int(humidity)) % Luftfeuchte") }
+            if let temp = celsius("temp") { parts.append(String(localized: "about \(temp) °C")) }
+            if let feels = celsius("apparentTemp") { parts.append(String(localized: "feels like about \(feels) °C")) }
+            if let humidity = number(weather["relativeHumidity"]) { parts.append(String(localized: "\(Int(humidity)) % humidity")) }
             if let speed = number(weather["windSpeed"]) {
-                let strength = speed <= 7 ? "schwacher" : speed <= 15 ? "mäßiger" : "starker"
-                let from = (weather["windDirectionCompassPoint"] as? String).flatMap(compassName).map { " aus \($0)" } ?? ""
-                parts.append("\(strength) Wind\(from)")
+                let strength = speed <= 7 ? String(localized: "light") : speed <= 15 ? String(localized: "moderate") : String(localized: "strong")
+                let from = (weather["windDirectionCompassPoint"] as? String).flatMap(compassName).map { String(localized: " from \($0)") } ?? ""
+                parts.append(String(localized: "\(strength) wind\(from)"))
             }
             if let description = (weather["weatherTypeDTO"] as? [String: Any])?["desc"] as? String,
                let german = weatherNames[description.lowercased()] {
                 parts.append(german)
             }
         }
-        var text = parts.isEmpty ? "" : "Garmin-Wetter beim Start: " + parts.joined(separator: ", ")
+        var text = parts.isEmpty ? "" : String(localized: "Garmin weather at start: ") + parts.joined(separator: ", ")
         if let watch {
-            text += (text.isEmpty ? "" : "; ") + "Uhrtemperatur Ø \(Int(watch.rounded())) °C"
+            text += (text.isEmpty ? "" : "; ") + String(localized: "Watch temperature avg \(Int(watch.rounded())) °C")
         }
         return text.isEmpty ? nil : text
     }
 
     private static let weatherNames = [
-        "fair": "heiter", "clear": "klar", "sunny": "sonnig", "mostly sunny": "überwiegend sonnig",
-        "partly cloudy": "teils bewölkt", "mostly cloudy": "überwiegend bewölkt", "cloudy": "bewölkt",
-        "overcast": "bedeckt", "rain": "Regen", "light rain": "leichter Regen", "showers": "Schauer",
-        "drizzle": "Nieselregen", "fog": "Nebel", "mist": "Dunst", "snow": "Schnee", "thunderstorm": "Gewitter",
+        "fair": String(localized: "fair"), "clear": String(localized: "clear"), "sunny": String(localized: "sunny"), "mostly sunny": String(localized: "mostly sunny"),
+        "partly cloudy": String(localized: "partly cloudy"), "mostly cloudy": String(localized: "mostly cloudy"), "cloudy": String(localized: "cloudy"),
+        "overcast": String(localized: "overcast"), "rain": String(localized: "rain"), "light rain": String(localized: "light rain"), "showers": String(localized: "showers"),
+        "drizzle": String(localized: "drizzle"), "fog": String(localized: "fog"), "mist": String(localized: "mist"), "snow": String(localized: "snow"), "thunderstorm": String(localized: "thunderstorm"),
     ]
 
     private static func compassName(_ point: String) -> String? {
-        let names = ["n": "Nord", "nne": "Nordnordost", "ne": "Nordost", "ene": "Ostnordost", "e": "Ost",
-                     "ese": "Ostsüdost", "se": "Südost", "sse": "Südsüdost", "s": "Süd", "ssw": "Südsüdwest",
-                     "sw": "Südwest", "wsw": "Westsüdwest", "w": "West", "wnw": "Westnordwest", "nw": "Nordwest",
-                     "nnw": "Nordnordwest"]
+        let names = ["n": String(localized: "north"), "nne": String(localized: "north-northeast"), "ne": String(localized: "northeast"), "ene": String(localized: "east-northeast"), "e": String(localized: "east"),
+                     "ese": String(localized: "east-southeast"), "se": String(localized: "southeast"), "sse": String(localized: "south-southeast"), "s": String(localized: "south"), "ssw": String(localized: "south-southwest"),
+                     "sw": String(localized: "southwest"), "wsw": String(localized: "west-southwest"), "w": String(localized: "west"), "wnw": String(localized: "west-northwest"), "nw": String(localized: "northwest"),
+                     "nnw": String(localized: "north-northwest")]
         return names[point.lowercased()]
     }
 
@@ -287,7 +287,7 @@ enum AnalysisWriter {
         var document = try JSONDocument(contentsOf: url, style: .python)
         guard var runs = document.root["runs"]?.arrayValue,
               let index = runs.firstIndex(where: { identity(of: $0) == runID }) else {
-            throw StoreError.missingFile("Lauf \(runID) in analysis.json")
+            throw StoreError.missingFile(String(localized: "Run \(runID) in analysis.json"))
         }
         runs[index]["sessionId"] = sessionID.map(OrderedJSON.string) ?? .null
         document.root["runs"] = .array(runs)

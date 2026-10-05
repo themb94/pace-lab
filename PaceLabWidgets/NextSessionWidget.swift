@@ -6,8 +6,8 @@ struct NextSessionWidget: Widget {
         StaticConfiguration(kind: "NextSession", provider: TrainingProvider()) { entry in
             NextSessionView(entry: entry)
         }
-        .configurationDisplayName("Nächstes Training")
-        .description("Die nächste offene Einheit — groß mit der ganzen Woche und dem letzten Lauf.")
+        .configurationDisplayName("Next session")
+        .description("The next open session — large with the whole week and the last run.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
@@ -36,10 +36,10 @@ struct NextSessionContent: View {
             if let next = snapshot.nextSession {
                 content(snapshot, next)
             } else {
-                WidgetMessage(symbol: "trophy.fill", text: "Alle Einheiten erledigt")
+                WidgetMessage(symbol: "trophy.fill", text: String(localized: "All sessions done"))
             }
         } else {
-            WidgetMessage(symbol: "figure.run", text: entry.errorMessage ?? "Öffne Pace Lab einmal")
+            WidgetMessage(symbol: "figure.run", text: entry.errorMessage ?? String(localized: "Open Pace Lab once"))
         }
     }
 
@@ -99,9 +99,9 @@ private struct SessionSummary: View {
 
     private var footer: String {
         if case .upcoming(let days) = snapshot.status(on: date) {
-            return "W\(session.week) · Start \(Fmt.relativeDays(days))"
+            return String(localized: "W\(session.week) · Starts \(Fmt.relativeDays(days))")
         }
-        return "Woche \(session.week) · \(session.phase)"
+        return String(localized: "Week \(session.week) · \(session.phase)")
     }
 }
 
@@ -116,7 +116,7 @@ struct WeekChecklist: View {
         let actual = snapshot.actualKm(week: week)
         VStack(alignment: .leading, spacing: showDescriptions ? 8 : 6) {
             if !showDescriptions {
-                Text("Woche \(week)")
+                Text("Week \(week)")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(.secondary)
             }
@@ -190,7 +190,7 @@ private struct WeekOverview: View {
 
             Divider()
 
-            Text("Woche \(week) · \(snapshot.phase(ofWeek: week))")
+            Text("Week \(week) · \(snapshot.phase(ofWeek: week))")
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.secondary)
             WeekChecklist(snapshot: snapshot, week: week, showDescriptions: true)

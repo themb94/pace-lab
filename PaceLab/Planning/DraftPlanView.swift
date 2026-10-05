@@ -30,7 +30,7 @@ struct DraftPlanView: View {
                         }
                     } header: {
                         HStack(spacing: 8) {
-                            Text("Woche \(week)").font(.headline).foregroundStyle(.primary)
+                            Text("Week \(week)").font(.headline).foregroundStyle(.primary)
                             PhasePill(phase: snapshot.phase(ofWeek: week))
                             Text(Fmt.range(snapshot.monday(ofWeek: week), snapshot.sunday(ofWeek: week))
                                  + (snapshot.note(ofWeek: week).map { " · \($0)" } ?? ""))
@@ -43,7 +43,7 @@ struct DraftPlanView: View {
                 }
             }
             if let bands = draft.paceBands, !bands.isEmpty {
-                Section("Pace-Bänder") {
+                Section("Pace bands") {
                     ForEach(bands, id: \.self) { band in
                         HStack {
                             Text(band.name)
@@ -55,22 +55,22 @@ struct DraftPlanView: View {
             }
         }
         .listStyle(.inset)
-        .confirmationDialog("„\(draft.title)“ übernehmen?", isPresented: $confirmApply) {
-            Button("Übernehmen") { model.applyDraft() }
+        .confirmationDialog("Apply “\(draft.title)”?", isPresented: $confirmApply) {
+            Button("Apply") { model.applyDraft() }
         } message: {
             Text(applyMessage)
         }
-        .confirmationDialog("Entwurf verwerfen?", isPresented: $confirmDiscard) {
-            Button("Verwerfen", role: .destructive) { model.discardDraft() }
+        .confirmationDialog("Discard draft?", isPresented: $confirmDiscard) {
+            Button("Discard", role: .destructive) { model.discardDraft() }
         } message: {
-            Text("plan-entwurf.json wird gelöscht. Im Verlauf bleibt er erhalten.")
+            Text("plan-entwurf.json will be deleted. It stays available in the history.")
         }
     }
 
     private var applyMessage: String {
-        var text = "Der Entwurf wird zum aktiven Plan. Der bisherige Plan wird unter plans/ abgelegt; Häkchen und Analysen bleiben erhalten."
+        var text = String(localized: "The draft becomes the active plan. The previous plan is saved under plans/; ticks and analyses are kept.")
         if let current = model.snapshot, case .running(let week) = current.status(on: .now) {
-            text = "Achtung: „\(current.plan.title)“ läuft noch (Woche \(week) von \(current.weekCount)). " + text
+            text = String(localized: "Heads up: “\(current.plan.title)” is still running (week \(week) of \(current.weekCount)). ") + text
         }
         return text
     }
@@ -78,25 +78,25 @@ struct DraftPlanView: View {
     private func header(_ snapshot: TrainingSnapshot) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
-                Pill(text: "ENTWURF", symbol: "pencil.and.list.clipboard", color: .purple)
+                Pill(text: String(localized: "DRAFT"), symbol: "pencil.and.list.clipboard", color: .purple)
                 if let prefix = draft.idPrefix {
-                    Text("ID-Präfix \(prefix) · Workouts \(draft.workoutPrefix ?? prefix.uppercased())")
+                    Text("ID prefix \(prefix) · Workouts \(draft.workoutPrefix ?? prefix.uppercased())")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
             Text(draft.title).font(.title.bold())
             if let goal = draft.goal { Text(goal).font(.title3).foregroundStyle(Color.brand) }
-            Text("\(snapshot.weekCount) Wochen ab \(Fmt.longDate(snapshot.startMonday))")
+            Text("\(snapshot.weekCount) weeks starting \(Fmt.longDate(snapshot.startMonday))")
                 .foregroundStyle(.secondary)
-            if let subtitle = draft.subtitle, !subtitle.contains("\(snapshot.weekCount) Wochen") {
+            if let subtitle = draft.subtitle, !subtitle.contains("\(snapshot.weekCount) Wochen"), !subtitle.contains("\(snapshot.weekCount) weeks") {
                 Text(subtitle).foregroundStyle(.secondary)
             }
             if let previous = draft.previous {
                 Text(previous).font(.callout).foregroundStyle(.secondary)
             }
             if draft.idPrefix == model.snapshot?.plan.idPrefix {
-                Label("Gleiches ID-Präfix wie der aktuelle Block — so kann der Entwurf nicht übernommen werden.",
+                Label("Same ID prefix as the current block — the draft can’t be applied like this.",
                       systemImage: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
             }
@@ -104,7 +104,7 @@ struct DraftPlanView: View {
                 Button {
                     confirmApply = true
                 } label: {
-                    Label("Als aktiven Plan übernehmen", systemImage: "checkmark.circle.fill")
+                    Label("Apply as active plan", systemImage: "checkmark.circle.fill")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.brand)
@@ -112,16 +112,16 @@ struct DraftPlanView: View {
 
                 Button {
                     model.coach.newConversation()
-                    model.coach.draft = "Überarbeite den Entwurf in plan-entwurf.json: "
+                    model.coach.draft = String(localized: "Revise the draft in plan-entwurf.json: ")
                     model.section = .coach
                 } label: {
-                    Label("Mit Coach überarbeiten", systemImage: "sparkles")
+                    Label("Revise with coach", systemImage: "sparkles")
                 }
 
                 Button(role: .destructive) {
                     confirmDiscard = true
                 } label: {
-                    Label("Verwerfen", systemImage: "trash")
+                    Label("Discard", systemImage: "trash")
                 }
             }
             .controlSize(.large)

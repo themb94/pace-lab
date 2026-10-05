@@ -9,9 +9,9 @@ struct PlanRequest: Identifiable, Equatable {
 
         var label: String {
             switch self {
-            case .week: "Woche anpassen"
-            case .session: "Einheit ändern"
-            case .block: "Neuen Block planen"
+            case .week: String(localized: "Adjust week")
+            case .session: String(localized: "Change session")
+            case .block: String(localized: "Plan new block")
             }
         }
 
@@ -64,11 +64,11 @@ struct PlanRequest: Identifiable, Equatable {
 enum PlanPrompts {
     static func title(for request: PlanRequest, snapshot: TrainingSnapshot) -> String {
         switch request.kind {
-        case .week: return "Woche \(request.week) anpassen"
+        case .week: return String(localized: "Adjust week \(request.week)")
         case .session:
-            guard let session = request.sessionID.flatMap(snapshot.session(id:)) else { return "Einheit ändern" }
-            return "W\(session.week) · \(session.kind.label) ändern"
-        case .block: return "Neuen Block planen"
+            guard let session = request.sessionID.flatMap(snapshot.session(id:)) else { return String(localized: "Change session") }
+            return String(localized: "Change W\(session.week) · \(session.kind.label)")
+        case .block: return String(localized: "Plan new block")
         }
     }
 
@@ -77,27 +77,27 @@ enum PlanPrompts {
     static func agentPrompt(for request: PlanRequest, snapshot: TrainingSnapshot) -> String {
         switch request.kind {
         case .week, .session:
-            return """
+            return String(localized: """
             \(task(request, snapshot))
 
-            Ändere dafür plan.json direkt: die betroffenen Einheiten (type, dist, desc) und passend dazu jeweils das „workout“ \
-            (Schema: README, Abschnitt „Plan-Schema“ — garmin_workouts.py baut daraus die Garmin-Workouts, dort also nichts ändern). \
-            Andere Wochen nur anpassen, wenn es wegen dieser Änderung wirklich nötig ist, und das dann begründen. Die Häkchen hängen an \
-            Typ und Position der Einheit ({idPrefix}w{Woche}-{type}-{index}) — bei schon abgehakten Einheiten Typ und Reihenfolge also \
-            nicht ändern. Halte dich an die Trainingsprinzipien der README. Lade nichts auf Garmin hoch. Fasse zum Schluss knapp \
-            zusammen, was du geändert hast und warum.
-            """
+            Change plan.json directly for this: the affected sessions (type, dist, desc) and, matching each, its “workout” \
+            (schema: README, section “Plan schema” — garmin_workouts.py builds the Garmin workouts from it, so don’t change anything there). \
+            Only adjust other weeks if this change really requires it, and explain why. The ticks are tied to the \
+            type and position of a session ({idPrefix}w{week}-{type}-{index}) — so don’t change type or order of sessions that are already ticked off. \
+            Follow the training principles in the README. Don’t upload anything to Garmin. At the end, briefly \
+            summarize what you changed and why.
+            """)
         case .block:
-            return """
+            return String(localized: """
             \(blockBrief(request, snapshot))
 
-            Schreib den Entwurf nach plan-entwurf.json — gleiches Schema wie plan.json (README, Abschnitt „Plan-Schema“) mit „workout“ \
-            für jede Einheit, neuem idPrefix (z. B. „b3“), neuem workoutPrefix, passendem title/goal/subtitle, paceBands und athlete; \
-            previous = kurzer Rückblick auf den aktuellen Block. plan.json NICHT ändern — der aktuelle Block läuft weiter, der Entwurf wird \
-            in der App übernommen. Werte vorher analysis.json (Läufe, Bewertungen, Wochenfazits) und die Trainingsprinzipien der \
-            README aus. Erkläre zum Schluss kurz den Aufbau (Phasen, Progression, Pace-Bänder) und was du bewusst anders machst als im \
-            aktuellen Block.
-            """
+            Write the draft to plan-entwurf.json — same schema as plan.json (README, section “Plan schema”) with a “workout” \
+            for every session, a new idPrefix (e.g. “b3”), a new workoutPrefix, fitting title/goal/subtitle, paceBands and athlete; \
+            previous = a short look back at the current block. Do NOT change plan.json — the current block keeps running, the draft is \
+            applied in the app. First review analysis.json (runs, ratings, week summaries) and the training principles in the \
+            README. At the end, briefly explain the structure (phases, progression, pace bands) and what you deliberately do differently from the \
+            current block.
+            """)
         }
     }
 
@@ -109,47 +109,47 @@ enum PlanPrompts {
             let week = request.kind == .session
                 ? (request.sessionID.flatMap(snapshot.session(id:))?.week ?? request.week) : request.week
             let json = weekJSON(week, folder: folder) ?? "{}"
-            return """
+            return String(localized: """
             \(task(request, snapshot))
 
-            Du kannst keine Dateien ändern. Antworte mit einer kurzen Begründung und danach mit der vollständigen neuen Woche \(week) \
-            als JSON in einem Codeblock (```json … ```), im selben Schema wie unten: phase, note, sessions mit type, dist, desc und \
-            workout. Die App zeigt den Vorschlag und übernimmt ihn erst nach Bestätigung.
+            You can’t change any files. Answer with a short rationale and then the complete new week \(week) \
+            as JSON in a code block (```json … ```), in the same schema as below: phase, note, sessions with type, dist, desc and \
+            workout. The app shows the suggestion and only applies it after you confirm.
 
-            # Woche \(week) bisher (aus plan.json)
+            # Week \(week) so far (from plan.json)
             ```json
             \(json)
             ```
 
             \(schema)
-            """
+            """)
         case .block:
             let plan = (try? String(contentsOf: folder.appending(path: TrainingFiles.plan), encoding: .utf8)) ?? "{}"
-            return """
+            return String(localized: """
             \(blockBrief(request, snapshot))
 
-            Du kannst keine Dateien ändern. Antworte mit einer kurzen Erklärung des Aufbaus und danach mit dem vollständigen neuen Plan \
-            als JSON in einem Codeblock (```json … ```), im Schema des aktuellen Plans unten — mit neuem idPrefix (z. B. „b3“) und \
-            workoutPrefix. Die App legt ihn als Entwurf ab; übernommen wird er in der App.
+            You can’t change any files. Answer with a short explanation of the structure and then the complete new plan \
+            as JSON in a code block (```json … ```), in the schema of the current plan below — with a new idPrefix (e.g. “b3”) and \
+            workoutPrefix. The app saves it as a draft; it is applied in the app.
 
-            # Aktueller Plan (plan.json)
+            # Current plan (plan.json)
             ```json
             \(plan)
             ```
 
             \(schema)
-            """
+            """)
         }
     }
 
-    static let schema = """
-    # Schema eines Workouts
+    static let schema = String(localized: """
+    # Schema of a workout
     "workout": { "name": "6x800m", "steps": [ { "type": "warmup", "time": 600, "note": "…" }, \
     { "repeat": 6, "steps": [ { "type": "interval", "distance": 800, "pace": "4:45-5:15", "note": "…" }, \
     { "type": "recovery", "time": 90 } ] }, { "type": "cooldown", "time": 600 } ] }
-    type: warmup, cooldown, interval, recovery oder run. Ende: "distance" (Meter) oder "time" (Sekunden). \
-    "pace" = Name eines paceBands oder "m:ss-m:ss"; ohne pace = frei nach Gefühl. Locker-Läufe und Long Runs haben kein Pace-Ziel.
-    """
+    type: warmup, cooldown, interval, recovery or run. End: "distance" (metres) or "time" (seconds). \
+    "pace" = name of a paceBand or "m:ss-m:ss"; without pace = free, by feel. Easy runs and long runs have no pace target.
+    """)
 
     // MARK: Bausteine
 
@@ -159,24 +159,26 @@ enum PlanPrompts {
         case .week:
             let week = min(max(request.week, 1), snapshot.weekCount)
             let sessions = snapshot.sessions(inWeek: week).map { session in
-                "- \(session.kind.label) \(session.dist): \(session.desc)" + (snapshot.isDone(session) ? " (schon erledigt)" : "")
+                "- \(session.kind.label) \(session.dist): \(session.desc)" + (snapshot.isDone(session) ? String(localized: " (already done)") : "")
             }
-            return """
-            Plane Woche \(week) (\(Fmt.range(snapshot.monday(ofWeek: week), snapshot.sunday(ofWeek: week))), \(snapshot.phase(ofWeek: week))) um.
-            Anlass: \(wish.isEmpty ? "keiner angegeben — prüfe anhand der letzten Läufe und Auswertungen, ob die Woche so passt" : wish)
+            let reason = wish.isEmpty ? String(localized: "none given — check from the latest runs and reviews whether the week works as planned") : wish
+            return String(localized: """
+            Re-plan week \(week) (\(Fmt.range(snapshot.monday(ofWeek: week), snapshot.sunday(ofWeek: week))), \(snapshot.phase(ofWeek: week))).
+            Reason: \(reason)
 
-            Bisher geplant:
+            Planned so far:
             \(sessions.joined(separator: "\n"))
-            """
+            """)
         case .session:
             guard let session = request.sessionID.flatMap(snapshot.session(id:)) else {
-                return "Ändere eine Einheit im Plan: \(wish)"
+                return String(localized: "Change a session in the plan: \(wish)")
             }
-            return """
-            Ändere die Einheit Woche \(session.week) · \(session.kind.label) (\(session.dist): \(session.desc)), \
-            geplant für \(Fmt.range(snapshot.monday(ofWeek: session.week), snapshot.sunday(ofWeek: session.week))).
-            Wunsch: \(wish.isEmpty ? "keiner angegeben — schlag eine sinnvolle Anpassung vor" : wish)
-            """
+            let wishText = wish.isEmpty ? String(localized: "none given — suggest a sensible adjustment") : wish
+            return String(localized: """
+            Change the session week \(session.week) · \(session.kind.label) (\(session.dist): \(session.desc)), \
+            planned for \(Fmt.range(snapshot.monday(ofWeek: session.week), snapshot.sunday(ofWeek: session.week))).
+            Request: \(wishText)
+            """)
         case .block:
             return blockBrief(request, snapshot)
         }
@@ -185,15 +187,19 @@ enum PlanPrompts {
     private static func blockBrief(_ request: PlanRequest, _ snapshot: TrainingSnapshot) -> String {
         let goal = request.goal.trimmingCharacters(in: .whitespacesAndNewlines)
         let wish = request.details.trimmingCharacters(in: .whitespacesAndNewlines)
-        return """
-        Plane einen neuen Trainingsblock als Entwurf. Vorgaben:
-        - Ziel: \(goal.isEmpty ? "offen — schlag etwas Passendes vor" : goal)
-        - Zielrennen: \(request.hasRace ? Fmt.longDate(request.raceDate) : "keins")
+        let goalText = goal.isEmpty ? String(localized: "open — suggest something suitable") : goal
+        let raceText = request.hasRace ? Fmt.longDate(request.raceDate) : String(localized: "none")
+        let wishText = wish.isEmpty ? String(localized: "nothing in particular") : wish
+        let currentSubtitle = snapshot.plan.subtitle ?? String(localized: "\(snapshot.weekCount) weeks")
+        return String(localized: """
+        Plan a new training block as a draft. Requirements:
+        - Goal: \(goalText)
+        - Target race: \(raceText)
         - Start: \(Fmt.longDate(DateUtil.startOfWeek(request.start)))
-        - Dauer: \(request.weeks) Wochen, \(request.runsPerWeek) Läufe pro Woche
-        - Besonderheiten: \(wish.isEmpty ? "keine" : wish)
-        Aktueller Block zum Vergleich: \(snapshot.plan.title) (\(snapshot.plan.subtitle ?? "\(snapshot.weekCount) Wochen")).
-        """
+        - Duration: \(request.weeks) weeks, \(request.runsPerWeek) runs per week
+        - Special considerations: \(wishText)
+        Current block for comparison: \(snapshot.plan.title) (\(currentSubtitle)).
+        """)
     }
 
     /// Die Woche als JSON-Text, so wie sie in plan.json steht.
@@ -236,7 +242,7 @@ struct PlanProposal: Codable, Hashable, Sendable {
             case .block:
                 guard let plan = try? PlanFiles.decode(data) else { continue }
                 return PlanProposal(scope: .draft, json: value.rendered(.compact(width: 120)),
-                                    changes: ["Entwurf: \(plan.title) · \(plan.weeks.count) Wochen ab \(DateUtil.day(fromISO: plan.startMonday).map(Fmt.dayMonth) ?? plan.startMonday)"])
+                                    changes: [String(localized: "Draft: \(plan.title) · \(plan.weeks.count) weeks starting \(DateUtil.day(fromISO: plan.startMonday).map(Fmt.dayMonth) ?? plan.startMonday)")])
             }
         }
         return nil
@@ -250,7 +256,7 @@ struct PlanProposal: Codable, Hashable, Sendable {
             let url = folder.file(TrainingFiles.plan)
             var document = try JSONDocument(contentsOf: url, style: .compact(width: 120))
             guard var weeks = document.root["weeks"]?.arrayValue, week >= 1, week <= weeks.count else {
-                throw StoreError.missingFile("Woche \(week) in plan.json")
+                throw StoreError.missingFile(String(localized: "Week \(week) in plan.json"))
             }
             weeks[week - 1] = value
             document.root["weeks"] = .array(weeks)

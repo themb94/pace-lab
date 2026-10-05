@@ -94,7 +94,7 @@ extension OrderedJSON {
         let offset: Int
         let reason: String
 
-        var errorDescription: String? { "Ungültiges JSON an Position \(offset): \(reason)" }
+        var errorDescription: String? { String(localized: "Invalid JSON at position \(offset): \(reason)") }
     }
 
     static func parse(_ text: String) throws -> OrderedJSON {
@@ -115,7 +115,7 @@ extension OrderedJSON {
             if bytes.starts(with: [0xEF, 0xBB, 0xBF]) { i = 3; skipWhitespace() }
             let value = try self.value()
             skipWhitespace()
-            guard i == bytes.count else { throw fail("Text nach dem Ende") }
+            guard i == bytes.count else { throw fail(String(localized: "text after the end")) }
             return value
         }
 
@@ -126,7 +126,7 @@ extension OrderedJSON {
         }
 
         private mutating func value() throws -> OrderedJSON {
-            guard i < bytes.count else { throw fail("unerwartetes Ende") }
+            guard i < bytes.count else { throw fail(String(localized: "unexpected end")) }
             switch bytes[i] {
             case UInt8(ascii: "{"): return try object()
             case UInt8(ascii: "["): return try array()
@@ -135,14 +135,14 @@ extension OrderedJSON {
             case UInt8(ascii: "f"): try literal("false"); return .bool(false)
             case UInt8(ascii: "n"): try literal("null"); return .null
             case UInt8(ascii: "-"), UInt8(ascii: "0")...UInt8(ascii: "9"): return try number()
-            default: throw fail("unerwartetes Zeichen")
+            default: throw fail(String(localized: "unexpected character"))
             }
         }
 
         private mutating func literal(_ word: String) throws {
             let expected = Array(word.utf8)
             guard i + expected.count <= bytes.count, Array(bytes[i..<i + expected.count]) == expected else {
-                throw fail("\(word) erwartet")
+                throw fail(String(localized: "\(word) expected"))
             }
             i += expected.count
         }
@@ -151,7 +151,7 @@ extension OrderedJSON {
             let start = i
             while i < bytes.count, "+-0123456789.eE".utf8.contains(bytes[i]) { i += 1 }
             let raw = String(decoding: bytes[start..<i], as: UTF8.self)
-            guard Double(raw) != nil else { throw SyntaxError(offset: start, reason: "ungültige Zahl") }
+            guard Double(raw) != nil else { throw SyntaxError(offset: start, reason: String(localized: "invalid number")) }
             return .number(raw)
         }
 
@@ -162,18 +162,18 @@ extension OrderedJSON {
             if i < bytes.count, bytes[i] == UInt8(ascii: "}") { i += 1; return .object(members) }
             while true {
                 skipWhitespace()
-                guard i < bytes.count, bytes[i] == UInt8(ascii: "\"") else { throw fail("Schlüssel erwartet") }
+                guard i < bytes.count, bytes[i] == UInt8(ascii: "\"") else { throw fail(String(localized: "key expected")) }
                 let key = try string()
                 skipWhitespace()
-                guard i < bytes.count, bytes[i] == UInt8(ascii: ":") else { throw fail("„:“ erwartet") }
+                guard i < bytes.count, bytes[i] == UInt8(ascii: ":") else { throw fail(String(localized: "“:” expected")) }
                 i += 1
                 skipWhitespace()
                 members.append(Member(key: key, value: try value()))
                 skipWhitespace()
-                guard i < bytes.count else { throw fail("unerwartetes Ende") }
+                guard i < bytes.count else { throw fail(String(localized: "unexpected end")) }
                 if bytes[i] == UInt8(ascii: ",") { i += 1; continue }
                 if bytes[i] == UInt8(ascii: "}") { i += 1; return .object(members) }
-                throw fail("„,“ oder „}“ erwartet")
+                throw fail(String(localized: "“,” or “}” expected"))
             }
         }
 
@@ -186,10 +186,10 @@ extension OrderedJSON {
                 skipWhitespace()
                 items.append(try value())
                 skipWhitespace()
-                guard i < bytes.count else { throw fail("unerwartetes Ende") }
+                guard i < bytes.count else { throw fail(String(localized: "unexpected end")) }
                 if bytes[i] == UInt8(ascii: ",") { i += 1; continue }
                 if bytes[i] == UInt8(ascii: "]") { i += 1; return .array(items) }
-                throw fail("„,“ oder „]“ erwartet")
+                throw fail(String(localized: "“,” or “]” expected"))
             }
         }
 
@@ -226,19 +226,19 @@ extension OrderedJSON {
                         }
                         out.append(contentsOf: Array(String(Unicode.Scalar(scalar) ?? "\u{FFFD}").utf8))
                     default:
-                        throw fail("unbekannte Escape-Sequenz")
+                        throw fail(String(localized: "unknown escape sequence"))
                     }
                     continue
                 }
                 out.append(byte)
                 i += 1
             }
-            throw fail("String ohne Ende")
+            throw fail(String(localized: "string without end"))
         }
 
         private mutating func hex4() throws -> UInt32 {
             guard i + 4 <= bytes.count, let value = UInt32(String(decoding: bytes[i..<i + 4], as: UTF8.self), radix: 16) else {
-                throw fail("\\u mit vier Hex-Ziffern erwartet")
+                throw fail(String(localized: "\\u followed by four hex digits expected"))
             }
             i += 4
             return value

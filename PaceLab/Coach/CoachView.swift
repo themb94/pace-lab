@@ -18,52 +18,52 @@ struct CoachView: View {
         }
         .background(Color.pageBackground)
         .navigationTitle(coach.current?.title ?? "Coach")
-        .navigationSubtitle(coach.isRunning ? "\(coach.activeEngine.name) arbeitet …" : model.models.summary(for: coach.activeEngine))
+        .navigationSubtitle(coach.isRunning ? String(localized: "\(coach.activeEngine.name) is working …") : model.models.summary(for: coach.activeEngine))
         .task(id: coach.activeEngine) { await model.models.refreshIfStale(coach.activeEngine, folder: model.folder.url) }
         .toolbar {
             ToolbarItemGroup {
                 ConnectionBadges(servers: coach.connections)
                 EnginePicker()
                 Menu {
-                    Button("Neues Gespräch") { coach.newConversation() }
+                    Button("New conversation") { coach.newConversation() }
                     if coach.current != nil {
-                        Button("Dieses Gespräch löschen …", role: .destructive) { confirmDeleteCurrent = true }
+                        Button("Delete this conversation …", role: .destructive) { confirmDeleteCurrent = true }
                     }
                     if !coach.conversations.isEmpty {
-                        Button("Alle Gespräche löschen …", role: .destructive) { confirmDeleteAll = true }
+                        Button("Delete all conversations …", role: .destructive) { confirmDeleteAll = true }
                     }
                     if !coach.conversations.isEmpty { Divider() }
                     ForEach(coach.conversations.prefix(20)) { conversation in
                         Button {
                             coach.select(conversation.id)
                         } label: {
-                            Text("\(conversation.title) · \(conversation.engineName ?? "Claude Code") · \(conversation.updatedAt.formatted(.dateTime.day().month().hour().minute().locale(Fmt.de)))")
+                            Text("\(conversation.title) · \(conversation.engineName ?? "Claude Code") · \(conversation.updatedAt.formatted(.dateTime.day().month().hour().minute().locale(Fmt.locale)))")
                         }
                     }
                 } label: {
-                    Label("Gespräche", systemImage: "clock.arrow.circlepath")
+                    Label("Conversations", systemImage: "clock.arrow.circlepath")
                 }
-                .help("Frühere Gespräche")
+                .help("Earlier conversations")
                 .disabled(coach.isRunning)
-                .confirmationDialog("„\(coach.current?.title ?? "Gespräch")“ löschen?", isPresented: $confirmDeleteCurrent) {
-                    Button("Löschen", role: .destructive) {
+                .confirmationDialog("Delete “\(coach.current?.title ?? String(localized: "Conversation"))”?", isPresented: $confirmDeleteCurrent) {
+                    Button("Delete", role: .destructive) {
                         if let id = coach.current?.id { coach.deleteConversation(id) }
                     }
                 } message: {
-                    Text("Das Gespräch verschwindet aus der App. Änderungen, die der Coach dabei gemacht hat, bleiben — im Bereich „Verlauf“ lassen sie sich weiter zurücknehmen.")
+                    Text("The conversation disappears from the app. Changes the coach made stay — you can still undo them in the “History” section.")
                 }
-                .confirmationDialog("Alle \(coach.conversations.count) Gespräche löschen?", isPresented: $confirmDeleteAll) {
-                    Button("Alle löschen", role: .destructive) { coach.deleteAllConversations() }
+                .confirmationDialog("Delete all \(coach.conversations.count) conversations?", isPresented: $confirmDeleteAll) {
+                    Button("Delete all", role: .destructive) { coach.deleteAllConversations() }
                 } message: {
-                    Text("Die Gespräche verschwinden aus der App. Plan, Läufe und der Verlauf der Stände bleiben unverändert.")
+                    Text("The conversations disappear from the app. Plan, runs and the version history stay unchanged.")
                 }
 
                 Button {
                     coach.newConversation()
                 } label: {
-                    Label("Neues Gespräch", systemImage: "square.and.pencil")
+                    Label("New conversation", systemImage: "square.and.pencil")
                 }
-                .help("Neues Gespräch beginnen")
+                .help("Start a new conversation")
                 .disabled(coach.isRunning)
             }
         }
@@ -89,12 +89,12 @@ private struct EnginePicker: View {
                 }
             }
             Divider()
-            SettingsLink { Text("CLIs verwalten …") }
+            SettingsLink { Text("Manage CLIs …") }
         } label: {
             Label(coach.activeEngine.name, systemImage: coach.activeEngine.kind.symbol)
                 .labelStyle(.titleAndIcon)
         }
-        .help("Engine wählen — ein Wechsel beginnt ein neues Gespräch")
+        .help("Choose engine — switching starts a new conversation")
         .disabled(coach.isRunning)
     }
 }
@@ -112,7 +112,7 @@ private struct CoachWelcome: View {
                 Image(systemName: engine.kind.symbol)
                     .font(.system(size: 44))
                     .foregroundStyle(Color.brand)
-                Text("Dein Lauf-Coach")
+                Text("Your running coach")
                     .font(.largeTitle.bold())
                 Text(intro(for: engine))
                     .multilineTextAlignment(.center)
@@ -133,13 +133,13 @@ private struct CoachWelcome: View {
                         Button {
                             model.requestPlan(.week)
                         } label: {
-                            WelcomeCard(symbol: "wand.and.stars", title: "Planen",
-                                        text: "Woche umbauen, Einheit ändern oder einen neuen Block entwerfen")
+                            WelcomeCard(symbol: "wand.and.stars", title: String(localized: "Planning"),
+                                        text: String(localized: "Rework a week, change a session or draft a new block"))
                         }
                         .buttonStyle(CardButtonStyle())
                         .disabled(model.coach.isRunning || model.snapshot == nil || found == false)
                     }
-                    Text("Oder schreib unten einfach, was los ist — z. B. „Stadtlauf am Samstag, bau die Woche um“ oder „Beine schwer, was heißt das für Donnerstag?“")
+                    Text("Or just write below what’s going on — e.g. “city run on Saturday, rework the week” or “legs feel heavy, what does that mean for Thursday?”")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -149,7 +149,7 @@ private struct CoachWelcome: View {
                         .font(.callout)
                         .frame(maxWidth: 560)
                         .card(padding: 14)
-                    Text("Frag z. B. „Was steht diese Woche an?“ oder „Wie war mein letzter Long Run?“ — oder lass dir über „Planen“ einen Vorschlag machen, den die App nach deiner Zustimmung übernimmt.")
+                    Text("Ask e.g. “What’s on this week?” or “How was my last long run?” — or have a suggestion made via “Planning”, which the app applies after you agree.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -157,7 +157,7 @@ private struct CoachWelcome: View {
                     Button {
                         model.requestPlan(.week)
                     } label: {
-                        Label("Planen …", systemImage: "wand.and.stars")
+                        Label("Plan …", systemImage: "wand.and.stars")
                     }
                     .disabled(model.coach.isRunning || model.snapshot == nil || found == false)
                 }
@@ -167,7 +167,7 @@ private struct CoachWelcome: View {
                         Label(CoachError.notFound(engine.command.isEmpty ? engine.name : engine.command).localizedDescription,
                               systemImage: "exclamationmark.triangle.fill")
                             .foregroundStyle(.orange)
-                        SettingsLink { Text("Einstellungen öffnen …") }
+                        SettingsLink { Text("Open settings …") }
                     }
                     .card(tint: .orange)
                     .frame(maxWidth: 560)
@@ -185,11 +185,11 @@ private struct CoachWelcome: View {
     private func intro(for engine: CoachEngine) -> String {
         switch engine.kind {
         case .claudeCode:
-            "Der Coach ist Claude Code auf deinem Mac — mit derselben README, demselben Gedächtnis und derselben Strava- und Garmin-Verbindung wie im Chat. Was er an Plan und Analysen ändert, siehst du sofort in der App."
+            String(localized: "The coach is Claude Code on your Mac — with the same README, the same memory and the same Strava and Garmin connection as in the chat. Whatever it changes in the plan and analyses, you see right away in the app.")
         case .codex:
-            "Der Coach ist Codex auf deinem Mac — er arbeitet im Trainingsordner nach der README. Was er an Plan und Analysen ändert, siehst du sofort in der App."
+            String(localized: "The coach is Codex on your Mac — it works in the training folder following the README. Whatever it changes in the plan and analyses, you see right away in the app.")
         case .textCLI:
-            "Der Coach ist „\(engine.name)“. Die App schickt ihm deinen aktuellen Trainingsstand mit."
+            String(localized: "The coach is “\(engine.name)”. The app sends it your current training status.")
         }
     }
 }
@@ -262,7 +262,7 @@ private struct TurnView: View {
             ForEach(pieces) { piece in
                 switch piece.content {
                 case .text(let text):
-                    MarkdownView(text: text.replacingOccurrences(of: CoachContext.uploadMarker, with: "")
+                    MarkdownView(text: CoachContext.uploadMarkers.reduce(text) { $0.replacingOccurrences(of: $1, with: "") }
                         .trimmingCharacters(in: .whitespacesAndNewlines))
                 case .tools(let steps):
                     StepsView(steps: steps, collapsible: turn.state != .running && steps.count > 3)
@@ -272,11 +272,11 @@ private struct TurnView: View {
             if turn.state == .running {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
-                    Text(model.coach.liveStep ?? "\(model.coach.activeEngine.name) denkt nach …")
+                    Text(model.coach.liveStep ?? String(localized: "\(model.coach.activeEngine.name) is thinking …"))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                     Spacer()
-                    Button("Stopp") { model.coach.cancel() }
+                    Button("Stop") { model.coach.cancel() }
                         .controlSize(.small)
                 }
             }
@@ -298,7 +298,7 @@ private struct TurnView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             if turn.allowUpload {
-                Label("Garmin-Upload freigegeben", systemImage: "applewatch")
+                Label("Garmin upload approved", systemImage: "applewatch")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -318,7 +318,7 @@ private struct TurnView: View {
                 if let proposal = turn.proposal {
                     ProposalCard(turn: turn, proposal: proposal)
                 } else if turn.planning != nil && !model.coach.activeEngine.kind.isAgent && turn.commit == nil {
-                    Label("In der Antwort war kein gültiger JSON-Vorschlag — frag nach, ob der Coach den Plan als JSON-Codeblock schicken kann.",
+                    Label("The reply contained no valid JSON suggestion — ask whether the coach can send the plan as a JSON code block.",
                           systemImage: "questionmark.circle")
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -332,8 +332,8 @@ private struct TurnView: View {
                             .font(.title2)
                             .foregroundStyle(Color.brand)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Workouts auf Garmin anlegen?").font(.headline)
-                            Text("Der Coach darf das erst nach deiner Freigabe.")
+                            Text("Create workouts on Garmin?").font(.headline)
+                            Text("The coach may only do this after you approve.")
                                 .font(.callout)
                                 .foregroundStyle(.secondary)
                         }
@@ -341,7 +341,7 @@ private struct TurnView: View {
                         Button {
                             model.startCoach(.uploadWeek)
                         } label: {
-                            Label("Freigeben & hochladen", systemImage: "arrow.up.circle.fill")
+                            Label("Approve & upload", systemImage: "arrow.up.circle.fill")
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.brand)
@@ -351,12 +351,12 @@ private struct TurnView: View {
                 }
                 if !garminDenied.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("Nicht ausgeführt, weil nicht freigegeben: \(garminDenied.map(ToolLabel.label(for:)).joined(separator: ", "))",
+                        Label("Not executed because not approved: \(garminDenied.map(ToolLabel.label(for:)).joined(separator: ", "))",
                               systemImage: "lock.fill")
                         Button {
                             model.coach.retryWithUpload(in: model.folder.url)
                         } label: {
-                            Label("Mit Garmin-Freigabe wiederholen", systemImage: "arrow.up.circle")
+                            Label("Repeat with Garmin approval", systemImage: "arrow.up.circle")
                         }
                         .disabled(model.coach.isRunning)
                     }
@@ -376,7 +376,7 @@ private struct TurnView: View {
             }
         case .cancelled:
             VStack(alignment: .leading, spacing: 8) {
-                Label("Abgebrochen", systemImage: "stop.circle")
+                Label("Cancelled", systemImage: "stop.circle")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 if turn.commit != nil { ChangesCard(turn: turn) }
@@ -389,11 +389,11 @@ private struct TurnView: View {
     }
 
     private var doneText: String {
-        guard let end = turn.finishedAt else { return "Fertig" }
+        guard let end = turn.finishedAt else { return String(localized: "Finished") }
         let seconds = Int(end.timeIntervalSince(turn.startedAt))
         let duration = seconds >= 60 ? "\(seconds / 60) min \(seconds % 60) s" : "\(seconds) s"
         let used = turn.model.map { " · \(model.models.version(forResolved: $0))" } ?? ""
-        return "Fertig · \(duration) · \(end.formatted(.dateTime.hour().minute().locale(Fmt.de)))\(used)"
+        return String(localized: "Finished · \(duration) · \(end.formatted(.dateTime.hour().minute().locale(Fmt.locale)))\(used)")
     }
 
     /// Aufeinanderfolgende Werkzeug-Schritte zu einem Block zusammenfassen.
@@ -438,7 +438,7 @@ private struct ChangesCard: View {
             HStack(spacing: 8) {
                 Image(systemName: turn.revertCommit == nil ? "doc.badge.clock" : "arrow.uturn.backward.circle")
                     .foregroundStyle(turn.revertCommit == nil ? Color.brand : .secondary)
-                Text(turn.revertCommit == nil ? "Geändert: \(files.joined(separator: ", "))" : "Zurückgenommen: \(files.joined(separator: ", "))")
+                Text(turn.revertCommit == nil ? "Changed: \(files.joined(separator: ", "))" : "Reverted: \(files.joined(separator: ", "))")
                     .font(.callout.weight(.semibold))
                     .lineLimit(2)
                 Spacer()
@@ -447,12 +447,12 @@ private struct ChangesCard: View {
                     Button {
                         confirmUndo = true
                     } label: {
-                        Label("Rückgängig", systemImage: "arrow.uturn.backward")
+                        Label("Revert", systemImage: "arrow.uturn.backward")
                     }
                     .controlSize(.small)
                     .disabled(working || model.coach.isRunning || model.sync.isRunning)
                 } else if turn.commit == nil && turn.revertCommit == nil {
-                    Text("Stand aus dem Verlauf gelöscht")
+                    Text("Version deleted from the history")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -465,23 +465,23 @@ private struct ChangesCard: View {
                             .labelStyle(CompactLabelStyle())
                     }
                     if changes.count > 8 {
-                        Text("… und \(changes.count - 8) weitere Änderungen").font(.caption).foregroundStyle(.secondary)
+                        Text("… and \(changes.count - 8) more changes").font(.caption).foregroundStyle(.secondary)
                     }
                 }
                 Button {
                     model.showDraft = false
                     model.section = .plan
                 } label: {
-                    Label("Im Plan ansehen", systemImage: "calendar")
+                    Label("View in plan", systemImage: "calendar")
                 }
                 .controlSize(.small)
             }
             if let title = turn.draftTitle, turn.revertCommit == nil, model.draft != nil {
                 HStack {
-                    Label("Entwurf für den nächsten Block: \(title)", systemImage: "pencil.and.list.clipboard")
+                    Label("Draft for the next block: \(title)", systemImage: "pencil.and.list.clipboard")
                         .font(.callout)
                     Spacer()
-                    Button("Entwurf ansehen") {
+                    Button("View draft") {
                         model.showDraft = true
                         model.section = .plan
                     }
@@ -490,15 +490,15 @@ private struct ChangesCard: View {
             }
         }
         .card(tint: turn.revertCommit == nil ? .brand : nil, padding: 12)
-        .confirmationDialog("Änderungen dieses Coach-Laufs zurücknehmen?", isPresented: $confirmUndo) {
-            Button("Rückgängig machen") { Task { await undo(force: false) } }
+        .confirmationDialog("Undo the changes of this coach run?", isPresented: $confirmUndo) {
+            Button("Undo") { Task { await undo(force: false) } }
         } message: {
-            Text("Betroffen: \(files.joined(separator: ", ")). Das Zurücknehmen wird selbst als Stand im Verlauf festgehalten.")
+            Text("Affected: \(files.joined(separator: ", ")). Undoing is itself recorded as a version in the history.")
         }
-        .confirmationDialog("Spätere Änderungen betreffen dieselben Stellen", isPresented: $offerRestore) {
-            Button("Dateien auf den Stand vor dem Coach setzen", role: .destructive) { Task { await undo(force: true) } }
+        .confirmationDialog("Later changes touch the same places", isPresented: $offerRestore) {
+            Button("Reset files to the state before the coach", role: .destructive) { Task { await undo(force: true) } }
         } message: {
-            Text("Dabei gehen auch spätere Änderungen an \(files.joined(separator: ", ")) verloren (sie bleiben im Verlauf nachlesbar).")
+            Text("This also discards later changes to \(files.joined(separator: ", ")) (they remain readable in the history).")
         }
     }
 
@@ -523,7 +523,7 @@ private struct ProposalCard: View {
                 Text(title).font(.headline)
                 Spacer()
                 if turn.proposalApplied == true {
-                    Label("Übernommen", systemImage: "checkmark.circle.fill")
+                    Label("Applied", systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                         .font(.callout)
                 } else {
@@ -544,7 +544,7 @@ private struct ProposalCard: View {
                         .labelStyle(CompactLabelStyle())
                 }
                 if proposal.changes.isEmpty {
-                    Text("Der Vorschlag entspricht dem aktuellen Plan.").font(.callout).foregroundStyle(.secondary)
+                    Text("The suggestion matches the current plan.").font(.callout).foregroundStyle(.secondary)
                 }
             }
         }
@@ -553,15 +553,15 @@ private struct ProposalCard: View {
 
     private var title: String {
         switch proposal.scope {
-        case .week(let week): "Vorschlag für Woche \(week)"
-        case .draft: "Vorschlag für einen neuen Block"
+        case .week(let week): String(localized: "Suggestion for week \(week)")
+        case .draft: String(localized: "Suggestion for a new block")
         }
     }
 
     private var buttonTitle: String {
         switch proposal.scope {
-        case .week: "In den Plan übernehmen"
-        case .draft: "Als Entwurf ablegen"
+        case .week: String(localized: "Apply to plan")
+        case .draft: String(localized: "Save as draft")
         }
     }
 }
@@ -576,7 +576,7 @@ private struct StepsView: View {
             DisclosureGroup(isExpanded: $expanded) {
                 list.padding(.top, 4)
             } label: {
-                Label("\(steps.count) Arbeitsschritte", systemImage: "gearshape.2")
+                Label("\(steps.count) work steps", systemImage: "gearshape.2")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
@@ -627,32 +627,32 @@ private struct CoachComposer: View {
                     } label: {
                         Label(action.title, systemImage: action.symbol)
                     }
-                    .help(isAgent ? action.help : "Braucht Claude Code oder Codex — eine reine Text-CLI kann keine Läufe abrufen oder Dateien ändern.")
+                    .help(isAgent ? action.help : String(localized: "Needs Claude Code or Codex — a text-only CLI can’t fetch runs or change files."))
                     .disabled(!isAgent || coach.isRunning || model.sync.isRunning || (action.needsConversation && coach.current == nil))
                 }
                 Button {
                     model.requestPlan(.week)
                 } label: {
-                    Label("Planen …", systemImage: "wand.and.stars")
+                    Label("Plan …", systemImage: "wand.and.stars")
                 }
-                .help("Woche anpassen, Einheit ändern oder neuen Block entwerfen")
+                .help("Adjust a week, change a session or draft a new block")
                 .disabled(coach.isRunning || model.sync.isRunning || model.snapshot == nil)
                 Spacer()
                 if isAgent {
                     Toggle(isOn: $coach.allowUpload) {
-                        Text("Garmin-Upload erlauben")
+                        Text("Allow Garmin upload")
                     }
                     .toggleStyle(.checkbox)
-                    .help("Nur für die nächste Nachricht: Der Coach darf Workouts auf Garmin anlegen, einplanen oder löschen.")
+                    .help("For the next message only: the coach may create, schedule or delete workouts on Garmin.")
                 } else {
-                    Label("Nur Text — bekommt deinen Trainingsstand mitgeschickt", systemImage: "info.circle")
+                    Label("Text only — your training status is sent along", systemImage: "info.circle")
                         .foregroundStyle(.secondary)
                 }
             }
             .controlSize(.small)
 
             HStack(alignment: .bottom, spacing: 10) {
-                TextField("Nachricht an \(coach.activeEngine.name) …", text: $coach.draft, axis: .vertical)
+                TextField("Message to \(coach.activeEngine.name) …", text: $coach.draft, axis: .vertical)
                     .textFieldStyle(.plain)
                     .lineLimit(1...8)
                     .onSubmit(send)
@@ -670,12 +670,12 @@ private struct CoachComposer: View {
                     Button {
                         coach.cancel()
                     } label: {
-                        Label("Stopp", systemImage: "stop.fill")
+                        Label("Stop", systemImage: "stop.fill")
                     }
                     .controlSize(.large)
                 } else {
                     Button(action: send) {
-                        Label("Senden", systemImage: "arrow.up")
+                        Label("Send", systemImage: "arrow.up")
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.brand)
@@ -709,7 +709,7 @@ private struct ConnectionBadges: View {
                             .frame(width: 7, height: 7)
                         Text(server.name == "strava-mcp" ? "Strava" : server.name == "garmin-workouts" ? "Garmin" : server.name)
                     }
-                    .help(server.isConnected ? "\(server.name): verbunden" : "\(server.name): \(server.status)")
+                    .help(server.isConnected ? "\(server.name): connected" : "\(server.name): \(server.status)")
                 }
             }
             .font(.caption)

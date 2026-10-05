@@ -14,9 +14,9 @@ struct PlanRequestSheet: View {
         let engine = model.coach.activeEngine
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
-                Label("Mit dem Coach planen", systemImage: "wand.and.stars")
+                Label("Plan with the coach", systemImage: "wand.and.stars")
                     .font(.title2.bold())
-                Text("Der Coach (\(model.models.summary(for: engine))) plant nach README und deinen Auswertungen. Du siehst das Ergebnis danach im Plan und kannst es rückgängig machen.")
+                Text("The coach (\(model.models.summary(for: engine))) plans according to the README and your reviews. You’ll see the result in the plan afterwards and can undo it.")
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -24,7 +24,7 @@ struct PlanRequestSheet: View {
             .padding([.horizontal, .top], 20)
 
             Form {
-                Picker("Was", selection: $request.kind) {
+                Picker("What", selection: $request.kind) {
                     ForEach(PlanRequest.Kind.allCases) { kind in
                         Label(kind.label, systemImage: kind.symbol).tag(kind)
                     }
@@ -41,7 +41,7 @@ struct PlanRequestSheet: View {
                 }
 
                 if !engine.kind.isAgent {
-                    Label("\(engine.name) kann keine Dateien ändern: Der Vorschlag kommt als JSON, die App übernimmt ihn erst, wenn du zustimmst.",
+                    Label("\(engine.name) can’t change files: the suggestion comes as JSON and the app only applies it once you agree.",
                           systemImage: "info.circle")
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -54,12 +54,12 @@ struct PlanRequestSheet: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Button("Abbrechen", role: .cancel) { dismiss() }
+                Button("Cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                 Button {
                     model.submit(request)
                 } label: {
-                    Label("Coach planen lassen", systemImage: "sparkles")
+                    Label("Let the coach plan", systemImage: "sparkles")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.brand)
@@ -74,17 +74,17 @@ struct PlanRequestSheet: View {
 
     private var footnote: String {
         switch request.kind {
-        case .week, .session: "Ändert plan.json — auf die Uhr kommt es erst, wenn du es hochlädst."
-        case .block: "Wird als Entwurf abgelegt; der aktuelle Block läuft weiter, bis du übernimmst."
+        case .week, .session: String(localized: "Changes plan.json — it only reaches the watch when you upload it.")
+        case .block: String(localized: "Saved as a draft; the current block keeps running until you apply it.")
         }
     }
 
     @ViewBuilder
     private func weekFields(_ snapshot: TrainingSnapshot) -> some View {
         Section {
-            Picker("Woche", selection: $request.week) {
+            Picker("Week", selection: $request.week) {
                 ForEach(1...snapshot.weekCount, id: \.self) { week in
-                    Text("Woche \(week) · \(Fmt.range(snapshot.monday(ofWeek: week), snapshot.sunday(ofWeek: week))) · \(snapshot.phase(ofWeek: week))")
+                    Text("Week \(week) · \(Fmt.range(snapshot.monday(ofWeek: week), snapshot.sunday(ofWeek: week))) · \(snapshot.phase(ofWeek: week))")
                         .tag(week)
                 }
             }
@@ -101,9 +101,9 @@ struct PlanRequestSheet: View {
             }
             .padding(.vertical, 2)
         }
-        Section("Was ist los?") {
-            TextField("Anlass", text: $request.details,
-                      prompt: Text("z. B. „Stadtlauf am Samstag“, „Knie zwickt“, „nur 2 Tage Zeit“ — leer lassen für einen Check"),
+        Section("What’s going on?") {
+            TextField("Reason", text: $request.details,
+                      prompt: Text("e.g. “city run on Saturday”, “knee is sore”, “only 2 days available” — leave empty for a check-in"),
                       axis: .vertical)
                 .lineLimit(3...6)
                 .labelsHidden()
@@ -113,8 +113,8 @@ struct PlanRequestSheet: View {
     @ViewBuilder
     private func sessionFields(_ snapshot: TrainingSnapshot) -> some View {
         Section {
-            Picker("Einheit", selection: $request.sessionID) {
-                Text("Bitte wählen").tag(String?.none)
+            Picker("Session", selection: $request.sessionID) {
+                Text("Please choose").tag(String?.none)
                 ForEach(1...snapshot.weekCount, id: \.self) { week in
                     ForEach(snapshot.sessions(inWeek: week)) { session in
                         Text("W\(week) · \(session.kind.label) \(session.dist) — \(session.desc)").tag(Optional(session.id))
@@ -122,9 +122,9 @@ struct PlanRequestSheet: View {
                 }
             }
         }
-        Section("Was soll anders sein?") {
-            TextField("Wunsch", text: $request.details,
-                      prompt: Text("z. B. „lieber 5×1000 m statt 6×800 m“, „auf Sonntag verschieben, nur 10 km“"),
+        Section("What should be different?") {
+            TextField("Request", text: $request.details,
+                      prompt: Text("e.g. “5×1000 m instead of 6×800 m”, “move to Sunday, only 10 km”"),
                       axis: .vertical)
                 .lineLimit(3...6)
                 .labelsHidden()
@@ -133,21 +133,21 @@ struct PlanRequestSheet: View {
 
     @ViewBuilder
     private var blockFields: some View {
-        Section("Ziel") {
-            TextField("Ziel", text: $request.goal, prompt: Text("z. B. „10 km unter 55 min“ oder „HM Sub-2:00 im Frühjahr“"))
-            Toggle("Zielrennen", isOn: $request.hasRace)
+        Section("Goal") {
+            TextField("Goal", text: $request.goal, prompt: Text("e.g. “10 km under 55 min” or “half marathon in spring”"))
+            Toggle("Target race", isOn: $request.hasRace)
             if request.hasRace {
-                DatePicker("Renntag", selection: $request.raceDate, displayedComponents: .date)
+                DatePicker("Race day", selection: $request.raceDate, displayedComponents: .date)
             }
         }
-        Section("Rahmen") {
-            DatePicker("Start (Montag)", selection: $request.start, displayedComponents: .date)
-            Stepper("\(request.weeks) Wochen", value: $request.weeks, in: 4...24)
-            Stepper("\(request.runsPerWeek) Läufe pro Woche", value: $request.runsPerWeek, in: 2...6)
+        Section("Parameters") {
+            DatePicker("Start (Monday)", selection: $request.start, displayedComponents: .date)
+            Stepper("\(request.weeks) weeks", value: $request.weeks, in: 4...24)
+            Stepper("\(request.runsPerWeek) runs per week", value: $request.runsPerWeek, in: 2...6)
         }
-        Section("Besonderheiten") {
-            TextField("Besonderheiten", text: $request.details,
-                      prompt: Text("z. B. Urlaub, Wettkämpfe, Wünsche zur Struktur"), axis: .vertical)
+        Section("Special considerations") {
+            TextField("Special considerations", text: $request.details,
+                      prompt: Text("e.g. holidays, races, wishes for the structure"), axis: .vertical)
                 .lineLimit(2...5)
                 .labelsHidden()
         }

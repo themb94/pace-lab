@@ -181,7 +181,12 @@ enum Verdict: String, Codable, Sendable {
 
     init(from decoder: any Decoder) throws {
         let raw = try decoder.singleValueContainer().decode(String.self)
-        self = Verdict(rawValue: raw) ?? .ok
+        // Die englische Vorlage schreibt „good“ / „warning“, die deutsche „gut“ / „achtung“.
+        switch raw.lowercased() {
+        case "good": self = .gut
+        case "warning", "warn": self = .achtung
+        default: self = Verdict(rawValue: raw.lowercased()) ?? .ok
+        }
     }
 }
 

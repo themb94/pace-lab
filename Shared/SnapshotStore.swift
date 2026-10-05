@@ -73,13 +73,13 @@ enum StoreError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingFile(let name):
-            "\(name) fehlt im Projektordner."
+            String(localized: "\(name) is missing from the project folder.")
         case .invalidFile(let name, let error):
-            "\(name) konnte nicht gelesen werden: \(error.localizedDescription)"
+            String(localized: "\(name) could not be read: \(error.localizedDescription)")
         case .noAppGroup:
-            "Der gemeinsame App-Group-Container ist nicht verfügbar."
+            String(localized: "The shared app group container is not available.")
         case .notSyncedYet:
-            "Noch keine Daten — öffne Pace Lab einmal."
+            String(localized: "No data yet — open Pace Lab once.")
         }
     }
 }

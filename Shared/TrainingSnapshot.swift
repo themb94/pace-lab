@@ -140,9 +140,9 @@ extension TrainingSnapshot {
     /// "Woche 3 · Aufbau" bzw. "Start in 4 Tagen"
     func statusLine(on date: Date) -> String {
         switch status(on: date) {
-        case .upcoming(let days): "Start \(Fmt.relativeDays(days))"
-        case .running(let week): "Woche \(week) · \(phase(ofWeek: week))"
-        case .finished: "Block abgeschlossen"
+        case .upcoming(let days): String(localized: "Starts \(Fmt.relativeDays(days))")
+        case .running(let week): String(localized: "Week \(week) · \(phase(ofWeek: week))")
+        case .finished: String(localized: "Block completed")
         }
     }
 }
@@ -226,7 +226,7 @@ extension TrainingSnapshot {
         guard let match = id.wholeMatch(of: /([a-z]*\d*?)w(\d+)-([a-z]+)-\d+/), let week = Int(match.2) else { return nil }
         let kind = SessionType(rawValue: String(match.3)) ?? .easy
         let prefix = String(match.1)
-        let block = prefix.isEmpty ? "Alt " : prefix == plan.idPrefix ? "" : "\(prefix.uppercased()) "
+        let block = prefix.isEmpty ? String(localized: "Old") + " " : prefix == plan.idPrefix ? "" : "\(prefix.uppercased()) "
         return "\(block)W\(week) · \(kind.shortLabel)"
     }
 }

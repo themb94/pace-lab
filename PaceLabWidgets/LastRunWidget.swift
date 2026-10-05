@@ -7,8 +7,8 @@ struct LastRunWidget: Widget {
         StaticConfiguration(kind: "LastRun", provider: TrainingProvider()) { entry in
             LastRunView(entry: entry)
         }
-        .configurationDisplayName("Letzter Lauf")
-        .description("Dein zuletzt analysierter Lauf mit Pace, Puls und Bewertung.")
+        .configurationDisplayName("Last run")
+        .description("Your most recently analyzed run with pace, heart rate and rating.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
@@ -42,9 +42,9 @@ struct LastRunContent: View {
                 RunSummary(run: run)
             }
         } else if entry.snapshot != nil {
-            WidgetMessage(symbol: "figure.run", text: "Noch keine Läufe")
+            WidgetMessage(symbol: "figure.run", text: String(localized: "No runs yet"))
         } else {
-            WidgetMessage(symbol: "figure.run", text: entry.errorMessage ?? "Öffne Pace Lab einmal")
+            WidgetMessage(symbol: "figure.run", text: entry.errorMessage ?? String(localized: "Open Pace Lab once"))
         }
     }
 }
@@ -104,7 +104,7 @@ private struct MiniSplits: View {
             Chart(Array(splits.enumerated()), id: \.offset) { item in
                 BarMark(
                     x: .value("Split", String(item.offset)),
-                    yStart: .value("Basis", low),
+                    yStart: .value("Base", low),
                     yEnd: .value("Tempo", 1000 / max(item.element.paceS, 1)),
                     width: .ratio(0.75)
                 )
@@ -114,7 +114,7 @@ private struct MiniSplits: View {
             .chartXAxis(.hidden)
             .chartYAxis(.hidden)
             .chartYScale(domain: low...high)
-            Text("Pace je km · Farbe = HF-Zone")
+            Text("Pace per km · color = HR zone")
                 .font(.system(size: 9))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
