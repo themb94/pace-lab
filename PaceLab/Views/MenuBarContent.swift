@@ -8,6 +8,10 @@ struct MenuBarContent: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            if model.profiles.hasSeveral {
+                ProfileMenu()
+                Divider()
+            }
             if let snapshot = model.snapshot {
                 let week = snapshot.focusWeek(on: .now)
                 let sessions = snapshot.sessions(inWeek: week)

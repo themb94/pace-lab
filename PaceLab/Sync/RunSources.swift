@@ -60,7 +60,7 @@ struct GarminRunSource: Sendable {
     private static func checked(_ text: String) throws -> String {
         guard text.hasPrefix("❌") else { return text }
         let message = text.dropFirst().trimmingCharacters(in: .whitespaces)
-        throw SyncFailure(message: String(localized: "Garmin reports: \(message)\nIf the sign-in has expired, run “./.venv/bin/python login.py” in the garmin-mcp folder in Terminal."))
+        throw SyncFailure(message: String(localized: "Garmin reports: \(message)\nIf the sign-in has expired, sign in again under Pace Lab → Setup → Garmin."))
     }
 }
 

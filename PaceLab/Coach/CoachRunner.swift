@@ -297,7 +297,8 @@ enum CLIResolver {
 
 enum CLIEnvironment {
     /// The app's environment plus the usual program folders in PATH. Variables of a surrounding
-    /// Claude Code session are removed so that each CLI uses its own login.
+    /// Claude Code session are removed so that each CLI uses its own login — that of the active profile
+    /// (CLAUDE_CONFIG_DIR, CODEX_HOME), or the Mac's default one for the main profile.
     static func make(for executable: URL) -> [String: String] {
         var env = ProcessInfo.processInfo.environment.filter { key, _ in
             !(key.hasPrefix("CLAUDE") || key.hasPrefix("ANTHROPIC") || key.hasPrefix("MCP_"))
@@ -309,6 +310,7 @@ enum CLIEnvironment {
         env["PATH"] = path.joined(separator: ":")
         env["HOME"] = NSHomeDirectory()
         if env["LANG"] == nil { env["LANG"] = "en_US.UTF-8" }
+        env.merge(ActiveProfile.current.cliEnvironment) { _, profile in profile }
         return env
     }
 }

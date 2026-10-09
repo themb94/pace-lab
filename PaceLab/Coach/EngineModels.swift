@@ -155,9 +155,9 @@ enum ModelDiscovery {
     }
 
     /// Models Claude Code knows about but that require a newer version of the CLI
-    /// (from Claude Code's own cache in ~/.claude.json).
+    /// (from Claude Code's own cache in ~/.claude.json, or in the profile's own configuration).
     static func updateNotices(installed: String) -> [String] {
-        let url = URL(filePath: NSHomeDirectory()).appending(path: ".claude.json")
+        let url = ActiveProfile.current.claudeStateFile
         guard let data = try? Data(contentsOf: url),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let extra = root["additionalModelOptionsCache"] as? [[String: Any]] else { return [] }
@@ -191,10 +191,10 @@ enum ModelDiscovery {
 
     // MARK: Codex
 
-    /// Codex keeps the models of your account itself in ~/.codex/models_cache.json.
+    /// Codex keeps the models of your account itself in ~/.codex/models_cache.json (or the profile's CODEX_HOME).
     static func codex(executable: URL?) -> EngineModels {
         let version = executable.map(cliVersion) ?? ""
-        let home = URL(filePath: NSHomeDirectory()).appending(path: ".codex")
+        let home = ActiveProfile.current.codexDirectory
         var options: [ModelOption] = []
         if let data = try? Data(contentsOf: home.appending(path: "models_cache.json")),
            let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -321,15 +321,14 @@ final class ModelStore {
     private(set) var errors: [String: String] = [:]
     private var lastCheck: [String: Date] = [:]
 
+    /// Model lists depend on the account — every profile has its own.
+    private let storeURL = ActiveProfile.current.dataDirectory.appending(path: "models.json")
+
     init() {
-        if let data = try? Data(contentsOf: Self.storeURL),
+        if let data = try? Data(contentsOf: storeURL),
            let stored = try? JSONDecoder().decode([String: EngineModels].self, from: data) {
             byEngine = stored.filter { $0.value.language == AppLanguage.code }
         }
-    }
-
-    private static var storeURL: URL {
-        AppSettings.supportDirectory.appending(path: "models.json")
     }
 
     private static func key(_ engine: CoachEngine) -> String {
@@ -415,8 +414,8 @@ final class ModelStore {
 
     private func save() {
         do {
-            try FileManager.default.createDirectory(at: Self.storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-            try JSONEncoder().encode(byEngine).write(to: Self.storeURL, options: .atomic)
+            try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try JSONEncoder().encode(byEngine).write(to: storeURL, options: .atomic)
         } catch {
             // Just a cache.
         }

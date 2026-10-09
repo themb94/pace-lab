@@ -8,11 +8,11 @@ final class ProgressText {
 }
 
 /// Setup: training folder, name, coach CLIs, Garmin and Strava — everything needed before the first plan.
+/// Always for the active profile: every profile is set up on its own.
 struct SetupView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openWindow) private var openWindow
-    @AppStorage(AppSettings.Key.projectPath) private var projectPath = AppSettings.defaultProjectPath
-    @AppStorage(AppSettings.Key.athleteName) private var athleteName = ""
+    @AppStorage private var projectPath: String
 
     @State private var folderReady = false
     @State private var folderError: String?
@@ -29,22 +29,42 @@ struct SetupView: View {
     @State private var strava: StravaSetup.Status?
     @State private var stravaError: String?
 
+    /// `defaults`: settings of the active profile.
+    init(defaults: UserDefaults) {
+        _projectPath = AppStorage(wrappedValue: AppSettings.defaultProjectPath, AppSettings.Key.projectPath, store: defaults)
+    }
+
     private var folder: URL { URL(filePath: projectPath, directoryHint: .isDirectory) }
+
+    private var profile: Profile { model.profile }
+
+    private var athleteName: Binding<String> {
+        Binding(get: { model.profile.name }, set: { model.profiles.rename(model.profiles.activeID, to: $0) })
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Label("Set up Pace Lab", systemImage: "figure.run.circle.fill")
+                    Label(model.profiles.hasSeveral ? String(localized: "Set up “\(profile.displayName)”") : String(localized: "Set up Pace Lab"),
+                          systemImage: "figure.run.circle.fill")
                         .font(.largeTitle.bold())
                         .foregroundStyle(Color.brand)
                     Text("Your data stays on your Mac: in the training folder, in your CLIs and with Garmin or Strava themselves. Garmin and Strava are optional — without them you plan and tick off by hand.")
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+                    if !profile.isMain {
+                        Label("This profile is completely separate from the others: its own folder and its own sign-ins. Sign in to the coach, Garmin and Strava here again — even if they are already signed in on this Mac for another profile.",
+                              systemImage: "person.crop.circle")
+                            .font(.callout)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(10)
+                            .background(Color.brand.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+                    }
                 }
 
                 step(1, String(localized: "Training folder"), done: folderReady) { folderStep }
-                step(2, String(localized: "About you"), done: !athleteName.trimmingCharacters(in: .whitespaces).isEmpty) { aboutStep }
+                step(2, String(localized: "About you"), done: !profile.trimmedName.isEmpty) { aboutStep }
                 step(3, "Coach", done: claude?.loggedIn == true || codex?.loggedIn == true || lms?.path != nil) { coachStep }
                 step(4, "Garmin (optional)", done: garminConfigured != nil && GarminSetup.hasToken) { garminStep }
                 step(5, String(localized: "Strava (optional, via Claude Code)"), done: strava == .connected) { stravaStep }
@@ -102,7 +122,7 @@ struct SetupView: View {
 
     private var aboutStep: some View {
         VStack(alignment: .leading, spacing: 10) {
-            TextField("Your name (how the coach addresses you)", text: $athleteName)
+            TextField("Your name (how the coach addresses you)", text: athleteName)
                 .textFieldStyle(.roundedBorder)
                 .frame(maxWidth: 360)
             Text("Goal, max heart rate, training days or special considerations go in the “Athlete profile” section of the README in the training folder. Fill it in or just tell the coach — it will enter it itself.")
@@ -114,7 +134,9 @@ struct SetupView: View {
 
     private var coachStep: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("The coach is a CLI on your Mac that you install yourself and use with your own account. One is enough.")
+            Text(profile.isMain
+                 ? String(localized: "The coach is a CLI on your Mac that you install yourself and use with your own account. One is enough.")
+                 : String(localized: "The coach is a CLI on your Mac that you use with your own account. One is enough. This profile signs in separately — with its own account or one you share."))
                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             cliRow("Claude Code", info: claude, detail: String(localized: "Agent — plans, reviews, Strava and Garmin."),
                    login: "claude auth login", install: "https://docs.claude.com/en/docs/claude-code/setup")
@@ -153,14 +175,14 @@ struct SetupView: View {
             if info?.path == nil {
                 Link("Install …", destination: URL(string: install)!)
             } else if info?.loggedIn == false, let login {
-                Button("Sign in …") { Terminal.run(login, name: "login") }
+                Button("Sign in …") { Terminal.run(login, name: "login", profile: profile) }
             }
         }
     }
 
     private var garminStep: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("For “Load runs” directly from Garmin and to send workouts to your watch. The app installs a small local server for this (needs Python 3.10+). You sign in with your Garmin account; only a token is stored in ~/.garminconnect, never your password.")
+            Text("For “Load runs” directly from Garmin and to send workouts to your watch. The app installs a small local server for this (needs Python 3.10+). You sign in with your Garmin account; only a token is stored (\(GarminSetup.tokenStore.replacingOccurrences(of: NSHomeDirectory(), with: "~"))), never your password.")
                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             if let configured = garminConfigured {
                 Label("Server registered: \(configured)", systemImage: "checkmark.circle.fill")
@@ -296,6 +318,8 @@ struct SetupView: View {
             (config.arguments.first ?? config.command).replacingOccurrences(of: NSHomeDirectory(), with: "~")
         }
         (claude, codex, lms) = await Task.detached { (CLISetup.claude(), CLISetup.codex(), CLISetup.lmStudio()) }.value
+        // Model lists depend on the account: query them again once a CLI is signed in (e.g. right after signing in).
+        if claude?.loggedIn == true || codex?.loggedIn == true { model.refreshModels(force: true) }
         await refreshStrava()
     }
 
@@ -355,6 +379,11 @@ struct SetupView: View {
         panel.prompt = String(localized: "Choose")
         panel.message = String(localized: "Choose the training folder (or an empty folder where the app will create it).")
         if panel.runModal() == .OK, let url = panel.url {
+            if let owner = model.profiles.owner(ofFolder: url.path), owner.id != model.profiles.activeID {
+                folderError = String(localized: "This folder belongs to the profile “\(owner.displayName)”. Every profile needs its own training folder.")
+                return
+            }
+            folderError = nil
             projectPath = url.path
             model.folderChanged()
         }

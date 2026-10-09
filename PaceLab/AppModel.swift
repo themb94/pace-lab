@@ -41,30 +41,153 @@ final class AppModel {
     var toast: Toast?
     /// Increments when a new commit was recorded (the history view then reloads).
     private(set) var historyRevision = 0
+    /// Form for a new profile (sheet in the main window).
+    var showNewProfile = false
 
-    let coach = CoachModel()
-    let sync = RunSyncModel()
+    /// Everyone who trains with the app; everything below belongs to the active profile.
+    let profiles = ProfileStore()
+    private(set) var coach: CoachModel
+    private(set) var sync: RunSyncModel
     /// Which models the configured CLIs offer (queried live).
-    let models = ModelStore()
+    private(set) var models: ModelStore
     private(set) var history: ProjectHistory
 
     private var signature: [String] = []
     private var isReloading = false
     private var reloadAgain = false
+    /// Changes with every profile switch — results of work started before are dropped.
+    private var generation = 0
+    /// Widget copies of the other profiles: modification stamps of what was last written.
+    private var widgetSignatures: [UUID: [String]] = [:]
 
     init() {
+        // (profiles is initialized first: it sets the active profile everything else reads.)
+        coach = CoachModel()
+        sync = RunSyncModel()
+        models = ModelStore()
         history = ProjectHistory(folder: ProjectFolder.current.url)
+        connectCoach()
+        profiles.onChange = { [weak self] in self?.publishProfiles() }
+        publishProfiles()
+        reload(force: true)
+        watchFolder()
+        // Record changes made outside the app since the last launch as their own commit.
+        record(ProjectHistory.externalChanges)
+        refreshModels()
+    }
+
+    private func connectCoach() {
         coach.history = history
         coach.onRunFinished = { [weak self] in
             self?.historyRevision += 1
             self?.reload(force: true)
         }
         coach.snapshotProvider = { [weak self] in self?.snapshot }
+    }
+
+    // MARK: - Profiles
+
+    var profile: Profile { profiles.active }
+
+    /// Coach or "Load runs" are working — a profile switch would pull the ground from under them.
+    var isBusy: Bool { coach.isRunning || sync.isRunning }
+
+    /// Switches to another profile: training folder, settings, coach, sign-ins — everything follows.
+    @discardableResult
+    func switchProfile(to id: UUID) -> Bool {
+        guard id != profiles.activeID else { return true }
+        guard let target = profiles.profile(id) else { return false }
+        guard !isBusy else {
+            toast = Toast(message: String(localized: "Pace Lab is working for \(profile.displayName) right now — switch to \(target.displayName) afterwards."),
+                          symbol: "hourglass", isError: true)
+            return false
+        }
+        profiles.activate(id)
+        generation += 1
+        coach = CoachModel()
+        sync = RunSyncModel()
+        models = ModelStore()
+        history = ProjectHistory(folder: folder.url)
+        connectCoach()
+
+        snapshot = nil
+        loadError = nil
+        lastLoaded = nil
+        draft = nil
+        draftError = nil
+        signature = []
+        section = .overview
+        selectedRunID = nil
+        selectedSessionID = nil
+        showDraft = false
+        planRequest = nil
+        garminUploadWeek = nil
+        toast = nil
+        historyRevision += 1
+
+        publishProfiles()
         reload(force: true)
-        watchFolder()
-        // Record changes made outside the app since the last launch as their own commit.
         record(ProjectHistory.externalChanges)
         refreshModels()
+        return true
+    }
+
+    /// Creates a profile and switches to it (if nothing is running right now).
+    func createProfile(named name: String) -> Profile {
+        let profile = profiles.create(named: name)
+        switchProfile(to: profile.id)
+        return profile
+    }
+
+    /// Deletes a profile (never the main one); an active profile is left first. The training folder stays.
+    func deleteProfile(_ id: UUID) {
+        guard let target = profiles.profile(id), !target.isMain else { return }
+        if id == profiles.activeID {
+            guard let main = profiles.profiles.first(where: \.isMain), switchProfile(to: main.id) else { return }
+        }
+        profiles.delete(id)
+        widgetSignatures[id] = nil
+        toast = Toast(message: String(localized: "Profile “\(target.displayName)” deleted — the training folder stays."), symbol: "trash.circle.fill")
+    }
+
+    private var publishTask: Task<Void, Never>?
+
+    /// Tells the widgets which profiles exist and which one is active (a moment later, so typing a name
+    /// doesn't reload the widgets on every key).
+    private func publishProfiles() {
+        guard SnapshotStore.isEnabled else { return }
+        let list = WidgetProfiles(active: profiles.activeID.uuidString, profiles: profiles.profiles.map {
+            WidgetProfiles.Entry(id: $0.id.uuidString, name: $0.displayName, initial: $0.initial)
+        })
+        publishTask?.cancel()
+        publishTask = Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            try? SnapshotStore.saveProfiles(list)
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
+    /// Keeps the widget copies of the other profiles current (e.g. after changes by hand or in the chat).
+    private func refreshOtherProfiles() {
+        guard SnapshotStore.isEnabled else { return }
+        let others = profiles.profiles.filter { $0.id != profiles.activeID }
+        let known = widgetSignatures
+        Task {
+            let written = await Task.detached(priority: .background) { () -> [UUID: [String]] in
+                var written: [UUID: [String]] = [:]
+                for profile in others {
+                    let folder = ProjectFolder(url: URL(filePath: profile.projectPath, directoryHint: .isDirectory))
+                    let current = folder.signature()
+                    guard current != known[profile.id], let files = try? folder.readFiles() else { continue }
+                    try? SnapshotStore.save(files, profile: profile.id.uuidString)
+                    written[profile.id] = current
+                }
+                return written
+            }.value
+            widgetSignatures.merge(written) { _, new in new }
+            if !written.isEmpty { WidgetCenter.shared.reloadAllTimelines() }
+        }
     }
 
     /// Check the CLIs' model lists — they are only queried again if a CLI version changed.
@@ -109,6 +232,8 @@ final class AppModel {
         isReloading = true
         let folder = self.folder
         let previous = force ? nil : signature
+        let profileID = profiles.activeID.uuidString
+        let generation = self.generation
 
         Task {
             let outcome = await Task.detached(priority: .utility) { () -> ReloadOutcome in
@@ -126,13 +251,19 @@ final class AppModel {
                         plan: files[TrainingFiles.plan]!,
                         analysis: files[TrainingFiles.analysis]!,
                         completed: files[TrainingFiles.completed])
-                    try? SnapshotStore.save(files)
+                    if SnapshotStore.isEnabled { try? SnapshotStore.save(files, profile: profileID) }
                     return .loaded(current, snapshot, draft)
                 } catch {
                     return .failed(current, error.localizedDescription, draft)
                 }
             }.value
 
+            // The profile was switched in the meantime: this result belongs to the previous one.
+            guard generation == self.generation else {
+                isReloading = false
+                reload(force: true)
+                return
+            }
             switch outcome {
             case .unchanged:
                 break
@@ -164,16 +295,22 @@ final class AppModel {
     }
 
     /// Checks modification dates every 2 seconds — robust even against atomic file replacement.
+    /// The other profiles' folders (for their widgets) only once a minute.
     private func watchFolder() {
         Task { [weak self] in
+            var tick = 0
             while !Task.isCancelled {
+                if tick % 30 == 0 { self?.refreshOtherProfiles() }
                 try? await Task.sleep(for: .seconds(2))
                 self?.reload()
+                tick += 1
             }
         }
     }
 
     func folderChanged() {
+        generation += 1
+        signature = []
         snapshot = nil
         draft = nil
         history = ProjectHistory(folder: folder.url)
@@ -442,9 +579,26 @@ final class AppModel {
         section = .coach
     }
 
-    /// Deep links from the widgets: `pacelab://session/<id>`, `run/<id>`, `plan`, `runs`, `coach`.
+    /// Deep links from the widgets: `pacelab://session/<id>`, `run/<id>`, `plan`, `runs`, `coach`,
+    /// optionally with `?profile=<id>` (the widget shows another profile than the active one).
     func open(_ url: URL) {
         guard url.scheme == "pacelab" else { return }
+        if let value = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "profile" })?.value,
+           let id = UUID(uuidString: value), profiles.profile(id) != nil, !switchProfile(to: id) {
+            return
+        }
+        // Freshly switched: wait for the data before looking for the session or run.
+        if snapshot == nil {
+            Task {
+                for _ in 0..<25 where snapshot == nil { try? await Task.sleep(for: .milliseconds(200)) }
+                navigate(url)
+            }
+        } else {
+            navigate(url)
+        }
+    }
+
+    private func navigate(_ url: URL) {
         let id = url.pathComponents.dropFirst().first ?? ""
         switch url.host() {
         case "session":

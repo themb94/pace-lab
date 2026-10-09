@@ -3,7 +3,7 @@ import SwiftUI
 
 struct NextSessionWidget: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "NextSession", provider: TrainingProvider()) { entry in
+        AppIntentConfiguration(kind: "NextSession", intent: SelectProfileIntent.self, provider: TrainingProvider()) { entry in
             NextSessionView(entry: entry)
         }
         .configurationDisplayName("Next session")
@@ -21,7 +21,7 @@ struct NextSessionView: View {
         // Large shows the whole week → neutral brand tone instead of the color of the next session.
         let tint = family == .systemLarge ? Color.brand : (next?.kind.color ?? .brand)
         NextSessionContent(entry: entry, family: family)
-            .widgetURL(URL(string: next.map { "pacelab://session/\($0.id)" } ?? "pacelab://plan"))
+            .widgetURL(entry.url(next.map { "session/\($0.id)" } ?? "plan"))
             .widgetBackground(tint: tint)
     }
 }
@@ -48,15 +48,15 @@ struct NextSessionContent: View {
         switch family {
         case .systemMedium:
             HStack(alignment: .top, spacing: 14) {
-                SessionSummary(snapshot: snapshot, session: session, date: entry.date)
+                SessionSummary(snapshot: snapshot, session: session, date: entry.date, entry: entry)
                 Divider()
                 WeekChecklist(snapshot: snapshot, week: snapshot.focusWeek(on: entry.date))
                     .frame(maxWidth: 160)
             }
         case .systemLarge:
-            WeekOverview(snapshot: snapshot, session: session, date: entry.date)
+            WeekOverview(snapshot: snapshot, session: session, date: entry.date, entry: entry)
         default:
-            SessionSummary(snapshot: snapshot, session: session, date: entry.date)
+            SessionSummary(snapshot: snapshot, session: session, date: entry.date, entry: entry)
         }
     }
 }
@@ -65,16 +65,21 @@ private struct SessionSummary: View {
     let snapshot: TrainingSnapshot
     let session: PlannedSession
     let date: Date
+    let entry: TrainingEntry
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 4) {
-                Image(systemName: session.kind.symbol)
-                Text(session.kind.shortLabel)
+                HStack(spacing: 4) {
+                    Image(systemName: session.kind.symbol)
+                    Text(session.kind.shortLabel)
+                }
+                .font(.caption.weight(.bold))
+                .foregroundStyle(session.kind.color)
+                .widgetAccentable()
+                Spacer(minLength: 2)
+                ProfileBadge(entry: entry)
             }
-            .font(.caption.weight(.bold))
-            .foregroundStyle(session.kind.color)
-            .widgetAccentable()
 
             Spacer(minLength: 0)
 
@@ -161,6 +166,7 @@ private struct WeekOverview: View {
     let snapshot: TrainingSnapshot
     let session: PlannedSession
     let date: Date
+    let entry: TrainingEntry
 
     var body: some View {
         let week = snapshot.focusWeek(on: date)
@@ -174,6 +180,7 @@ private struct WeekOverview: View {
                 Text(snapshot.plan.title)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                ProfileBadge(entry: entry)
             }
 
             VStack(alignment: .leading, spacing: 2) {

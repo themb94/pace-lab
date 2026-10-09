@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-/// Settings for "Load runs" (UserDefaults).
+/// Settings for "Load runs" (UserDefaults of the active profile).
 enum SyncSettings {
     enum Key {
         static let source = "runSource"
@@ -11,18 +11,18 @@ enum SyncSettings {
     }
 
     static var source: RunSource {
-        UserDefaults.standard.string(forKey: Key.source).flatMap(RunSource.init(rawValue:)) ?? .garmin
+        AppSettings.defaults.string(forKey: Key.source).flatMap(RunSource.init(rawValue:)) ?? .garmin
     }
 
     /// A small, fast model is enough — it only calls two tools.
     static let defaultStravaModel = "haiku"
 
     static var stravaModel: String {
-        UserDefaults.standard.string(forKey: Key.stravaModel) ?? defaultStravaModel
+        AppSettings.defaults.string(forKey: Key.stravaModel) ?? defaultStravaModel
     }
 
     static var autoAssign: Bool {
-        UserDefaults.standard.object(forKey: Key.autoAssign) as? Bool ?? true
+        AppSettings.defaults.object(forKey: Key.autoAssign) as? Bool ?? true
     }
 
     /// Where the search starts: three days before the newest stored run (stragglers),
@@ -55,7 +55,7 @@ final class RunSyncModel {
     }
 
     private(set) var state: State = .idle
-    private(set) var lastSync: Date? = UserDefaults.standard.object(forKey: SyncSettings.Key.lastSync) as? Date
+    private(set) var lastSync: Date? = AppSettings.defaults.object(forKey: SyncSettings.Key.lastSync) as? Date
     private var task: Task<Void, Never>?
 
     var isRunning: Bool {
@@ -87,6 +87,7 @@ final class RunSyncModel {
         let knownStrava = snapshot.runs.filter { $0.date >= since }.compactMap(\.stravaId)
         let model = SyncSettings.stravaModel
         let autoAssign = SyncSettings.autoAssign
+        let defaults = AppSettings.defaults
         state = .running(String(localized: "\(source.shortLabel): starting …"))
 
         let progress: SyncProgress = { [weak self] step in
@@ -135,7 +136,7 @@ final class RunSyncModel {
 
                 let now = Date.now
                 lastSync = now
-                UserDefaults.standard.set(now, forKey: SyncSettings.Key.lastSync)
+                defaults.set(now, forKey: SyncSettings.Key.lastSync)
                 state = .finished(Summary(message: Self.summary(found, ticks: ticks.count, source: source),
                                           date: now, runIDs: found.map(\.activityID)))
                 task = nil

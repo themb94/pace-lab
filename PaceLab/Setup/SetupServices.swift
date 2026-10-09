@@ -81,12 +81,13 @@ enum PythonFinder {
 // MARK: - Garmin
 
 /// The Garmin server (MCP) comes from the app bundle and gets its own Python environment in
-/// Application Support. Signing in stores only a token in ~/.garminconnect — no password.
+/// Application Support, shared by all profiles. Signing in stores only a token — no password —
+/// per profile (main profile: ~/.garminconnect).
 enum GarminSetup {
     static var directory: URL { AppSettings.supportDirectory.appending(path: "garmin-mcp", directoryHint: .isDirectory) }
     static var python: URL { directory.appending(path: ".venv/bin/python") }
     static var server: URL { directory.appending(path: "server.py") }
-    static var tokenStore: String { "\(NSHomeDirectory())/.garminconnect" }
+    static var tokenStore: String { ActiveProfile.current.garminTokenStore }
 
     static var isInstalled: Bool {
         FileManager.default.isExecutableFile(atPath: python.path) && FileManager.default.fileExists(atPath: server.path)
@@ -242,7 +243,8 @@ enum StravaSetup {
 
     static func openLogin(folder: URL) {
         let claude = CLIResolver.find("claude")?.path ?? "claude"
-        Terminal.run("cd \(Terminal.quote(folder.path)) && \(Terminal.quote(claude)) mcp login strava-mcp", name: "strava-login")
+        Terminal.run("cd \(Terminal.quote(folder.path)) && \(Terminal.quote(claude)) mcp login strava-mcp", name: "strava-login",
+                     profile: ActiveProfile.current)
     }
 }
 
@@ -280,9 +282,17 @@ enum CLISetup {
 
 /// Opens a terminal window with a command (via a .command file — without automation permissions).
 enum Terminal {
-    static func run(_ command: String, name: String) {
+    /// `profile`: the command runs with that profile's CLI configuration (its own sign-ins).
+    static func run(_ command: String, name: String, profile: Profile? = nil) {
         let url = FileManager.default.temporaryDirectory.appending(path: "pacelab-\(name).command")
-        let script = "#!/bin/zsh -l\nclear\n\(command)\necho\necho \(quote(String(localized: "Done — you can close this window.")))\n"
+        var setup = ""
+        if let profile, !profile.cliEnvironment.isEmpty {
+            setup = "echo \(quote(String(localized: "Pace Lab — profile “\(profile.displayName)”")))\necho\n"
+            for (key, value) in profile.cliEnvironment.sorted(by: { $0.key < $1.key }) {
+                setup += "export \(key)=\(quote(value))\n"
+            }
+        }
+        let script = "#!/bin/zsh -l\nclear\n\(setup)\(command)\necho\necho \(quote(String(localized: "Done — you can close this window.")))\n"
         do {
             try script.write(to: url, atomically: true, encoding: .utf8)
             try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: url.path)

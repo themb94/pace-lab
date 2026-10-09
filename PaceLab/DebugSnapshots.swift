@@ -4,15 +4,23 @@ import AppKit
 /// Development/testing only: with `-debugSnapshots <folder>` the app saves images of its views.
 /// Optional: `-debugSettings YES` (Settings), `-debugSync YES` (Load runs), `-debugPlanSheet YES`
 /// (planning form), `-debugEngine "<name>"` + `-debugCoachPrompt "<question>"` asks the coach a real
-/// question, `-debugDark YES`, `-debugCreateFolder YES` (creates the empty project folder from the template), `-debugTour <folder>` (walkthrough with window captures), `-debugSupportDirectory <folder>` (separate conversations/model lists), `-debugQuit YES` quits the app afterwards. Language: `-AppleLanguages "(en)"` or `"(de)"`. With `-projectPath <folder>` against a copy (an empty folder shows the setup).
+/// question, `-debugDark YES`, `-debugCreateFolder YES` (creates the empty project folder from the template), `-debugTour <folder>` (walkthrough with window captures), `-debugSupportDirectory <folder>` (separate conversations/model lists, profiles, no widget data), `-debugQuit YES` quits the app afterwards. Language: `-AppleLanguages "(en)"` or `"(de)"`. With `-projectPath <folder>` against a copy (an empty folder shows the setup).
+/// Profiles (only together with `-debugSupportDirectory`): `-debugProfile <name>` creates a test profile with the training
+/// folder `-debugProfileFolder <folder>`, switches to it and captures the profile views; everything after that runs in it.
+/// `-debugGarminConfig YES` registers the Garmin server in its folder, `-debugSwitchBack YES` returns to the main profile at the end
+/// (and `-debugDeleteProfile YES` deletes the test profile after that).
 @MainActor
 enum DebugSnapshots {
-    static func runIfRequested(model: AppModel, openSettings: () -> Void) async {
+    static func runIfRequested(model: AppModel, openSettings: () -> Void, openWindow: (String) -> Void) async {
         let defaults = UserDefaults.standard
         guard let path = defaults.string(forKey: "debugSnapshots") else { return }
         let dir = URL(filePath: path, directoryHint: .isDirectory)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         if defaults.bool(forKey: "debugDark") { NSApp.appearance = NSAppearance(named: .darkAqua) }
+
+        if let name = defaults.string(forKey: "debugProfile"), defaults.string(forKey: "debugSupportDirectory") != nil {
+            await profiles(name: name, model: model, dir: dir, openSettings: openSettings, openWindow: openWindow)
+        }
 
         // `-debugCreateFolder YES`: creates the (empty) project folder from the template, as the setup does.
         if defaults.bool(forKey: "debugCreateFolder"), !TrainingFolderSetup.isReady(model.folder.url) {
@@ -133,7 +141,68 @@ enum DebugSnapshots {
             }
         }
 
+        if defaults.bool(forKey: "debugSwitchBack"), let main = model.profiles.profiles.first(where: \.isMain) {
+            model.switchProfile(to: main.id)
+            for _ in 0..<50 where model.snapshot == nil { try? await Task.sleep(for: .milliseconds(200)) }
+            mainWindow = NSApp.windows.first { $0.isVisible && $0.canBecomeMain && $0.title != "Setup" && $0.title != "Einrichtung" }
+            try? await Task.sleep(for: .seconds(1.5))
+            captureOnScreen("p9-back-to-main", to: dir)
+            if defaults.bool(forKey: "debugDeleteProfile"), let name = defaults.string(forKey: "debugProfile"),
+               let test = model.profiles.profiles.first(where: { $0.name == name && !$0.isMain }) {
+                model.deleteProfile(test.id)
+                print("PROFILE deleted \(test.id) remaining=\(model.profiles.profiles.map(\.displayName))")
+                try? await Task.sleep(for: .seconds(8))   // sign-out and cleanup run in the background
+            }
+        }
+
         if defaults.bool(forKey: "debugQuit") { NSApp.terminate(nil) }
+    }
+
+    /// Test profile: create (or reuse), switch, capture main window, setup, settings and the form for a new profile.
+    private static func profiles(name: String, model: AppModel, dir: URL, openSettings: () -> Void, openWindow: (String) -> Void) async {
+        let defaults = UserDefaults.standard
+        let profile = model.profiles.profiles.first { $0.name == name } ?? model.profiles.create(named: name)
+        if let folder = defaults.string(forKey: "debugProfileFolder") {
+            profile.defaults.set(folder, forKey: AppSettings.Key.projectPath)
+        }
+        model.switchProfile(to: profile.id)
+        print("PROFILE active=\(model.profile.displayName) folder=\(model.folder.url.path) data=\(model.profile.dataDirectory.path)")
+        print("PROFILE env=\(model.profile.cliEnvironment)")
+        if defaults.bool(forKey: "debugCreateFolder"), !TrainingFolderSetup.isReady(model.folder.url) {
+            try? await TrainingFolderSetup.create(at: model.folder.url)
+            model.folderChanged()
+        }
+        if defaults.bool(forKey: "debugGarminConfig") {
+            try? GarminSetup.writeConfig(folder: model.folder.url)
+        }
+        for _ in 0..<50 where model.snapshot == nil { try? await Task.sleep(for: .milliseconds(200)) }
+        try? await Task.sleep(for: .seconds(1.5))
+        mainWindow = NSApp.windows.first { $0.isVisible && $0.canBecomeMain && $0.title != "Setup" && $0.title != "Einrichtung" }
+        captureOnScreen("p1-profile-overview", to: dir)
+
+        openWindow("setup")
+        try? await Task.sleep(for: .seconds(6))   // CLI and Strava checks
+        if let setup = NSApp.windows.first(where: { $0.isVisible && ["Einrichtung", "Setup"].contains($0.title) }) {
+            capture(setup, "p2-profile-setup", to: dir)
+            setup.close()
+        }
+
+        for tab in [SettingsTab.profiles, SettingsTab.general] {
+            defaults.set(tab, forKey: SettingsTab.key)
+            openSettings()
+            try? await Task.sleep(for: .seconds(2))
+            if let window = NSApp.windows.first(where: { $0.isVisible && $0 !== mainWindow && $0.canBecomeKey }) {
+                capture(window, "p3-settings-\(tab)", to: dir)
+                window.close()
+            }
+            try? await Task.sleep(for: .seconds(1))
+        }
+
+        model.showNewProfile = true
+        try? await Task.sleep(for: .seconds(1.5))
+        if let sheet = mainWindow?.attachedSheet { capture(sheet, "p4-new-profile", to: dir) }
+        model.showNewProfile = false
+        try? await Task.sleep(for: .seconds(1))
     }
 
     private static var mainWindow: NSWindow?
@@ -145,6 +214,19 @@ enum DebugSnapshots {
         guard let symbol = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "CGWindowListCreateImage") else { return nil }
         let function = unsafeBitCast(symbol, to: Function.self)
         return function(.null, 1 << 3, UInt32(window.windowNumber), (1 << 0) | (1 << 3))?.takeRetainedValue()
+    }
+
+    /// The main window as it is on screen — with the sidebar's vibrancy (the profile menu sits there).
+    private static func captureOnScreen(_ name: String, to dir: URL) {
+        guard let window = mainWindow else { return }
+        NSApp.activate()
+        window.makeKeyAndOrderFront(nil)
+        guard let image = captureWindowImage(window),
+              let data = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]) else {
+            capture(window, name, to: dir)
+            return
+        }
+        try? data.write(to: dir.appending(path: "\(name).png"))
     }
 
     private static func capture(_ name: String, to dir: URL) {
@@ -162,13 +244,16 @@ enum DebugSnapshots {
 
 import SwiftUI
 
-/// Attaches the snapshot routine to the main window (needs `openSettings` from the environment).
+/// Attaches the snapshot routine to the main window (needs `openSettings` and `openWindow` from the environment).
 struct DebugSnapshotHook: ViewModifier {
     let model: AppModel
     @Environment(\.openSettings) private var openSettings
+    @Environment(\.openWindow) private var openWindow
 
     func body(content: Content) -> some View {
-        content.task { await DebugSnapshots.runIfRequested(model: model, openSettings: { openSettings() }) }
+        content.task {
+            await DebugSnapshots.runIfRequested(model: model, openSettings: { openSettings() }, openWindow: { openWindow(id: $0) })
+        }
     }
 }
 #endif

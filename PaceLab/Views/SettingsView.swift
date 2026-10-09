@@ -2,18 +2,24 @@ import SwiftUI
 import WidgetKit
 
 struct SettingsView: View {
-    @AppStorage("settingsTab") private var tab = "general"
+    @Environment(AppModel.self) private var model
+    @AppStorage(SettingsTab.key) private var tab = SettingsTab.general
 
     var body: some View {
+        // General, Runs and Coach belong to the active profile and start fresh after a switch.
+        let profile = model.profile
         TabView(selection: $tab) {
-            Tab("General", systemImage: "gearshape", value: "general") {
-                GeneralSettings()
+            Tab("General", systemImage: "gearshape", value: SettingsTab.general) {
+                GeneralSettings(defaults: profile.defaults).id(profile.id)
             }
-            Tab("Runs", systemImage: "arrow.down.circle", value: "runs") {
-                RunSourceSettings()
+            Tab("Runs", systemImage: "arrow.down.circle", value: SettingsTab.runs) {
+                RunSourceSettings(defaults: profile.defaults).id(profile.id)
             }
-            Tab("Coach", systemImage: "sparkles", value: "coach") {
-                CoachSettings()
+            Tab("Coach", systemImage: "sparkles", value: SettingsTab.coach) {
+                CoachSettings().id(profile.id)
+            }
+            Tab("Profiles", systemImage: "person.2", value: SettingsTab.profiles) {
+                ProfileSettings()
             }
         }
         .frame(width: 800)
@@ -25,11 +31,20 @@ struct SettingsView: View {
 private struct GeneralSettings: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openWindow) private var openWindow
-    @AppStorage(AppSettings.Key.projectPath) private var projectPath = AppSettings.defaultProjectPath
-    @AppStorage(AppSettings.Key.athleteName) private var athleteName = ""
+    @AppStorage private var projectPath: String
     @State private var historyCount: Int?
     @State private var historyError: String?
+    @State private var folderError: String?
     @State private var settingUp = false
+
+    /// `defaults`: settings of the active profile.
+    init(defaults: UserDefaults) {
+        _projectPath = AppStorage(wrappedValue: AppSettings.defaultProjectPath, AppSettings.Key.projectPath, store: defaults)
+    }
+
+    private var athleteName: Binding<String> {
+        Binding(get: { model.profile.name }, set: { model.profiles.rename(model.profiles.activeID, to: $0) })
+    }
 
     var body: some View {
         Form {
@@ -46,24 +61,27 @@ private struct GeneralSettings: View {
                         NSWorkspace.shared.activateFileViewerSelecting([URL(filePath: projectPath)])
                     }
                 }
+                if let folderError {
+                    Label(folderError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                }
                 ForEach(["plan.json", "analysis.json", "completed.json", "README.md", ".mcp.json"], id: \.self) { name in
                     let found = FileManager.default.fileExists(atPath: URL(filePath: projectPath).appending(path: name).path)
                     Label(name, systemImage: found ? "checkmark.circle.fill" : "xmark.circle")
                         .foregroundStyle(found ? Color.primary : Color.orange)
                 }
             } header: {
-                Text("Training folder")
+                Text(model.profiles.hasSeveral ? String(localized: "Training folder of “\(model.profile.displayName)”") : String(localized: "Training folder"))
             } footer: {
                 Text("The app reads and writes the files right there — the same ones the coach uses.")
             }
 
             Section {
-                TextField("Your name", text: $athleteName, prompt: Text("how the coach addresses you"))
+                TextField("Your name", text: athleteName, prompt: Text("how the coach addresses you"))
                 Button("Open setup …") { openWindow(id: "setup") }
             } header: {
                 Text("About you")
             } footer: {
-                Text("Goal, max heart rate and special considerations are in the athlete profile of the README in the training folder.")
+                Text("The name is also the name of the profile. Goal, max heart rate and special considerations are in the athlete profile of the README in the training folder.")
             }
 
             Section {
@@ -126,6 +144,11 @@ private struct GeneralSettings: View {
         panel.prompt = String(localized: "Choose")
         panel.message = String(localized: "Choose the folder with plan.json, analysis.json and completed.json.")
         if panel.runModal() == .OK, let url = panel.url {
+            if let owner = model.profiles.owner(ofFolder: url.path), owner.id != model.profiles.activeID {
+                folderError = String(localized: "This folder belongs to the profile “\(owner.displayName)”. Every profile needs its own training folder.")
+                return
+            }
+            folderError = nil
             projectPath = url.path
         }
     }
@@ -135,11 +158,18 @@ private struct GeneralSettings: View {
 
 private struct RunSourceSettings: View {
     @Environment(AppModel.self) private var model
-    @AppStorage(SyncSettings.Key.source) private var source = RunSource.garmin.rawValue
-    @AppStorage(SyncSettings.Key.stravaModel) private var stravaModel = SyncSettings.defaultStravaModel
-    @AppStorage(SyncSettings.Key.autoAssign) private var autoAssign = true
+    @AppStorage private var source: String
+    @AppStorage private var stravaModel: String
+    @AppStorage private var autoAssign: Bool
     @State private var checking = false
     @State private var result: (ok: Bool, text: String)?
+
+    /// `defaults`: settings of the active profile.
+    init(defaults: UserDefaults) {
+        _source = AppStorage(wrappedValue: RunSource.garmin.rawValue, SyncSettings.Key.source, store: defaults)
+        _stravaModel = AppStorage(wrappedValue: SyncSettings.defaultStravaModel, SyncSettings.Key.stravaModel, store: defaults)
+        _autoAssign = AppStorage(wrappedValue: true, SyncSettings.Key.autoAssign, store: defaults)
+    }
 
     var body: some View {
         Form {

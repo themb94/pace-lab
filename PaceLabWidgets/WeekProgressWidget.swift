@@ -3,7 +3,7 @@ import SwiftUI
 
 struct WeekProgressWidget: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "WeekProgress", provider: TrainingProvider()) { entry in
+        AppIntentConfiguration(kind: "WeekProgress", intent: SelectProfileIntent.self, provider: TrainingProvider()) { entry in
             WeekProgressView(entry: entry)
         }
         .configurationDisplayName("Week progress")
@@ -17,7 +17,7 @@ struct WeekProgressView: View {
 
     var body: some View {
         WeekProgressContent(entry: entry)
-            .widgetURL(URL(string: "pacelab://plan"))
+            .widgetURL(entry.url("plan"))
             .widgetBackground()
     }
 }
@@ -41,7 +41,8 @@ struct WeekProgressContent: View {
         let progress = planned > 0 ? min(actual / planned, 1) : 0
 
         return VStack(alignment: .leading, spacing: 6) {
-            HStack {
+            HStack(spacing: 4) {
+                ProfileBadge(entry: entry)
                 Text(header(snapshot, week: week))
                     .font(.caption.weight(.bold))
                     .foregroundStyle(Color.brand)

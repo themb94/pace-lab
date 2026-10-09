@@ -144,13 +144,13 @@ extension CoachEngine {
 
 // MARK: - Storage
 
-/// Configured engines and the selected one, in the app's UserDefaults.
+/// Configured engines and the selected one, in the active profile's UserDefaults.
 enum EngineStore {
     private static let enginesKey = "coachEngines"
     private static let selectedKey = "coachEngineID"
 
     static func load() -> [CoachEngine] {
-        if let data = UserDefaults.standard.data(forKey: enginesKey),
+        if let data = AppSettings.defaults.data(forKey: enginesKey),
            let engines = try? JSONDecoder().decode([CoachEngine].self, from: data), !engines.isEmpty {
             return engines
         }
@@ -161,19 +161,19 @@ enum EngineStore {
     }
 
     static func save(_ engines: [CoachEngine]) {
-        UserDefaults.standard.set(try? JSONEncoder().encode(engines), forKey: enginesKey)
+        AppSettings.defaults.set(try? JSONEncoder().encode(engines), forKey: enginesKey)
     }
 
     static var selectedID: UUID? {
-        get { UserDefaults.standard.string(forKey: selectedKey).flatMap(UUID.init(uuidString:)) }
-        set { UserDefaults.standard.set(newValue?.uuidString, forKey: selectedKey) }
+        get { AppSettings.defaults.string(forKey: selectedKey).flatMap(UUID.init(uuidString:)) }
+        set { AppSettings.defaults.set(newValue?.uuidString, forKey: selectedKey) }
     }
 
     /// First launch: Claude Code (with a model possibly already set), plus Codex and LM Studio if installed.
     static func defaults() -> [CoachEngine] {
         var claude = CoachEngine.claudePreset()
-        claude.model = UserDefaults.standard.string(forKey: "coachModel") ?? ""
-        claude.effort = UserDefaults.standard.string(forKey: "coachEffort") ?? ""
+        claude.model = AppSettings.defaults.string(forKey: "coachModel") ?? ""
+        claude.effort = AppSettings.defaults.string(forKey: "coachEffort") ?? ""
         var engines = [claude]
         if CLIResolver.find("codex") != nil { engines.append(.codexPreset()) }
         if CLIResolver.find("lms") != nil { engines.append(.lmStudioPreset()) }
@@ -189,7 +189,7 @@ enum ModelCatalog {
 
     /// Models Codex offers for the signed-in account (from Codex's own cache).
     static func codexModels() -> [String] {
-        let url = URL(filePath: NSHomeDirectory()).appending(path: ".codex/models_cache.json")
+        let url = ActiveProfile.current.codexDirectory.appending(path: "models_cache.json")
         guard let data = try? Data(contentsOf: url),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let models = root["models"] as? [[String: Any]] else { return [] }

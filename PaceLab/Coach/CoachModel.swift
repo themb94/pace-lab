@@ -574,12 +574,11 @@ final class CoachModel {
 
     // MARK: Saving
 
-    private static var storeURL: URL {
-        AppSettings.supportDirectory.appending(path: "coach.json")
-    }
+    /// Conversations of the profile that was active when the model was created.
+    private let storeURL = ActiveProfile.current.dataDirectory.appending(path: "coach.json")
 
     private func load() {
-        guard let data = try? Data(contentsOf: Self.storeURL),
+        guard let data = try? Data(contentsOf: storeURL),
               var stored = try? JSONDecoder().decode([CoachConversation].self, from: data) else { return }
         // Mark runs interrupted by quitting as cancelled.
         for c in stored.indices {
@@ -593,8 +592,8 @@ final class CoachModel {
     private func save() {
         let recent = Array(conversations.sorted { $0.updatedAt > $1.updatedAt }.prefix(40))
         do {
-            try FileManager.default.createDirectory(at: Self.storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-            try JSONEncoder().encode(recent).write(to: Self.storeURL, options: .atomic)
+            try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try JSONEncoder().encode(recent).write(to: storeURL, options: .atomic)
         } catch {
             // History is a convenience — an error here must not disrupt the coach.
         }

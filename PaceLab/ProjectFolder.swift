@@ -1,21 +1,28 @@
 import Foundation
 
-/// The app's settings (UserDefaults; the app is not sandboxed).
+/// The app's settings (UserDefaults; the app is not sandboxed). Everything except the window state
+/// belongs to the active profile.
 enum AppSettings {
     static let defaultProjectPath = "\(NSHomeDirectory())/Documents/Pace Lab"
 
     enum Key {
         static let projectPath = "projectPath"
-        static let athleteName = "athleteName"
     }
 
-    static var projectPath: String {
-        UserDefaults.standard.string(forKey: Key.projectPath) ?? defaultProjectPath
-    }
+    /// Settings of the active profile.
+    static var defaults: UserDefaults { ActiveProfile.current.defaults }
 
-    /// How the coach addresses you (empty = neutral).
+    static var projectPath: String { ActiveProfile.current.projectPath }
+
+    /// How the coach addresses you (empty = neutral) — the name of the active profile.
     static var athleteName: String {
-        (UserDefaults.standard.string(forKey: Key.athleteName) ?? "").trimmingCharacters(in: .whitespaces)
+        #if DEBUG
+        // Development/demo only: `-athleteName <name>` overrides the profile's name.
+        if let name = UserDefaults.standard.volatileDomain(forName: UserDefaults.argumentDomain)["athleteName"] as? String {
+            return name
+        }
+        #endif
+        return ActiveProfile.current.trimmedName
     }
 
     /// The app's own files (conversations, model lists, Garmin server) in Application Support.
@@ -30,6 +37,18 @@ enum AppSettings {
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }()
+}
+
+extension SnapshotStore {
+    /// Whether the app passes its data on to the widgets. Development only: with a separate support
+    /// directory (test profiles) the widgets keep showing the real data.
+    static var isEnabled: Bool {
+        #if DEBUG
+        return UserDefaults.standard.string(forKey: "debugSupportDirectory") == nil
+        #else
+        return true
+        #endif
+    }
 }
 
 /// The training project folder (plan.json, analysis.json, completed.json, README.md, garmin-mcp/ …).

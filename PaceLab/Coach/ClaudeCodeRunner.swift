@@ -90,11 +90,12 @@ final class ClaudeCodeRunner: CoachRunner, @unchecked Sendable {
         return args
     }
 
-    /// Claude Code's memory for this folder (~/.claude/projects/<path with - instead of />/memory).
+    /// Claude Code's memory for this folder (~/.claude/projects/<path with - instead of />/memory,
+    /// or in the profile's own configuration).
     static func memoryDirectory(for folder: URL) -> URL? {
         let key = String(folder.standardizedFileURL.path.map { $0.isLetter || $0.isNumber ? $0 : "-" })
-        let url = URL(filePath: NSHomeDirectory())
-            .appending(path: ".claude/projects/\(key)/memory", directoryHint: .isDirectory)
+        let url = ActiveProfile.current.claudeHome
+            .appending(path: "projects/\(key)/memory", directoryHint: .isDirectory)
         return FileManager.default.fileExists(atPath: url.path) ? url : nil
     }
 }

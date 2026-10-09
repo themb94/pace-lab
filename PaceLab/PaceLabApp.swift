@@ -21,6 +21,7 @@ struct PaceLabApp: App {
         .commands {
             CommandGroup(after: .appSettings) {
                 SetupCommand()
+                ProfileCommands(model: model)
             }
             CommandGroup(replacing: .newItem) {
                 Button("Load runs (\(SyncSettings.source.shortLabel))") { model.syncRuns() }
@@ -53,7 +54,9 @@ struct PaceLabApp: App {
         }
 
         Window("Setup", id: "setup") {
-            SetupView()
+            // Every profile has its own setup; switching profiles shows the other one's.
+            SetupView(defaults: model.profile.defaults)
+                .id(model.profiles.activeID)
                 .environment(model)
         }
         .defaultSize(width: 760, height: 820)
@@ -94,7 +97,37 @@ private struct SetupCommand: View {
     }
 }
 
+/// "Profile" in the app menu: switch, create.
+private struct ProfileCommands: View {
+    let model: AppModel
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        Menu("Profile") {
+            ProfilePicker()
+                .environment(model)
+            Divider()
+            Button("New profile …") {
+                model.showNewProfile = true
+                openWindow(id: "main")
+            }
+        }
+    }
+}
+
 struct RootView: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        @Bindable var model = model
+        // Everything inside belongs to the active profile and starts fresh after a switch.
+        ProfileRootView()
+            .id(model.profiles.activeID)
+            .sheet(isPresented: $model.showNewProfile) { NewProfileSheet() }
+    }
+}
+
+private struct ProfileRootView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openWindow) private var openWindow
 
@@ -138,7 +171,7 @@ struct RootView: View {
             .overlay(alignment: .top) { ToastView() }
         }
         .task {
-            // First launch: training folder is missing → show the setup.
+            // First launch (or a new profile): training folder is missing → show the setup.
             if !TrainingFolderSetup.isReady(model.folder.url) { openWindow(id: "setup") }
         }
         .sheet(item: $model.planRequest) { request in
@@ -241,28 +274,35 @@ private struct ToastView: View {
     }
 }
 
-/// Data status at the bottom of the sidebar, next to the way to Settings.
+/// Profile and data status at the bottom of the sidebar, next to the way to Settings.
 private struct SidebarStatus: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openSettings) private var openSettings
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 8) {
-            status
-            Button {
-                openSettings()
-            } label: {
-                Image(systemName: "gearshape")
-                    .imageScale(.large)
-                    .frame(width: 28, height: 28)
-                    .contentShape(.rect)
+        VStack(alignment: .leading, spacing: 10) {
+            ProfileMenu()
+            HStack(alignment: .bottom, spacing: 8) {
+                status
+                settingsButton
             }
-            .buttonStyle(.borderless)
-            .foregroundStyle(.secondary)
-            .help("Settings (⌘,)")
-            .accessibilityLabel("Settings")
         }
         .padding(12)
+    }
+
+    private var settingsButton: some View {
+        Button {
+            openSettings()
+        } label: {
+            Image(systemName: "gearshape")
+                .imageScale(.large)
+                .frame(width: 28, height: 28)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.borderless)
+        .foregroundStyle(.secondary)
+        .help("Settings (⌘,)")
+        .accessibilityLabel("Settings")
     }
 
     private var status: some View {

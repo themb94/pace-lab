@@ -5,42 +5,76 @@ struct TrainingEntry: TimelineEntry {
     let date: Date
     let snapshot: TrainingSnapshot?
     var errorMessage: String? = nil
+    /// Profile shown; nil as long as the app hasn't passed on any profiles yet.
+    var profile: WidgetProfiles.Entry? = nil
+    /// Several profiles: the widget shows whose training it is.
+    var showsProfile = false
+
+    /// Link into the app, e.g. "session/<id>" — to the widget's profile.
+    func url(_ path: String) -> URL? {
+        var components = URLComponents(string: "pacelab://\(path)")
+        if let profile { components?.queryItems = [URLQueryItem(name: "profile", value: profile.id)] }
+        return components?.url
+    }
 }
 
 /// One entry now plus one per midnight of the next week, so that
 /// "current week" and "starts in X days" keep running even without new data.
 /// The app triggers new data with `reloadAllTimelines()`.
-struct TrainingProvider: TimelineProvider {
+struct TrainingProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> TrainingEntry {
-        Self.entry(at: .now)
+        Self.entry(at: .now, profile: nil)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (TrainingEntry) -> Void) {
-        completion(Self.entry(at: .now))
+    func snapshot(for configuration: SelectProfileIntent, in context: Context) async -> TrainingEntry {
+        Self.entry(at: .now, profile: configuration.profile?.id)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<TrainingEntry>) -> Void) {
-        let first = Self.entry(at: .now)
+    func timeline(for configuration: SelectProfileIntent, in context: Context) async -> Timeline<TrainingEntry> {
+        let first = Self.entry(at: .now, profile: configuration.profile?.id)
         let cal = DateUtil.calendar
         let today = cal.startOfDay(for: .now)
         var entries = [first]
         for offset in 1...7 {
             let day = cal.date(byAdding: .day, value: offset, to: today)!
-            entries.append(TrainingEntry(date: day, snapshot: first.snapshot, errorMessage: first.errorMessage))
+            entries.append(TrainingEntry(date: day, snapshot: first.snapshot, errorMessage: first.errorMessage,
+                                         profile: first.profile, showsProfile: first.showsProfile))
         }
-        completion(Timeline(entries: entries, policy: .atEnd))
+        return Timeline(entries: entries, policy: .atEnd)
     }
 
-    private static func entry(at date: Date) -> TrainingEntry {
+    /// `profile`: chosen in the widget's configuration; nil = the profile that is active in the app.
+    private static func entry(at date: Date, profile: String?) -> TrainingEntry {
+        let profiles = SnapshotStore.loadProfiles()
+        // A deleted profile: back to the active one.
+        let id = profile.flatMap { profiles?.entry($0) != nil ? $0 : nil } ?? profiles?.active
+        let shown = id.flatMap { profiles?.entry($0) }
+        let several = (profiles?.profiles.count ?? 0) > 1
         do {
-            return TrainingEntry(date: date, snapshot: try SnapshotStore.load())
+            return TrainingEntry(date: date, snapshot: try SnapshotStore.load(profile: id), profile: shown, showsProfile: several)
         } catch {
-            return TrainingEntry(date: date, snapshot: nil, errorMessage: error.localizedDescription)
+            return TrainingEntry(date: date, snapshot: nil, errorMessage: error.localizedDescription, profile: shown, showsProfile: several)
         }
     }
 }
 
 // MARK: - Gemeinsame Widget-Bausteine
+
+/// Small round badge with the profile's initial — only when there are several profiles.
+struct ProfileBadge: View {
+    let entry: TrainingEntry
+
+    var body: some View {
+        if entry.showsProfile, let profile = entry.profile {
+            Text(profile.initial)
+                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .foregroundStyle(Color.brand)
+                .frame(width: 16, height: 16)
+                .background(Color.brand.opacity(0.18), in: Circle())
+                .accessibilityLabel(profile.name)
+        }
+    }
+}
 
 struct WidgetMessage: View {
     let symbol: String

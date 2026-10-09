@@ -701,6 +701,26 @@
         }
       }
     },
+    "A profile is a Pace Lab of its own for another person: its own training folder with plan and runs, its own coach conversations and settings, and its own sign-ins for Claude Code, Codex, Garmin and Strava. Nothing is shared between profiles — the new profile is set up from scratch.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Profil ist ein eigenes Pace Lab für eine weitere Person: eigener Trainingsordner mit Plan und Läufen, eigene Coach-Gespräche und Einstellungen und eigene Anmeldungen bei Claude Code, Codex, Garmin und Strava. Zwischen Profilen wird nichts geteilt — das neue Profil wird von Grund auf eingerichtet."
+          }
+        }
+      }
+    },
+    "A profile with this name already exists.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Profil mit diesem Namen gibt es schon."
+          }
+        }
+      }
+    },
     "About my run “%@” from %@: ": {
       "localizations": {
         "de": {
@@ -1571,6 +1591,16 @@
         }
       }
     },
+    "Choose whose training the widget shows.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle, wessen Training das Widget zeigt."
+          }
+        }
+      }
+    },
     "Choose …": {
       "localizations": {
         "de": {
@@ -1787,6 +1817,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Auslaufen"
+          }
+        }
+      }
+    },
+    "Create and set up": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anlegen und einrichten"
           }
         }
       }
@@ -2057,6 +2097,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ältere Stände löschen"
+          }
+        }
+      }
+    },
+    "Delete profile": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil löschen"
+          }
+        }
+      }
+    },
+    "Delete profile “%@”?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil „%@“ löschen?"
           }
         }
       }
@@ -2371,6 +2431,16 @@
         }
       }
     },
+    "Empty: the profile that is active in Pace Lab.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leer: das Profil, das in Pace Lab gerade aktiv ist."
+          }
+        }
+      }
+    },
     "Enter another model": {
       "localizations": {
         "de": {
@@ -2521,12 +2591,12 @@
         }
       }
     },
-    "For “Load runs” directly from Garmin and to send workouts to your watch. The app installs a small local server for this (needs Python 3.10+). You sign in with your Garmin account; only a token is stored in ~/.garminconnect, never your password.": {
+    "For “Load runs” directly from Garmin and to send workouts to your watch. The app installs a small local server for this (needs Python 3.10+). You sign in with your Garmin account; only a token is stored (%@), never your password.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Für „Läufe laden“ direkt von Garmin und um Workouts auf die Uhr zu schicken. Die App installiert dafür einen kleinen lokalen Server (braucht Python 3.10+). Angemeldet wird mit deinem Garmin-Konto; gespeichert wird nur ein Token in ~/.garminconnect, nie dein Passwort."
+            "value": "Für „Läufe laden“ direkt von Garmin und um Workouts auf die Uhr zu schicken. Die App installiert dafür einen kleinen lokalen Server (braucht Python 3.10+). Angemeldet wird mit deinem Garmin-Konto; gespeichert wird nur ein Token (%@), nie dein Passwort."
           }
         }
       }
@@ -2581,12 +2651,12 @@
         }
       }
     },
-    "Garmin reports: %@\nIf the sign-in has expired, run “./.venv/bin/python login.py” in the garmin-mcp folder in Terminal.": {
+    "Garmin reports: %@\nIf the sign-in has expired, sign in again under Pace Lab → Setup → Garmin.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Garmin meldet: %@\nIst die Anmeldung abgelaufen, im Terminal im Ordner garmin-mcp „./.venv/bin/python login.py“ ausführen."
+            "value": "Garmin meldet: %@\nIst die Anmeldung abgelaufen, unter Pace Lab → Einrichtung → Garmin neu anmelden."
           }
         }
       }
@@ -2791,16 +2861,6 @@
         }
       }
     },
-    "Goal, max heart rate and special considerations are in the athlete profile of the README in the training folder.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ziel, Maximalpuls und Besonderheiten stehen im Athletenprofil der README im Trainingsordner."
-          }
-        }
-      }
-    },
     "Goal, max heart rate, training days or special considerations go in the “Athlete profile” section of the README in the training folder. Fill it in or just tell the coach — it will enter it itself.": {
       "localizations": {
         "de": {
@@ -2991,6 +3051,16 @@
         }
       }
     },
+    "Its settings, coach conversations and sign-ins for Claude Code, Codex and Garmin are removed from this Mac. The training folder with plan, runs and history stays: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seine Einstellungen, Coach-Gespräche und Anmeldungen bei Claude Code, Codex und Garmin werden von diesem Mac entfernt. Der Trainingsordner mit Plan, Läufen und Verlauf bleibt erhalten: %@"
+          }
+        }
+      }
+    },
     "Kilometers run vs. planned and sessions completed this week.": {
       "localizations": {
         "de": {
@@ -3171,12 +3241,32 @@
         }
       }
     },
+    "Main profile": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hauptprofil"
+          }
+        }
+      }
+    },
     "Manage CLIs …": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "CLIs verwalten …"
+          }
+        }
+      }
+    },
+    "Manage profiles …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile verwalten …"
           }
         }
       }
@@ -3357,6 +3447,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Neuer Plan: %@"
+          }
+        }
+      }
+    },
+    "New profile": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neues Profil"
+          }
+        }
+      }
+    },
+    "New profile …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neues Profil …"
           }
         }
       }
@@ -3711,6 +3821,46 @@
         }
       }
     },
+    "Own sign-ins": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Anmeldungen"
+          }
+        }
+      }
+    },
+    "Pace Lab is working for %@ right now — switch to %@ afterwards.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace Lab arbeitet gerade für %1$@ — wechsle danach zu %2$@."
+          }
+        }
+      }
+    },
+    "Pace Lab is working right now — the profile is created, you switch to it afterwards.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace Lab arbeitet gerade — das Profil wird angelegt, wechseln kannst du danach."
+          }
+        }
+      }
+    },
+    "Pace Lab — profile “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace Lab — Profil „%@“"
+          }
+        }
+      }
+    },
     "Pace band %@: %@ → %@": {
       "localizations": {
         "de": {
@@ -3927,6 +4077,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vorbereitung: %@"
+          }
+        }
+      }
+    },
+    "Profile": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil"
+          }
+        }
+      }
+    },
+    "Profile — switch, create or manage profiles": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil — wechseln, anlegen oder verwalten"
+          }
+        }
+      }
+    },
+    "Profile “%@” deleted — the training folder stays.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil „%@“ gelöscht — der Trainingsordner bleibt erhalten."
+          }
+        }
+      }
+    },
+    "Profiles": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile"
+          }
+        }
+      }
+    },
+    "Profiles are completely separate: each has its own training folder, settings and coach conversations, and its own sign-ins for Claude Code, Codex, Garmin and Strava. The main profile uses the sign-ins of this Mac (~/.claude, ~/.codex, ~/.garminconnect); every further profile keeps its own in Application Support/Pace Lab/Profiles.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile sind vollständig getrennt: Jedes hat seinen eigenen Trainingsordner, eigene Einstellungen und Coach-Gespräche und eigene Anmeldungen bei Claude Code, Codex, Garmin und Strava. Das Hauptprofil nutzt die Anmeldungen dieses Macs (~/.claude, ~/.codex, ~/.garminconnect); jedes weitere Profil hat seine eigenen in Application Support/Pace Lab/Profiles."
           }
         }
       }
@@ -4481,6 +4681,26 @@
         }
       }
     },
+    "Set up “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ einrichten"
+          }
+        }
+      }
+    },
+    "Set up “%@” …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ einrichten …"
+          }
+        }
+      }
+    },
     "Settings": {
       "localizations": {
         "de": {
@@ -4607,6 +4827,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Anmelden …"
+          }
+        }
+      }
+    },
+    "Sign-ins of this Mac": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmeldungen dieses Macs"
           }
         }
       }
@@ -4991,6 +5221,16 @@
         }
       }
     },
+    "Switch to": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wechseln"
+          }
+        }
+      }
+    },
     "Target race": {
       "localizations": {
         "de": {
@@ -5161,6 +5401,16 @@
         }
       }
     },
+    "The coach is a CLI on your Mac that you use with your own account. One is enough. This profile signs in separately — with its own account or one you share.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Coach ist eine CLI auf deinem Mac, die du mit deinem eigenen Konto nutzt. Eine reicht. Dieses Profil meldet sich separat an — mit eigenem Konto oder einem, das ihr gemeinsam nutzt."
+          }
+        }
+      }
+    },
     "The coach is working right now — load runs afterwards.": {
       "localizations": {
         "de": {
@@ -5297,6 +5547,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Die Liste kommt direkt aus der installierten Claude-Code-Version. „Immer das neueste“ wandert mit Updates mit (opus zeigt dann z. B. auf 5.5), eine feste Version bleibt."
+          }
+        }
+      }
+    },
+    "The name is also the name of the profile. Goal, max heart rate and special considerations are in the athlete profile of the README in the training folder.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Name ist auch der Name des Profils. Ziel, Maximalpuls und Besonderheiten stehen im Athletenprofil der README im Trainingsordner."
           }
         }
       }
@@ -5441,12 +5701,32 @@
         }
       }
     },
+    "This folder belongs to the profile “%@”. Every profile needs its own training folder.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Ordner gehört zum Profil „%@“. Jedes Profil braucht seinen eigenen Trainingsordner."
+          }
+        }
+      }
+    },
     "This is where your plan (plan.json), your runs (analysis.json), ticks and the README with the rules for the coach live. The app creates it with an example plan; every change is recorded as a version (git).": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Hier liegen dein Plan (plan.json), deine Läufe (analysis.json), Häkchen und die README mit den Regeln für den Coach. Die App legt ihn mit einem Beispielplan an; jede Änderung wird als Stand festgehalten (git)."
+          }
+        }
+      }
+    },
+    "This profile is completely separate from the others: its own folder and its own sign-ins. Sign in to the coach, Garmin and Strava here again — even if they are already signed in on this Mac for another profile.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Profil ist vollständig von den anderen getrennt: eigener Ordner, eigene Anmeldungen. Melde Coach, Garmin und Strava hier neu an — auch wenn sie auf diesem Mac für ein anderes Profil schon angemeldet sind."
           }
         }
       }
@@ -5507,6 +5787,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trainingsordner"
+          }
+        }
+      }
+    },
+    "Training folder of “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trainingsordner von „%@“"
           }
         }
       }
@@ -5617,6 +5907,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unerwartete Antwort von %@."
+          }
+        }
+      }
+    },
+    "Unnamed profile": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unbenanntes Profil"
           }
         }
       }
@@ -6021,6 +6321,16 @@
         }
       }
     },
+    "You rename the active profile under General → About you.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das aktive Profil benennst du unter Allgemein → Über dich um."
+          }
+        }
+      }
+    },
     "Your analyzed runs appear here after the weekly review.": {
       "localizations": {
         "de": {
@@ -6237,6 +6547,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nieselregen"
+          }
+        }
+      }
+    },
+    "e.g. Anna — the coach addresses the person by it": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "z. B. Anna — so spricht der Coach die Person an"
           }
         }
       }

@@ -18,6 +18,8 @@ through **Claude Code**, **Codex** or a **local model** (LM Studio).
   undone. Garmin workouts are only created after your explicit approval.
 - **Garmin** — send a week's workouts to your watch.
 - **Widgets** — next session, week progress, last run.
+- **Profiles** — several people on one Mac, each with a completely separate
+  Pace Lab: own training folder, coach, settings and sign-ins.
 
 Everything stays on your Mac: your training data lives in a folder you choose,
 logins stay with Garmin, Strava and the CLIs you already use. Pace Lab has no
@@ -74,6 +76,29 @@ Pace Lab opens a setup window (also under *Pace Lab → Setup …*):
    your training folder and opens the browser sign-in.
 6. **Start** — let the coach plan your first real block.
 
+## Profiles
+
+Several people can train with Pace Lab on the same Mac. Every profile is
+completely separate and is set up on its own:
+
+- its own **training folder** (plan, runs, history) — a folder belongs to one profile only,
+- its own **settings** (coach CLIs and models, source for “Load runs”) and **coach conversations**,
+- its own **sign-ins**: Claude Code (`CLAUDE_CONFIG_DIR`) and Codex (`CODEX_HOME`)
+  get a configuration folder per profile — with its own login, Strava connection,
+  memory and sessions —, and the Garmin token lives per profile as well.
+
+The first profile (*main profile*) keeps the app's original locations and the
+sign-ins of the Mac (`~/.claude`, `~/.codex`, `~/.garminconnect`), so an
+existing setup keeps working unchanged. Further profiles keep everything in
+`~/Library/Application Support/Pace Lab/Profiles/<id>`; their settings are in
+their own UserDefaults domain.
+
+Switch profiles in the sidebar (bottom left), in the menu bar or under
+*Pace Lab → Profile*. *New profile …* asks for a name and opens the setup.
+*Settings → Profiles* lists all profiles; deleting one signs its CLIs out and
+removes its settings, conversations and sign-ins — the training folder stays.
+Widgets show the active profile; in *Edit widget* you can pin one to a profile.
+
 ## How it works
 
 ```
@@ -105,6 +130,9 @@ scripts/          Release build: signed, notarized DMG (release.sh)
 
 The Debug build can render screenshots of all views without clicking:
 `"Pace Lab" -projectPath <copy-of-your-folder> -debugSnapshots <dir> -debugQuit YES`.
+Add `-debugSupportDirectory <dir>` to keep profiles, conversations and settings
+apart from your real ones; `-debugProfile <name> -debugProfileFolder <dir>`
+then tries out a separate profile (see `PaceLab/DebugSnapshots.swift`).
 
 ## Languages
 

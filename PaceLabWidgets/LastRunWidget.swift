@@ -4,7 +4,7 @@ import Charts
 
 struct LastRunWidget: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "LastRun", provider: TrainingProvider()) { entry in
+        AppIntentConfiguration(kind: "LastRun", intent: SelectProfileIntent.self, provider: TrainingProvider()) { entry in
             LastRunView(entry: entry)
         }
         .configurationDisplayName("Last run")
@@ -20,7 +20,7 @@ struct LastRunView: View {
     var body: some View {
         let run = entry.snapshot?.lastRun
         LastRunContent(entry: entry, family: family)
-            .widgetURL(URL(string: run.map { "pacelab://run/\($0.id)" } ?? "pacelab://runs"))
+            .widgetURL(entry.url(run.map { "run/\($0.id)" } ?? "runs"))
             .widgetBackground(tint: run?.verdict?.color ?? .brand)
     }
 }
@@ -33,13 +33,13 @@ struct LastRunContent: View {
         if let snapshot = entry.snapshot, let run = snapshot.lastRun {
             if family == .systemMedium {
                 HStack(spacing: 14) {
-                    RunSummary(run: run)
+                    RunSummary(run: run, entry: entry)
                     if let splits = run.splits, splits.count > 1 {
                         MiniSplits(splits: splits, snapshot: snapshot)
                     }
                 }
             } else {
-                RunSummary(run: run)
+                RunSummary(run: run, entry: entry)
             }
         } else if entry.snapshot != nil {
             WidgetMessage(symbol: "figure.run", text: String(localized: "No runs yet"))
@@ -51,6 +51,7 @@ struct LastRunContent: View {
 
 private struct RunSummary: View {
     let run: Run
+    let entry: TrainingEntry
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -64,6 +65,8 @@ private struct RunSummary: View {
                     Text(Fmt.weekdayDayMonth(day))
                         .foregroundStyle(.secondary)
                 }
+                Spacer(minLength: 2)
+                ProfileBadge(entry: entry)
             }
             .font(.caption2.weight(.semibold))
 
