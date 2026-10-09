@@ -18,7 +18,7 @@ struct NextSessionView: View {
 
     var body: some View {
         let next = entry.snapshot?.nextSession
-        // Groß zeigt es die ganze Woche → neutraler Markenton statt der Farbe der nächsten Einheit.
+        // Large shows the whole week → neutral brand tone instead of the color of the next session.
         let tint = family == .systemLarge ? Color.brand : (next?.kind.color ?? .brand)
         NextSessionContent(entry: entry, family: family)
             .widgetURL(URL(string: next.map { "pacelab://session/\($0.id)" } ?? "pacelab://plan"))
@@ -26,7 +26,7 @@ struct NextSessionView: View {
     }
 }
 
-/// Inhalt ohne Widget-Umgebung — so lässt er sich auch außerhalb von WidgetKit rendern.
+/// Content without the widget environment — so it can also be rendered outside of WidgetKit.
 struct NextSessionContent: View {
     let entry: TrainingEntry
     let family: WidgetFamily
@@ -156,7 +156,7 @@ struct WeekChecklist: View {
     }
 }
 
-/// Großes Widget: nächste Einheit, die ganze Woche und der letzte Lauf.
+/// Large widget: next session, the whole week and the last run.
 private struct WeekOverview: View {
     let snapshot: TrainingSnapshot
     let session: PlannedSession

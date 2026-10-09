@@ -15,7 +15,7 @@ __pycache__/
 # macOS
 .DS_Store
 
-# Zugangsdaten und Signatur-Material gehören nie ins Repository
+# Credentials and signing material never belong in the repository
 .env
 .env.*
 *.p12

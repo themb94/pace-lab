@@ -91,7 +91,7 @@ private struct RunSummary: View {
     }
 }
 
-/// Pace je Split als Balken (höher = schneller), eingefärbt nach HF-Zone.
+/// Pace per split as bars (higher = faster), colored by HR zone.
 private struct MiniSplits: View {
     let splits: [Split]
     let snapshot: TrainingSnapshot

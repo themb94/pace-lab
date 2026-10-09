@@ -1,5 +1,5 @@
-// Kopieren nach Config/Signing.local.xcconfig und ausfüllen.
-// Signing.local.xcconfig wird nicht ins Repository übernommen.
+// Copy to Config/Signing.local.xcconfig and fill in.
+// Signing.local.xcconfig is not included in the repository.
 
 DEVELOPMENT_TEAM = ABCDE12345
 PACELAB_BUNDLE_ID = com.deinname.pacelab

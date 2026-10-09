@@ -7,9 +7,9 @@ struct TrainingEntry: TimelineEntry {
     var errorMessage: String? = nil
 }
 
-/// Ein Eintrag jetzt plus je einer pro Mitternacht der nächsten Woche, damit
-/// "aktuelle Woche" und "Start in X Tagen" auch ohne neue Daten weiterlaufen.
-/// Neue Daten stößt die App mit `reloadAllTimelines()` an.
+/// One entry now plus one per midnight of the next week, so that
+/// "current week" and "starts in X days" keep running even without new data.
+/// The app triggers new data with `reloadAllTimelines()`.
 struct TrainingProvider: TimelineProvider {
     func placeholder(in context: Context) -> TrainingEntry {
         Self.entry(at: .now)
@@ -74,7 +74,7 @@ struct WidgetBar: View {
 }
 
 extension View {
-    /// Dezenter Farbverlauf in der Farbe der Einheit bzw. der Bewertung.
+    /// Subtle gradient in the color of the session or the rating.
     func widgetBackground(tint: Color = .brand) -> some View {
         containerBackground(for: .widget) {
             LinearGradient(colors: [tint.opacity(0.22), Color.pageBackground],

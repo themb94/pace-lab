@@ -152,7 +152,7 @@ private struct StatBlock: View {
     }
 }
 
-// MARK: - Nächstes Training
+// MARK: - Next training
 
 private struct NextSessionCard: View {
     @Environment(AppModel.self) private var model
@@ -194,7 +194,7 @@ private struct NextSessionCard: View {
     }
 }
 
-// MARK: - Woche
+// MARK: - Week
 
 private struct WeekCard: View {
     @Environment(AppModel.self) private var model
@@ -264,7 +264,7 @@ private struct WeekCard: View {
     }
 }
 
-// MARK: - Letzter Lauf
+// MARK: - Last run
 
 private struct LastRunCard: View {
     let run: Run

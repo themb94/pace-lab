@@ -1,6 +1,6 @@
 import Foundation
 
-/// Der lokale Garmin-MCP-Server, wie er in der .mcp.json des Projekts eingetragen ist.
+/// The local Garmin MCP server, as registered in the project's .mcp.json.
 struct GarminServerConfig: Sendable {
     let command: String
     let arguments: [String]
@@ -17,20 +17,20 @@ struct GarminServerConfig: Sendable {
                                   environment: garmin["env"] as? [String: String] ?? [:])
     }
 
-    /// Startet den Server und meldet sich an. `readOnly`: ohne Werkzeuge zum Anlegen/Löschen.
+    /// Starts the server and signs in. `readOnly`: without tools for creating/deleting.
     func connect(in folder: URL, readOnly: Bool, extraEnvironment: [String: String] = [:]) async throws -> MCPClient {
         guard let executable = CLIResolver.find(command) else { throw CoachError.notFound(command) }
         var env = environment.merging(extraEnvironment) { _, new in new }
         if readOnly { env["GARMIN_READONLY"] = "1" }
-        env["PACELAB_LANG"] = AppLanguage.code   // Meldungen des Servers in der Sprache der App
+        env["PACELAB_LANG"] = AppLanguage.code   // server messages in the app's language
         let client = MCPClient(executable: executable, arguments: arguments, environment: env, directory: folder)
         try await client.start()
         return client
     }
 }
 
-/// Minimaler MCP-Client über stdio (JSON-RPC 2.0, eine Nachricht pro Zeile). Damit ruft die App
-/// Werkzeuge des Garmin-Servers direkt auf — ohne Sprachmodell dazwischen.
+/// Minimal MCP client over stdio (JSON-RPC 2.0, one message per line). The app uses it to call
+/// tools of the Garmin server directly — without a language model in between.
 final class MCPClient: @unchecked Sendable {
     struct Failure: LocalizedError {
         let message: String
@@ -90,7 +90,7 @@ final class MCPClient: @unchecked Sendable {
         try send(["jsonrpc": "2.0", "method": "notifications/initialized"])
     }
 
-    /// Ruft ein Werkzeug auf und liefert seine Textantwort.
+    /// Calls a tool and returns its text reply.
     func callTool(_ name: String, arguments: [String: any Sendable] = [:], timeout: TimeInterval = 120) async throws -> String {
         let data = try await request("tools/call", params: ["name": name, "arguments": arguments], timeout: timeout)
         guard let message = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -160,7 +160,7 @@ final class MCPClient: @unchecked Sendable {
         guard line.first == "{", let data = line.data(using: .utf8),
               let message = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
         if let method = message["method"] as? String {
-            // Anfrage des Servers (z. B. ping) höflich beantworten; Benachrichtigungen ignorieren.
+            // Politely answer requests from the server (e.g. ping); ignore notifications.
             guard let id = message["id"] else { return }
             let reply: [String: Any] = method == "ping"
                 ? ["jsonrpc": "2.0", "id": id, "result": [String: String]()]

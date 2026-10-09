@@ -197,7 +197,7 @@ private struct WeekHeader: View {
     }
 }
 
-/// „…“-Menü einer Woche: mit dem Coach anpassen oder direkt auf Garmin anlegen.
+/// "…" menu of a week: adjust with the coach or create directly on Garmin.
 private struct WeekMenu: View {
     @Environment(AppModel.self) private var model
     let week: Int

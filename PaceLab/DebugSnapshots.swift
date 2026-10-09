@@ -1,10 +1,10 @@
 #if DEBUG
 import AppKit
 
-/// Nur für Entwicklung/Tests: Mit `-debugSnapshots <Ordner>` legt die App Bilder ihrer Ansichten ab.
-/// Optional: `-debugSettings YES` (Einstellungen), `-debugSync YES` (Läufe laden), `-debugPlanSheet YES`
-/// (Planungsformular), `-debugEngine "<Name>"` + `-debugCoachPrompt "<Frage>"` stellt dem Coach eine echte
-/// Frage, `-debugDark YES`, `-debugCreateFolder YES` (legt den leeren Projektordner aus der Vorlage an), `-debugQuit YES` beendet die App danach. Sprache: `-AppleLanguages "(en)"` bzw. `"(de)"`. Mit `-projectPath <Ordner>` gegen eine Kopie (ein leerer Ordner zeigt die Einrichtung).
+/// Development/testing only: with `-debugSnapshots <folder>` the app saves images of its views.
+/// Optional: `-debugSettings YES` (Settings), `-debugSync YES` (Load runs), `-debugPlanSheet YES`
+/// (planning form), `-debugEngine "<name>"` + `-debugCoachPrompt "<question>"` asks the coach a real
+/// question, `-debugDark YES`, `-debugCreateFolder YES` (creates the empty project folder from the template), `-debugTour <folder>` (walkthrough with window captures), `-debugSupportDirectory <folder>` (separate conversations/model lists), `-debugQuit YES` quits the app afterwards. Language: `-AppleLanguages "(en)"` or `"(de)"`. With `-projectPath <folder>` against a copy (an empty folder shows the setup).
 @MainActor
 enum DebugSnapshots {
     static func runIfRequested(model: AppModel, openSettings: () -> Void) async {
@@ -14,13 +14,21 @@ enum DebugSnapshots {
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         if defaults.bool(forKey: "debugDark") { NSApp.appearance = NSAppearance(named: .darkAqua) }
 
-        // `-debugCreateFolder YES`: legt den (leeren) Projektordner aus der Vorlage an, wie die Einrichtung es tut.
+        // `-debugCreateFolder YES`: creates the (empty) project folder from the template, as the setup does.
         if defaults.bool(forKey: "debugCreateFolder"), !TrainingFolderSetup.isReady(model.folder.url) {
             try? await TrainingFolderSetup.create(at: model.folder.url)
             model.reload(force: true)
         }
         for _ in 0..<50 where model.snapshot == nil { try? await Task.sleep(for: .milliseconds(200)) }
         mainWindow = NSApp.windows.first { $0.isVisible && $0.canBecomeMain }
+
+        // `-debugTour <folder>`: walks through the sections in order and saves images of the real window.
+        if let tour = defaults.string(forKey: "debugTour"), let window = mainWindow {
+            await DebugTour.run(model: model, window: window, openSettings: openSettings,
+                                dir: URL(filePath: tour, directoryHint: .isDirectory))
+            NSApp.terminate(nil)
+            return
+        }
 
         func shot(_ name: String) async {
             try? await Task.sleep(for: .seconds(1.5))
@@ -130,6 +138,15 @@ enum DebugSnapshots {
 
     private static var mainWindow: NSWindow?
 
+    /// The app's own window as it looks on screen (including the sidebar with vibrancy). Own windows
+    /// can be captured without screen recording permission; the function only exists as a symbol now.
+    static func captureWindowImage(_ window: NSWindow) -> CGImage? {
+        typealias Function = @convention(c) (CGRect, UInt32, UInt32, UInt32) -> Unmanaged<CGImage>?
+        guard let symbol = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "CGWindowListCreateImage") else { return nil }
+        let function = unsafeBitCast(symbol, to: Function.self)
+        return function(.null, 1 << 3, UInt32(window.windowNumber), (1 << 0) | (1 << 3))?.takeRetainedValue()
+    }
+
     private static func capture(_ name: String, to dir: URL) {
         guard let window = mainWindow else { return }
         capture(window, name, to: dir)
@@ -145,7 +162,7 @@ enum DebugSnapshots {
 
 import SwiftUI
 
-/// Hängt die Snapshot-Routine an das Hauptfenster (braucht `openSettings` aus der Umgebung).
+/// Attaches the snapshot routine to the main window (needs `openSettings` from the environment).
 struct DebugSnapshotHook: ViewModifier {
     let model: AppModel
     @Environment(\.openSettings) private var openSettings

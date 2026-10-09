@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Details einer Plan-Einheit (rechter Inspector im Plan).
+/// Details of a plan session (right-hand inspector in the plan).
 struct SessionDetailView: View {
     @Environment(AppModel.self) private var model
     let session: PlannedSession

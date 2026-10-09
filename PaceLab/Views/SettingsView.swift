@@ -131,7 +131,7 @@ private struct GeneralSettings: View {
     }
 }
 
-// MARK: - Läufe laden
+// MARK: - Load runs
 
 private struct RunSourceSettings: View {
     @Environment(AppModel.self) private var model
@@ -204,7 +204,7 @@ private struct RunSourceSettings: View {
         .onChange(of: source) { result = nil }
     }
 
-    /// Modelle der Claude-Code-Engine; haiku reicht für die zwei Werkzeug-Aufrufe.
+    /// Models of the Claude Code engine; haiku is enough for the two tool calls.
     private var stravaChoices: [(value: String, title: String)] {
         var choices: [(value: String, title: String)]
         if let models = model.models.models(for: model.claudeEngine) {
@@ -252,7 +252,7 @@ private struct RunSourceSettings: View {
     }
 }
 
-// MARK: - Coach: hinterlegte CLIs
+// MARK: - Coach: configured CLIs
 
 private struct CoachSettings: View {
     @Environment(AppModel.self) private var model
@@ -488,7 +488,7 @@ private struct EngineEditor: View {
             await model.models.refresh(engine, folder: model.folder.url)
         }
         .onChange(of: engine.model) {
-            // Eine Denktiefe, die das neue Modell nicht kennt, zurücksetzen.
+            // Reset a reasoning effort that the new model doesn't know.
             if !engine.effort.isEmpty && !effortChoices.contains(engine.effort) { engine.effort = "" }
         }
     }
@@ -497,7 +497,7 @@ private struct EngineEditor: View {
         engine.kind.defaultCommand.isEmpty ? String(localized: "e.g. lms, ollama or /path/to/program") : String(localized: "automatic (\(engine.kind.defaultCommand))")
     }
 
-    /// Lokale Modelle (LM Studio / Bionic) — nur auf Knopfdruck, weil die Abfrage LM Studio weckt.
+    /// Local models (LM Studio / Bionic) — only on demand, because the query wakes LM Studio.
     private var localModelMenu: some View {
         Menu {
             Button("CLI default") { engine.model = "" }
@@ -520,7 +520,7 @@ private struct EngineEditor: View {
         model.models.models(for: engine)?.option(for: engine.model)
     }
 
-    /// Denktiefen des gewählten Modells; unbekannte Modelle bekommen die übliche Auswahl.
+    /// Reasoning efforts of the selected model; unknown models get the usual selection.
     private var effortChoices: [String] {
         selectedOption?.efforts ?? ModelCatalog.efforts
     }
@@ -565,7 +565,7 @@ private struct EngineEditor: View {
         let panel = NSOpenPanel()
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
-        panel.treatsFilePackagesAsDirectories = true   // auch CLIs innerhalb von Apps (z. B. Bionic)
+        panel.treatsFilePackagesAsDirectories = true   // also CLIs inside apps (e.g. Bionic)
         panel.allowsMultipleSelection = false
         panel.directoryURL = URL(filePath: "/opt/homebrew/bin")
         panel.prompt = String(localized: "Choose")
@@ -602,7 +602,7 @@ private struct EngineEditor: View {
     }
 }
 
-/// Prüft bei Claude Code die Strava- und Garmin-Anbindung, ohne das Modell aufzurufen.
+/// Checks the Strava and Garmin connection for Claude Code without calling the model.
 struct ConnectionCheck: Sendable {
     struct Line: Sendable {
         let text: String

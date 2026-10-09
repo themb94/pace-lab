@@ -1,13 +1,13 @@
 import SwiftUI
 
-/// Fortschrittstext, den Hintergrundarbeit melden kann.
+/// Progress text that background work can report.
 @MainActor
 @Observable
 final class ProgressText {
     var text: String?
 }
 
-/// Einrichtung: Trainingsordner, Name, Coach-CLIs, Garmin und Strava — alles, was vor dem ersten Plan nötig ist.
+/// Setup: training folder, name, coach CLIs, Garmin and Strava — everything needed before the first plan.
 struct SetupView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openWindow) private var openWindow

@@ -1,10 +1,10 @@
 import Foundation
 
-/// Die Plan-Dateien neben plan.json.
+/// The plan files next to plan.json.
 enum PlanFiles {
-    /// Entwurf für einen neuen Block — der Coach schreibt ihn, übernommen wird er in der App.
+    /// Draft for a new block — the coach writes it, the app applies it.
     static let draft = "plan-entwurf.json"
-    /// Frühere Blöcke, beim Übernehmen eines Entwurfs abgelegt.
+    /// Earlier blocks, stored when a draft is applied.
     static let archive = "plans"
 
     static func decode(_ data: Data) throws -> TrainingPlan {
@@ -12,7 +12,7 @@ enum PlanFiles {
     }
 }
 
-/// Lesbare Liste der Unterschiede zwischen zwei Plänen, z. B. „W3 · Tempo: 4×1000 m … (vorher: …)“.
+/// Readable list of the differences between two plans, e.g. "W3 · Tempo: 4×1000 m … (before: …)".
 enum PlanDiff {
     static func changes(from old: TrainingPlan?, to new: TrainingPlan) -> [String] {
         guard let old else { return [String(localized: "New plan: \(new.title)")] }
@@ -62,7 +62,7 @@ enum PlanDiff {
                 let note = (week.note ?? "").isEmpty ? "" : " · \(week.note!)"
                 lines.append("\(label): \(week.phase)\(note)")
             }
-            // Einheiten nach Typ zuordnen (der Coach sortiert eine Woche auch mal um), sonst nach Position.
+            // Match sessions by type (the coach sometimes reorders a week), otherwise by position.
             var unmatched = Array(before.sessions.indices)
             var pairs: [(was: PlanSessionSpec?, now: PlanSessionSpec?)] = []
             for now in week.sessions {
@@ -109,7 +109,7 @@ enum PlanDiff {
     }
 }
 
-/// Lesbare Beschreibung eines Workout-Schritts, z. B. „800 m @ 4:45–5:15“.
+/// Readable description of a workout step, e.g. "800 m @ 4:45–5:15".
 enum WorkoutText {
     static func describe(_ step: WorkoutStep, bands: [PaceBand]) -> String {
         var amount = ""

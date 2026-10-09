@@ -1,13 +1,13 @@
 import Foundation
 
-/// Eine hinterlegte CLI, die als Coach arbeiten kann.
+/// A configured CLI that can work as a coach.
 struct CoachEngine: Codable, Identifiable, Hashable, Sendable {
     enum Kind: String, Codable, CaseIterable, Identifiable, Sendable {
-        /// Claude Code — Agent mit Dateien, Strava, Garmin, Gedächtnis.
+        /// Claude Code — agent with files, Strava, Garmin, memory.
         case claudeCode
-        /// OpenAI Codex — Agent mit Dateien; Läufe direkt über Garmin (Strava geht dort nicht).
+        /// OpenAI Codex — agent with files; runs directly via Garmin (Strava doesn't work there).
         case codex
-        /// Beliebige CLI: Frage rein, Antwort als Text raus (z. B. lokale Modelle über `lms`).
+        /// Any CLI: question in, answer out as text (e.g. local models via `lms`).
         case textCLI
 
         var id: String { rawValue }
@@ -28,7 +28,7 @@ struct CoachEngine: Codable, Identifiable, Hashable, Sendable {
             }
         }
 
-        /// Agenten lesen/schreiben Dateien und nutzen Strava/Garmin; reine Text-CLIs antworten nur.
+        /// Agents read/write files and use Strava/Garmin; plain text CLIs only answer.
         var isAgent: Bool { self != .textCLI }
 
         var defaultCommand: String {
@@ -65,17 +65,17 @@ struct CoachEngine: Codable, Identifiable, Hashable, Sendable {
     var id: UUID
     var name: String
     var kind: Kind
-    /// Pfad oder Befehlsname; leer = Standardbefehl des Typs suchen.
+    /// Path or command name; empty = look for the type's default command.
     var executable: String
-    /// Leer = Standard der CLI.
+    /// Empty = the CLI's default.
     var model: String
-    /// Denktiefe (Claude: --effort, Codex: model_reasoning_effort); leer = Standard.
+    /// Reasoning effort (Claude: --effort, Codex: model_reasoning_effort); empty = default.
     var effort: String
-    /// Text-CLI: Argumente mit {model}, {prompt}, {system}. Agenten: zusätzliche Argumente.
+    /// Text CLI: arguments with {model}, {prompt}, {system}. Agents: additional arguments.
     var arguments: String
-    /// Text-CLI: Befehl, der vor jeder Anfrage läuft (z. B. Modell laden). Platzhalter {model}.
+    /// Text CLI: command that runs before every request (e.g. load the model). Placeholder {model}.
     var prepareCommand: String
-    /// Text-CLI: wie viel Trainingsstand die App mitschickt.
+    /// Text CLI: how much of the training state the app sends along.
     var context: ContextLevel
 
     init(id: UUID = UUID(), name: String, kind: Kind, executable: String = "", model: String = "",
@@ -91,7 +91,7 @@ struct CoachEngine: Codable, Identifiable, Hashable, Sendable {
         self.context = context
     }
 
-    /// Tolerant gegenüber fehlenden Feldern (spätere App-Versionen).
+    /// Tolerant of missing fields (later app versions).
     init(from decoder: any Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
@@ -105,18 +105,18 @@ struct CoachEngine: Codable, Identifiable, Hashable, Sendable {
         context = try c.decodeIfPresent(ContextLevel.self, forKey: .context) ?? .compact
     }
 
-    /// Kurzbeschreibung für Menüs: "Codex · gpt-5.6-terra"
+    /// Short description for menus: "Codex · gpt-5.6-terra"
     var summary: String {
         model.isEmpty ? name : "\(name) · \(model)"
     }
 
-    /// Der tatsächlich aufzurufende Befehl (leer → Standard des Typs).
+    /// The command that actually gets called (empty → the type's default).
     var command: String {
         executable.trimmingCharacters(in: .whitespaces).isEmpty ? kind.defaultCommand : executable
     }
 }
 
-// MARK: - Vorlagen
+// MARK: - Templates
 
 extension CoachEngine {
     static func claudePreset() -> CoachEngine {
@@ -127,8 +127,8 @@ extension CoachEngine {
         CoachEngine(name: "Codex", kind: .codex, model: ModelCatalog.codexModels().first ?? "")
     }
 
-    /// Lokales Modell über die LM-Studio-CLI (auch in Bionic enthalten). Lädt das Modell nur,
-    /// wenn es nicht schon geladen ist, und gibt es nach 15 Minuten ohne Nutzung wieder frei.
+    /// Local model via the LM Studio CLI (also included in Bionic). Only loads the model
+    /// if it isn't loaded already, and frees it again after 15 minutes without use.
     static func lmStudioPreset(model: String = "") -> CoachEngine {
         CoachEngine(
             name: String(localized: "Local (LM Studio / Bionic)"), kind: .textCLI, executable: "lms", model: model,
@@ -142,9 +142,9 @@ extension CoachEngine {
     }
 }
 
-// MARK: - Speicher
+// MARK: - Storage
 
-/// Hinterlegte Engines und die gewählte, in den UserDefaults der App.
+/// Configured engines and the selected one, in the app's UserDefaults.
 enum EngineStore {
     private static let enginesKey = "coachEngines"
     private static let selectedKey = "coachEngineID"
@@ -154,7 +154,7 @@ enum EngineStore {
            let engines = try? JSONDecoder().decode([CoachEngine].self, from: data), !engines.isEmpty {
             return engines
         }
-        // Gleich speichern, damit die IDs stabil bleiben (Gespräche und Auswahl verweisen darauf).
+        // Save right away so the IDs stay stable (conversations and selection refer to them).
         let engines = defaults()
         save(engines)
         return engines
@@ -169,7 +169,7 @@ enum EngineStore {
         set { UserDefaults.standard.set(newValue?.uuidString, forKey: selectedKey) }
     }
 
-    /// Erststart: Claude Code (mit evtl. schon gesetztem Modell), dazu Codex und LM Studio, falls installiert.
+    /// First launch: Claude Code (with a model possibly already set), plus Codex and LM Studio if installed.
     static func defaults() -> [CoachEngine] {
         var claude = CoachEngine.claudePreset()
         claude.model = UserDefaults.standard.string(forKey: "coachModel") ?? ""
@@ -181,13 +181,13 @@ enum EngineStore {
     }
 }
 
-// MARK: - Modell-Vorschläge
+// MARK: - Model suggestions
 
 enum ModelCatalog {
     static let claude = ["opus", "sonnet", "fable"]
     static let efforts = ["low", "medium", "high", "xhigh", "max"]
 
-    /// Modelle, die Codex für das angemeldete Konto anbietet (aus Codex' eigenem Cache).
+    /// Models Codex offers for the signed-in account (from Codex's own cache).
     static func codexModels() -> [String] {
         let url = URL(filePath: NSHomeDirectory()).appending(path: ".codex/models_cache.json")
         guard let data = try? Data(contentsOf: url),
@@ -199,7 +199,7 @@ enum ModelCatalog {
             .compactMap { $0["slug"] as? String }
     }
 
-    /// Lokale Sprachmodelle aus LM Studio (weckt den LM-Studio-Dienst — nur auf Knopfdruck).
+    /// Local language models from LM Studio (wakes the LM Studio service — only on demand).
     static func lmStudioModels() -> [String] {
         guard let lms = CLIResolver.find("lms") else { return [] }
         let output = CLIResolver.runSync(lms, ["ls", "--llm", "--json"])
@@ -210,10 +210,10 @@ enum ModelCatalog {
     }
 }
 
-// MARK: - Argumente mit Platzhaltern
+// MARK: - Arguments with placeholders
 
 enum ArgumentTemplate {
-    /// Zerlegt eine Befehlszeile wie eine Shell (Leerzeichen trennen, "…" und '…' halten zusammen).
+    /// Splits a command line like a shell (spaces separate, "…" and '…' keep things together).
     static func tokenize(_ line: String) -> [String] {
         var tokens: [String] = []
         var current = ""
@@ -243,8 +243,8 @@ enum ArgumentTemplate {
         return tokens
     }
 
-    /// Ersetzt {model}, {prompt}, {system} in jedem Argument — in einem Durchgang, damit
-    /// z. B. ein "{system}" im Fragetext nicht noch einmal ersetzt wird.
+    /// Replaces {model}, {prompt}, {system} in every argument — in a single pass, so that
+    /// e.g. a "{system}" in the question text isn't replaced a second time.
     static func fill(_ tokens: [String], with values: [String: String]) -> [String] {
         tokens.map { token in
             token.replacing(/\{(model|prompt|system)\}/) { match in values[String(match.1)] ?? String(match.0) }

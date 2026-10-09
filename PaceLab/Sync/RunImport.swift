@@ -1,6 +1,6 @@
 import Foundation
 
-/// Woher die App neue Läufe holt (Einstellungen → Läufe).
+/// Where the app gets new runs from (Settings → Runs).
 enum RunSource: String, CaseIterable, Identifiable, Sendable {
     case garmin, strava
 
@@ -21,11 +21,11 @@ enum RunSource: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-/// Ein neu geladener Lauf, fertig als Eintrag für analysis.json — noch ohne Bewertung und Analyse.
+/// A newly loaded run, ready as an entry for analysis.json — not yet rated or analyzed.
 struct ImportedRun: Sendable {
     private(set) var entry: OrderedJSON
     let source: RunSource
-    /// Aktivitäts-ID bei der Quelle.
+    /// Activity ID at the source.
     let activityID: String
     /// `yyyy-MM-dd`
     let date: String
@@ -38,15 +38,15 @@ struct ImportedRun: Sendable {
         entry["sessionId"] = session.map(OrderedJSON.string) ?? .null
     }
 
-    /// „29.09. 6x800m“ für Verlauf und Meldungen.
+    /// "29.09. 6x800m" for history and messages.
     var shortDescription: String {
         let day = DateUtil.day(fromISO: date).map(Fmt.dayMonth) ?? date
         return "\(day) \(name)"
     }
 }
 
-/// Die schon bekannten Läufe — damit nichts doppelt in analysis.json landet, auch nicht, wenn ein
-/// Lauf schon von der anderen Quelle (Strava bzw. Garmin) eingetragen wurde.
+/// The already known runs — so nothing ends up in analysis.json twice, not even if a
+/// run was already entered from the other source (Strava or Garmin).
 struct KnownRuns: Sendable {
     private let stravaIDs: Set<String>
     private let garminIDs: Set<String>
@@ -66,12 +66,12 @@ struct KnownRuns: Sendable {
         case .garmin where garminIDs.contains(id): return true
         default: break
         }
-        // Gleicher Tag, fast gleiche Distanz → derselbe Lauf aus der anderen Quelle.
+        // Same day, almost the same distance → the same run from the other source.
         return (distancesByDate[date] ?? []).contains { abs($0 - distanceKm) <= max(0.25, distanceKm * 0.03) }
     }
 }
 
-// MARK: - Rohdaten → Eintrag
+// MARK: - Raw data → entry
 
 enum RunImport {
     struct Lap {
@@ -80,7 +80,7 @@ enum RunImport {
         let hr: Double?
     }
 
-    /// Aus `get_activity_data` des Garmin-Servers.
+    /// From `get_activity_data` of the Garmin server.
     static func garmin(_ detail: [String: Any]) -> ImportedRun? {
         guard let id = stringID(detail["activityId"]),
               let summary = detail["summary"] as? [String: Any],
@@ -107,7 +107,7 @@ enum RunImport {
             ("avg_hr", .int(number(summary["averageHR"]))),
             ("max_hr", .int(number(summary["maxHR"]))),
             ("elevation_gain", .int(number(summary["elevationGain"]))),
-            // Garmin zählt Schritte beider Beine, Strava und die bisherigen Einträge nur eines.
+            // Garmin counts steps of both legs, Strava and the existing entries only one.
             ("cadence", .int(number(summary["averageRunCadence"]).map { $0 / 2 })),
             ("weather", garminWeather(detail["weather"] as? [String: Any], watch: number(summary["averageTemperature"])).map(OrderedJSON.string)),
             ("splits", .array(splits(laps))),
@@ -118,7 +118,7 @@ enum RunImport {
         return ImportedRun(entry: entry, source: .garmin, activityID: id, date: date, name: name, distanceKm: km)
     }
 
-    /// Aus `list_activities` + `get_activity_performance` des Strava-MCP.
+    /// From `list_activities` + `get_activity_performance` of the Strava MCP.
     static func strava(_ activity: [String: Any], performance: [String: Any]) -> ImportedRun? {
         guard let id = stringID(activity["id"]),
               let start = activity["start_local"] as? String,
@@ -155,8 +155,8 @@ enum RunImport {
         return ImportedRun(entry: entry, source: .strava, activityID: id, date: date, name: name, distanceKm: km)
     }
 
-    /// Kilometer-Splits, wenn die Uhr automatisch pro Kilometer gerundet hat, sonst jede Runde
-    /// einzeln („Runde 3 · 800 m“) — die genaue Benennung übernimmt der Coach bei der Auswertung.
+    /// Kilometer splits if the watch rounded automatically per kilometer, otherwise every lap
+    /// individually ("Lap 3 · 800 m") — the exact naming is handled by the coach during the review.
     static func splits(_ laps: [Lap]) -> [OrderedJSON] {
         let real = laps.filter { $0.distance >= 100 && $0.seconds > 0 }
         guard !real.isEmpty else { return [] }
@@ -183,8 +183,8 @@ enum RunImport {
         return "\(Int((meters / 10).rounded()) * 10) m"
     }
 
-    /// „Garmin-Wetter beim Start: ca. 9 °C, gefühlt ca. 9 °C, 81 % Luftfeuchte, schwacher Wind aus Nord;
-    /// Uhrtemperatur Ø 19 °C“ — wie die bisherigen Garmin-Einträge. Garmin liefert °F.
+    /// "Garmin weather at start: approx. 9 °C, feels like approx. 9 °C, 81 % humidity, light wind from the north;
+    /// watch temperature avg 19 °C" — like the existing Garmin entries. Garmin delivers °F.
     static func garminWeather(_ weather: [String: Any]?, watch: Double?) -> String? {
         var parts: [String] = []
         if let weather, weather["error"] == nil {
@@ -241,11 +241,11 @@ enum RunImport {
     }
 }
 
-// MARK: - Zuordnung zu Plan-Einheiten
+// MARK: - Assignment to plan sessions
 
 enum SessionMatcher {
-    /// Eindeutig über den Workout-Namen, den Garmin in den Lauf übernimmt
-    /// („Stadtpark - PL W01 · 6x800m“).
+    /// Unambiguous via the workout name that Garmin carries over into the run
+    /// ("Stadtpark - PL W01 · 6x800m").
     static func exactMatch(name: String, in snapshot: TrainingSnapshot) -> PlannedSession? {
         snapshot.sessions.first { session in
             guard let workoutName = session.garminName else { return false }
@@ -253,7 +253,7 @@ enum SessionMatcher {
         }
     }
 
-    /// Vorschläge: Einheiten aus der Blockwoche des Laufs — offene zuerst, dann nach Distanz.
+    /// Suggestions: sessions from the run's block week — open ones first, then by distance.
     static func suggestions(date: String, distanceKm: Double?, in snapshot: TrainingSnapshot) -> [PlannedSession] {
         guard let day = DateUtil.day(fromISO: date), let week = snapshot.blockWeek(containing: day) else { return [] }
         let german = DateUtil.germanDay(day)
@@ -267,10 +267,10 @@ enum SessionMatcher {
     }
 }
 
-// MARK: - analysis.json schreiben
+// MARK: - Writing analysis.json
 
 enum AnalysisWriter {
-    /// Stellt neue Läufe an den Anfang der Liste (neueste zuerst, wie in der README beschrieben).
+    /// Puts new runs at the start of the list (newest first, as described in the README).
     static func insert(_ runs: [ImportedRun], in folder: ProjectFolder) throws {
         guard !runs.isEmpty else { return }
         let url = folder.file(TrainingFiles.analysis)
@@ -281,7 +281,7 @@ enum AnalysisWriter {
         try document.write(to: url)
     }
 
-    /// Ordnet einen Lauf einer Plan-Einheit zu (oder löst die Zuordnung mit `nil`).
+    /// Assigns a run to a plan session (or removes the assignment with `nil`).
     static func assign(runID: String, to sessionID: String?, in folder: ProjectFolder) throws {
         let url = folder.file(TrainingFiles.analysis)
         var document = try JSONDocument(contentsOf: url, style: .python)
@@ -294,7 +294,7 @@ enum AnalysisWriter {
         try document.write(to: url)
     }
 
-    /// Dieselbe ID wie `Run.id`.
+    /// The same ID as `Run.id`.
     private static func identity(of entry: OrderedJSON) -> String? {
         if let id = entry["stravaId"]?.stringValue { return id }
         if let id = entry["garminId"]?.stringValue { return id }

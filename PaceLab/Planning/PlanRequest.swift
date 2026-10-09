@@ -1,6 +1,6 @@
 import Foundation
 
-/// Eine Planungsanfrage an den Coach — Woche umbauen, Einheit ändern oder neuen Block entwerfen.
+/// A planning request to the coach — rework a week, change a session or draft a new block.
 struct PlanRequest: Identifiable, Equatable {
     enum Kind: String, CaseIterable, Identifiable, Codable, Sendable {
         case week, session, block
@@ -28,10 +28,10 @@ struct PlanRequest: Identifiable, Equatable {
     var kind: Kind
     var week: Int
     var sessionID: String?
-    /// Freitext: Anlass bzw. Wunsch („Stadtlauf am Samstag“, „Knie zwickt“ …).
+    /// Free text: occasion or wish ("city run on Saturday", "knee twinges" …).
     var details = ""
 
-    // Neuer Block
+    // New block
     var goal = ""
     var hasRace = false
     var raceDate: Date
@@ -44,7 +44,7 @@ struct PlanRequest: Identifiable, Equatable {
         self.sessionID = sessionID
         let focus = snapshot?.focusWeek(on: today) ?? 1
         self.week = week ?? focus
-        // Neuer Block: Montag nach dem Ende des aktuellen Blocks (oder nächster Montag, wenn der vorbei ist).
+        // New block: the Monday after the current block ends (or the next Monday if it's already over).
         let nextMonday = DateUtil.calendar.date(byAdding: .day, value: 7, to: DateUtil.startOfWeek(today))!
         if let snapshot {
             let afterBlock = DateUtil.calendar.date(byAdding: .day, value: 1, to: snapshot.sunday(ofWeek: snapshot.weekCount))!
@@ -59,8 +59,8 @@ struct PlanRequest: Identifiable, Equatable {
     static func == (lhs: PlanRequest, rhs: PlanRequest) -> Bool { lhs.id == rhs.id }
 }
 
-/// Texte, mit denen der Coach plant. Agenten ändern plan.json bzw. schreiben plan-entwurf.json selbst;
-/// reine Text-CLIs antworten mit einem JSON-Vorschlag, den die App nach Bestätigung übernimmt.
+/// Texts the coach plans with. Agents change plan.json or write plan-entwurf.json themselves;
+/// plain text CLIs reply with a JSON suggestion that the app applies after confirmation.
 enum PlanPrompts {
     static func title(for request: PlanRequest, snapshot: TrainingSnapshot) -> String {
         switch request.kind {
@@ -72,7 +72,7 @@ enum PlanPrompts {
         }
     }
 
-    // MARK: Agenten (Claude Code, Codex)
+    // MARK: Agents (Claude Code, Codex)
 
     static func agentPrompt(for request: PlanRequest, snapshot: TrainingSnapshot) -> String {
         switch request.kind {
@@ -101,7 +101,7 @@ enum PlanPrompts {
         }
     }
 
-    // MARK: Reine Text-CLIs
+    // MARK: Plain text CLIs
 
     static func textPrompt(for request: PlanRequest, snapshot: TrainingSnapshot, folder: URL) -> String {
         switch request.kind {
@@ -151,7 +151,7 @@ enum PlanPrompts {
     "pace" = name of a paceBand or "m:ss-m:ss"; without pace = free, by feel. Easy runs and long runs have no pace target.
     """)
 
-    // MARK: Bausteine
+    // MARK: Building blocks
 
     private static func task(_ request: PlanRequest, _ snapshot: TrainingSnapshot) -> String {
         let wish = request.details.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -202,7 +202,7 @@ enum PlanPrompts {
         """)
     }
 
-    /// Die Woche als JSON-Text, so wie sie in plan.json steht.
+    /// The week as JSON text, as it appears in plan.json.
     static func weekJSON(_ week: Int, folder: URL) -> String? {
         guard let document = try? JSONDocument(contentsOf: folder.appending(path: TrainingFiles.plan), style: .compact(width: 120)),
               let weeks = document.root["weeks"]?.arrayValue, week >= 1, week <= weeks.count else { return nil }
@@ -210,9 +210,9 @@ enum PlanPrompts {
     }
 }
 
-// MARK: - Vorschläge reiner Text-CLIs
+// MARK: - Suggestions from plain text CLIs
 
-/// JSON-Vorschlag aus der Antwort einer Text-CLI: eine Woche oder ein ganzer Plan (als Entwurf).
+/// JSON suggestion from a text CLI's reply: a week or an entire plan (as a draft).
 struct PlanProposal: Codable, Hashable, Sendable {
     enum Scope: Codable, Hashable, Sendable {
         case week(Int)
@@ -220,12 +220,12 @@ struct PlanProposal: Codable, Hashable, Sendable {
     }
 
     var scope: Scope
-    /// Der JSON-Text des Vorschlags.
+    /// The suggestion's JSON text.
     var json: String
-    /// Unterschiede zum aktuellen Stand, zum Anzeigen.
+    /// Differences from the current state, for display.
     var changes: [String]
 
-    /// Sucht den letzten ```json-Block und prüft, ob er zum erwarteten Schema passt.
+    /// Looks for the last ```json block and checks whether it matches the expected schema.
     static func extract(from answer: String, request: PlanRequest.Kind, week: Int, current: TrainingPlan) -> PlanProposal? {
         let blocks = answer.matches(of: /```(?:json)?\s*\n([\s\S]*?)```/).map { String($0.1) }
         for text in blocks.reversed() {
@@ -248,7 +248,7 @@ struct PlanProposal: Codable, Hashable, Sendable {
         return nil
     }
 
-    /// Übernimmt den Vorschlag in die Dateien (Woche in plan.json bzw. plan-entwurf.json).
+    /// Applies the suggestion to the files (week in plan.json or plan-entwurf.json).
     func apply(in folder: ProjectFolder) throws -> [String] {
         let value = try OrderedJSON.parse(json)
         switch scope {
@@ -260,7 +260,7 @@ struct PlanProposal: Codable, Hashable, Sendable {
             }
             weeks[week - 1] = value
             document.root["weeks"] = .array(weeks)
-            _ = try PlanFiles.decode(Data(document.text.utf8))   // nur gültige Pläne schreiben
+            _ = try PlanFiles.decode(Data(document.text.utf8))   // only write valid plans
             try document.write(to: url)
             return [TrainingFiles.plan]
         case .draft:

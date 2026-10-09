@@ -1,8 +1,8 @@
 import Foundation
 
-// Die Modelle spiegeln 1:1 die JSON-Dateien im Projekt-Root (plan.json,
-// analysis.json, completed.json). Felder sind
-// großzügig optional, damit ein neues/fehlendes Feld nie das Laden bricht.
+// The models mirror the JSON files in the project root 1:1 (plan.json,
+// analysis.json, completed.json). Fields are
+// generously optional so that a new/missing field never breaks loading.
 
 // MARK: - plan.json
 
@@ -11,13 +11,13 @@ struct TrainingPlan: Codable, Sendable {
     var goal: String?
     var subtitle: String?
     var previous: String?
-    /// Montag der ersten Blockwoche, `yyyy-MM-dd`.
+    /// Monday of the first block week, `yyyy-MM-dd`.
     var startMonday: String
-    /// Präfix der Session-IDs, z. B. "b1" → `b1w1-tempo-0`.
+    /// Prefix of the session IDs, e.g. "b1" → `b1w1-tempo-0`.
     var idPrefix: String?
-    /// Präfix der Garmin-Workout-Namen, z. B. "PL" → „PL W01 · 6x800m“.
+    /// Prefix of the Garmin workout names, e.g. "PL" → "PL W01 · 6x800m".
     var workoutPrefix: String?
-    /// Lockere Läufe auch als Garmin-Workout anlegen (Standard: nein, die laufen nach Gefühl).
+    /// Also create easy runs as a Garmin workout (default: no, they're run by feel).
     var uploadEasyRuns: Bool?
     var athlete: Athlete?
     var paceBands: [PaceBand]?
@@ -26,7 +26,7 @@ struct TrainingPlan: Codable, Sendable {
 
 struct Athlete: Codable, Sendable {
     var maxHr: Int
-    /// Untergrenzen der HF-Zonen 2–5 in bpm.
+    /// Lower bounds of HR zones 2–5 in bpm.
     var zoneFloors: [Int]
 }
 
@@ -43,11 +43,11 @@ struct PlanWeek: Codable, Sendable {
 }
 
 struct PlanSessionSpec: Codable, Sendable {
-    /// Roh-Typ wie im JSON — fließt unverändert in die Session-ID ein.
+    /// Raw type as in the JSON — goes into the session ID unchanged.
     var type: String
     var dist: String
     var desc: String
-    /// Schritte für die Uhr — daraus baut garmin_workouts.py das Garmin-Workout.
+    /// Steps for the watch — garmin_workouts.py builds the Garmin workout from these.
     var workout: PlanWorkout?
 
     var kind: SessionType { SessionType(rawValue: type) ?? .easy }
@@ -57,28 +57,28 @@ struct PlanSessionSpec: Codable, Sendable {
         type = try c.decode(String.self, forKey: .type)
         dist = try c.decodeIfPresent(String.self, forKey: .dist) ?? ""
         desc = try c.decodeIfPresent(String.self, forKey: .desc) ?? ""
-        // Ein fehlerhaftes Workout soll nie den ganzen Plan unlesbar machen.
+        // A faulty workout must never make the whole plan unreadable.
         workout = try? c.decodeIfPresent(PlanWorkout.self, forKey: .workout)
     }
 }
 
-/// Workout einer Einheit (Schema in der README, Abschnitt „Plan-Schema“).
+/// Workout of a session (schema in the README, section "Plan schema").
 struct PlanWorkout: Codable, Sendable, Hashable {
     var name: String
     var steps: [WorkoutStep]
 }
 
-/// Ein Abschnitt eines Workouts — oder eine Wiederholung (`repeat` + `steps`).
+/// A section of a workout — or a repetition (`repeat` + `steps`).
 struct WorkoutStep: Codable, Sendable, Hashable {
     /// warmup | cooldown | interval | recovery | run
     var type: String?
-    /// Meter
+    /// Meters
     var distance: Double?
-    /// Sekunden
+    /// Seconds
     var time: Double?
-    /// Name eines Pace-Bands oder "m:ss-m:ss"
+    /// Name of a pace band or "m:ss-m:ss"
     var pace: String?
-    /// HF-Bereich "lo-hi"
+    /// HR range "lo-hi"
     var hr: String?
     var note: String?
     var `repeat`: Int?
@@ -120,7 +120,7 @@ struct Run: Codable, Sendable, Identifiable, Hashable {
     var stravaId: String?
     var garminId: String?
     var source: String?
-    /// Plan-Session (`b1w1-tempo-0`, ältere IDs ohne Präfix `w3-long-2`) oder nil bei Extra-Läufen.
+    /// Plan session (`b1w1-tempo-0`, older IDs without prefix `w3-long-2`) or nil for extra runs.
     var sessionId: String?
     var tag: String?
     var name: String
@@ -143,7 +143,7 @@ struct Run: Codable, Sendable, Identifiable, Hashable {
 
     var id: String { stravaId ?? garminId ?? "\(date)-\(name)" }
 
-    /// Noch ohne Bewertung und Analyse — z. B. gerade erst von Strava/Garmin geladen.
+    /// Not yet rated or analyzed — e.g. just loaded from Strava/Garmin.
     var isAnalyzed: Bool { verdict != nil || !(analysis ?? "").isEmpty }
 
     static func == (lhs: Run, rhs: Run) -> Bool { lhs.id == rhs.id }
@@ -151,7 +151,7 @@ struct Run: Codable, Sendable, Identifiable, Hashable {
 
     var day: Date? { DateUtil.day(fromISO: date) }
 
-    /// Ø-Pace in s/km; fällt auf Zeit/Distanz zurück, wenn das Feld fehlt.
+    /// Avg pace in s/km; falls back to time/distance if the field is missing.
     var paceSeconds: Double? {
         if let avgPaceS, avgPaceS > 0 { return avgPaceS }
         guard let movingTimeS, let distanceKm, distanceKm > 0 else { return nil }
@@ -181,7 +181,7 @@ enum Verdict: String, Codable, Sendable {
 
     init(from decoder: any Decoder) throws {
         let raw = try decoder.singleValueContainer().decode(String.self)
-        // Die englische Vorlage schreibt „good“ / „warning“, die deutsche „gut“ / „achtung“.
+        // The English template writes "good" / "warning", the German one "gut" / "achtung".
         switch raw.lowercased() {
         case "good": self = .gut
         case "warning", "warn": self = .achtung
@@ -198,9 +198,9 @@ struct WeekSummary: Codable, Sendable {
 
 // MARK: - completed.json
 
-/// `{ "b1w1-tempo-0": "05.01.2026", … }` — als Wert ist auch `true` erlaubt.
+/// `{ "b1w1-tempo-0": "05.01.2026", … }` — `true` is also allowed as a value.
 struct CompletionFile: Decodable, Sendable {
-    /// Session-ID → Datum (leer, wenn ohne Datum abgehakt).
+    /// Session ID → date (empty if checked off without a date).
     var marks: [String: String]
 
     init(from decoder: any Decoder) throws {
@@ -225,7 +225,7 @@ struct CompletionFile: Decodable, Sendable {
 }
 
 extension JSONDecoder {
-    /// Für plan.json / analysis.json (`distance_km` → `distanceKm`).
+    /// For plan.json / analysis.json (`distance_km` → `distanceKm`).
     static var snakeCase: JSONDecoder {
         let d = JSONDecoder()
         d.keyDecodingStrategy = .convertFromSnakeCase

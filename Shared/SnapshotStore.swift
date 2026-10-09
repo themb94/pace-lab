@@ -1,13 +1,13 @@
 import Foundation
 
-/// Die Trainingsdaten, wie sie im Trainingsordner liegen.
+/// The training data as it sits in the training folder.
 enum TrainingFiles {
     static let plan = "plan.json"
     static let analysis = "analysis.json"
     static let completed = "completed.json"
     static let all = [plan, analysis, completed]
 
-    /// Baut aus den Roh-Dateien einen Snapshot. `completed` darf fehlen.
+    /// Builds a snapshot from the raw files. `completed` may be missing.
     static func decode(plan: Data, analysis: Data, completed: Data?) throws -> TrainingSnapshot {
         let decodedPlan = try decode(TrainingPlan.self, from: plan, file: TrainingFiles.plan, decoder: .snakeCase)
         let decodedAnalysis = try decode(AnalysisFile.self, from: analysis, file: TrainingFiles.analysis, decoder: .snakeCase)
@@ -26,11 +26,11 @@ enum TrainingFiles {
     }
 }
 
-/// Kopie der Trainingsdaten im App-Group-Container. Die App schreibt sie bei jeder
-/// Änderung, die (sandboxed) Widgets lesen sie — an den Projektordner kommen sie nicht heran.
+/// Copy of the training data in the app group container. The app writes it on every
+/// change, the (sandboxed) widgets read it — they can't reach the project folder.
 enum SnapshotStore {
-    /// Team-Präfix statt "group.": auf dem Mac ohne Provisioning-Profil gültig. Kommt aus dem Build
-    /// (Config/Signing.xcconfig → Info.plist), damit jede Installation ihre eigene Kennung hat.
+    /// Team prefix instead of "group.": valid on the Mac without a provisioning profile. Comes from the build
+    /// (Config/Signing.xcconfig → Info.plist), so that every installation has its own identifier.
     static let appGroupID = Bundle.main.object(forInfoDictionaryKey: "PaceLabAppGroup") as? String ?? ""
 
     static var directory: URL? {
@@ -39,7 +39,7 @@ enum SnapshotStore {
             .appending(path: "Trainingsdaten", directoryHint: .isDirectory)
     }
 
-    /// Für die Widgets.
+    /// For the widgets.
     static func load() throws -> TrainingSnapshot {
         guard let directory else { throw StoreError.noAppGroup }
         func data(_ name: String) -> Data? { try? Data(contentsOf: directory.appending(path: name)) }
@@ -49,7 +49,7 @@ enum SnapshotStore {
         return try TrainingFiles.decode(plan: plan, analysis: analysis, completed: data(TrainingFiles.completed))
     }
 
-    /// Für die App: überschreibt die Kopie mit dem aktuellen Stand des Projektordners.
+    /// For the app: overwrites the copy with the current state of the project folder.
     static func save(_ files: [String: Data]) throws {
         guard let directory else { throw StoreError.noAppGroup }
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

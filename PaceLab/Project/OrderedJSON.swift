@@ -1,13 +1,13 @@
 import Foundation
 
-/// JSON mit stabiler Schlüssel-Reihenfolge und unveränderten Zahlen. Damit ändert die App einzelne
-/// Stellen in analysis.json oder plan.json, ohne dass sich der Rest der Datei verschiebt — wichtig für
-/// lesbare Stände im Verlauf und für den Coach, der dieselben Dateien bearbeitet.
+/// JSON with a stable key order and unchanged numbers. This lets the app change individual
+/// spots in analysis.json or plan.json without the rest of the file shifting — important for
+/// readable commits in the history and for the coach, who edits the same files.
 enum OrderedJSON: Equatable, Sendable {
     case object([Member])
     case array([OrderedJSON])
     case string(String)
-    /// Zahl im Originaltext, z. B. "21.13" — wird nie umgerechnet.
+    /// Number in its original text, e.g. "21.13" — never converted.
     case number(String)
     case bool(Bool)
     case null
@@ -17,16 +17,16 @@ enum OrderedJSON: Equatable, Sendable {
         var value: OrderedJSON
     }
 
-    /// Wie die Datei geschrieben wird.
+    /// How the file is written.
     enum Style: Sendable {
-        /// Wie Pythons `json.dumps(indent=2, ensure_ascii=False)` — so sieht analysis.json aus.
+        /// Like Python's `json.dumps(indent=2, ensure_ascii=False)` — this is what analysis.json looks like.
         case python
-        /// Kurze Objekte und Listen einzeilig, solange die Zeile nicht breiter als `width` wird (plan.json).
+        /// Short objects and lists on a single line as long as the line doesn't get wider than `width` (plan.json).
         case compact(width: Int)
     }
 }
 
-// MARK: - Zugriff
+// MARK: - Access
 
 extension OrderedJSON {
     subscript(key: String) -> OrderedJSON? {
@@ -65,7 +65,7 @@ extension OrderedJSON {
 
     var isNull: Bool { self == .null }
 
-    /// Objekt aus Schlüssel/Wert-Paaren in genau dieser Reihenfolge; `nil`-Werte werden ausgelassen.
+    /// Object from key/value pairs in exactly this order; `nil` values are omitted.
     static func object(_ pairs: [(String, OrderedJSON?)]) -> OrderedJSON {
         .object(pairs.compactMap { key, value in value.map { Member(key: key, value: $0) } })
     }
@@ -75,7 +75,7 @@ extension OrderedJSON {
         return .number(String(Int(value.rounded())))
     }
 
-    /// Dezimalzahl mit höchstens `digits` Nachkommastellen, wie Python sie schreibt ("5.02", "5.0").
+    /// Decimal number with at most `digits` decimal places, as Python writes it ("5.02", "5.0").
     static func decimal(_ value: Double?, digits: Int) -> OrderedJSON? {
         guard let value, value.isFinite else { return nil }
         var text = String(format: "%.\(digits)f", value)
@@ -87,7 +87,7 @@ extension OrderedJSON {
     }
 }
 
-// MARK: - Lesen
+// MARK: - Reading
 
 extension OrderedJSON {
     struct SyntaxError: LocalizedError {
@@ -246,7 +246,7 @@ extension OrderedJSON {
     }
 }
 
-// MARK: - Schreiben
+// MARK: - Writing
 
 extension OrderedJSON {
     func rendered(_ style: Style) -> String {
@@ -290,7 +290,7 @@ extension OrderedJSON {
         }
     }
 
-    /// Einzeilig: `{ "a": 1, "b": [1, 2] }`
+    /// Single line: `{ "a": 1, "b": [1, 2] }`
     private static func inline(_ value: OrderedJSON) -> String {
         switch value {
         case .object(let members):
@@ -304,7 +304,7 @@ extension OrderedJSON {
         }
     }
 
-    /// Escaping wie Python mit `ensure_ascii=False`: nur Anführungszeichen, Backslash und Steuerzeichen.
+    /// Escaping like Python with `ensure_ascii=False`: only quotes, backslash and control characters.
     static func quote(_ text: String) -> String {
         var out = "\""
         for scalar in text.unicodeScalars {
@@ -328,9 +328,9 @@ extension OrderedJSON {
     }
 }
 
-// MARK: - Datei
+// MARK: - File
 
-/// Eine JSON-Datei des Projekts, die beim Zurückschreiben ihr Format behält.
+/// A JSON file of the project that keeps its format when written back.
 struct JSONDocument {
     var root: OrderedJSON
     var style: OrderedJSON.Style

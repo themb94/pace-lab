@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Entwurf für einen neuen Block (plan-entwurf.json) — ansehen, übernehmen oder verwerfen.
+/// Draft for a new block (plan-entwurf.json) — view, apply or discard.
 struct DraftPlanView: View {
     @Environment(AppModel.self) private var model
     let draft: TrainingPlan

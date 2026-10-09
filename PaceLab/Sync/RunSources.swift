@@ -1,6 +1,6 @@
 import Foundation
 
-/// Fortschritt für die Anzeige, z. B. „Garmin: Lauf-Details (1/2)“.
+/// Progress for display, e.g. "Garmin: run details (1/2)".
 typealias SyncProgress = @Sendable (String) -> Void
 
 struct SyncFailure: LocalizedError {
@@ -8,9 +8,9 @@ struct SyncFailure: LocalizedError {
     var errorDescription: String? { message }
 }
 
-// MARK: - Garmin (direkt)
+// MARK: - Garmin (direct)
 
-/// Läufe direkt vom lokalen Garmin-Server — nur lesend und ohne Sprachmodell.
+/// Runs straight from the local Garmin server — read-only and without a language model.
 struct GarminRunSource: Sendable {
     let folder: URL
 
@@ -30,7 +30,7 @@ struct GarminRunSource: Sendable {
             }
 
             var candidates: [(id: String, name: String)] = []
-            for activity in activities.reversed() {   // älteste zuerst
+            for activity in activities.reversed() {   // oldest first
                 guard let id = RunImport.stringID(activity["activityId"]),
                       let start = activity["startTimeLocal"] as? String else { continue }
                 let date = String(start.prefix(10))
@@ -56,7 +56,7 @@ struct GarminRunSource: Sendable {
         }
     }
 
-    /// Der Garmin-Server meldet Fehler als Text, der mit „❌“ beginnt.
+    /// The Garmin server reports errors as text starting with "❌".
     private static func checked(_ text: String) throws -> String {
         guard text.hasPrefix("❌") else { return text }
         let message = text.dropFirst().trimmingCharacters(in: .whitespaces)
@@ -64,14 +64,14 @@ struct GarminRunSource: Sendable {
     }
 }
 
-// MARK: - Strava (über Claude Code)
+// MARK: - Strava (via Claude Code)
 
-/// Strava lässt sich nur über den Strava-MCP in Claude Code erreichen. Claude ruft dafür im Hintergrund
-/// nur die beiden Lese-Werkzeuge auf; die App übernimmt die Rohdaten direkt aus dem Stream — Zahlen
-/// gehen also nicht durch das Modell.
+/// Strava can only be reached through the Strava MCP in Claude Code. For this, Claude calls only the two
+/// read tools in the background; the app takes the raw data directly from the stream — so numbers
+/// don't pass through the model.
 struct StravaViaClaudeSource: Sendable {
     let folder: URL
-    /// Claude-Programm (wie beim Coach).
+    /// Claude program (as with the coach).
     let command: String
     let model: String
 
@@ -97,8 +97,8 @@ struct StravaViaClaudeSource: Sendable {
         ]
         if !model.isEmpty { arguments += ["--model", model] }
 
-        // Claude Code verbindet den Strava-Server asynchron; war er beim Start noch nicht bereit
-        // und kam deshalb nichts zurück, einmal neu versuchen.
+        // Claude Code connects the Strava server asynchronously; if it wasn't ready yet at launch
+        // and nothing came back as a result, try once more.
         var parser = StravaStreamParser()
         for attempt in 1...2 {
             progress(attempt == 1 ? String(localized: "Strava: starting Claude Code") : String(localized: "Strava: second attempt"))
@@ -129,7 +129,7 @@ struct StravaViaClaudeSource: Sendable {
             let km = (RunImport.number((activity["summary"] as? [String: Any])?["distance"]) ?? 0) / 1000
             guard date >= since, km >= 0.5, !known.contains(source: .strava, id: id, date: date, distanceKm: km) else { continue }
             guard let performance = parser.performances[id] else {
-                missing += 1   // beim nächsten Laden erneut versuchen
+                missing += 1   // try again on the next load
                 continue
             }
             if let run = RunImport.strava(activity, performance: performance) { runs.append(run) }
@@ -141,7 +141,7 @@ struct StravaViaClaudeSource: Sendable {
     }
 }
 
-/// Liest aus dem Stream von Claude Code die Rohantworten der Strava-Werkzeuge.
+/// Reads the raw replies of the Strava tools from Claude Code's stream.
 struct StravaStreamParser {
     private(set) var activities: [[String: Any]] = []
     private(set) var performances: [String: [String: Any]] = [:]
@@ -153,7 +153,7 @@ struct StravaStreamParser {
     private var limitReached = false
     private var detailCount = 0
 
-    /// Verarbeitet eine Zeile und liefert ggf. einen Fortschrittstext.
+    /// Processes a line and possibly returns a progress text.
     mutating func parse(_ line: String) -> String? {
         guard line.first == "{",
               let object = try? JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any],
@@ -218,13 +218,13 @@ struct StravaStreamParser {
         }
     }
 
-    /// Strava war beim Start noch nicht verbunden und es kam nichts zurück.
+    /// Strava wasn't connected yet at launch and nothing came back.
     var shouldRetry: Bool {
         activities.isEmpty && !limitReached && stravaStatus != nil && stravaStatus != "connected" && stravaStatus != "failed"
             && stravaStatus != "needs-auth" && stravaStatus != "missing"
     }
 
-    /// Wirft eine verständliche Meldung, wenn der Abruf nicht geklappt hat.
+    /// Throws an understandable message if the fetch didn't work.
     func check(_ outcome: CLIProcess.Outcome) throws {
         if outcome.signaled { throw CancellationError() }
         if limitReached {

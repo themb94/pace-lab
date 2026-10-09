@@ -16,7 +16,7 @@ struct PaceLabApp: App {
                 #endif
         }
         .defaultSize(width: 1260, height: 830)
-        // Widget-Links (pacelab://…) öffnen dieses Fenster, auch wenn es geschlossen war.
+        // Widget links (pacelab://…) open this window, even if it was closed.
         .handlesExternalEvents(matching: ["pacelab"])
         .commands {
             CommandGroup(after: .appSettings) {
@@ -75,17 +75,17 @@ struct PaceLabApp: App {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Endet eine Coach-CLI sofort, darf das Schreiben der Anfrage nicht die App beenden.
+        // If a coach CLI exits right away, writing the request must not terminate the app.
         signal(SIGPIPE, SIG_IGN)
     }
 
-    /// Fenster zu → App läuft in der Menüleiste weiter und hält die Widgets aktuell.
+    /// Window closed → the app keeps running in the menu bar and keeps the widgets up to date.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
     }
 }
 
-/// „Einrichtung …“ im App-Menü.
+/// "Setup …" in the app menu.
 private struct SetupCommand: View {
     @Environment(\.openWindow) private var openWindow
 
@@ -138,7 +138,7 @@ struct RootView: View {
             .overlay(alignment: .top) { ToastView() }
         }
         .task {
-            // Erster Start: Trainingsordner fehlt → Einrichtung zeigen.
+            // First launch: training folder is missing → show the setup.
             if !TrainingFolderSetup.isReady(model.folder.url) { openWindow(id: "setup") }
         }
         .sheet(item: $model.planRequest) { request in
@@ -157,7 +157,7 @@ private struct UploadWeek: Identifiable {
     var id: Int { week }
 }
 
-/// „Läufe laden“ — in jedem Bereich oben links neben dem Titel.
+/// "Load runs" — in every section at the top left next to the title.
 private struct SyncButton: View {
     @Environment(AppModel.self) private var model
 
@@ -192,7 +192,7 @@ private struct SyncButton: View {
     }
 }
 
-/// Kurze Rückmeldung oben im Fenster, verschwindet nach ein paar Sekunden.
+/// Short feedback at the top of the window, disappears after a few seconds.
 private struct ToastView: View {
     @Environment(AppModel.self) private var model
 
@@ -241,7 +241,7 @@ private struct ToastView: View {
     }
 }
 
-/// Stand der Daten unten in der Seitenleiste, daneben der Weg zu den Einstellungen.
+/// Data status at the bottom of the sidebar, next to the way to Settings.
 private struct SidebarStatus: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openSettings) private var openSettings

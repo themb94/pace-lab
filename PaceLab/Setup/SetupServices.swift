@@ -7,13 +7,13 @@ struct SetupError: LocalizedError {
     var errorDescription: String? { message }
 }
 
-// MARK: - Trainingsordner
+// MARK: - Training folder
 
-/// Legt den Trainingsordner aus der Vorlage im App-Bundle an (Template/).
+/// Creates the training folder from the template in the app bundle (Template/).
 enum TrainingFolderSetup {
     static let files = ["plan.json", "analysis.json", "completed.json", "README.md"]
 
-    /// Vorlage in der Sprache der App (Template/<Sprache> im App-Bundle), sonst die englische.
+    /// Template in the app's language (Template/<language> in the app bundle), otherwise the English one.
     static var templateURL: URL? {
         guard let root = Bundle.main.url(forResource: "Template", withExtension: nil) else { return nil }
         let localized = root.appending(path: AppLanguage.code, directoryHint: .isDirectory)
@@ -27,8 +27,8 @@ enum TrainingFolderSetup {
             && fm.fileExists(atPath: folder.appending(path: TrainingFiles.analysis).path)
     }
 
-    /// Legt fehlende Dateien an (vorhandene bleiben unangetastet) und startet den Verlauf (git).
-    /// Der Beispielplan beginnt am nächsten Montag.
+    /// Creates missing files (existing ones are left untouched) and starts the history (git).
+    /// The sample plan starts on the next Monday.
     static func create(at folder: URL, today: Date = .now) async throws {
         guard let template = templateURL else { throw SetupError(String(localized: "The template is missing from the app bundle.")) }
         let fm = FileManager.default
@@ -52,7 +52,7 @@ enum TrainingFolderSetup {
 
 // MARK: - Python
 
-/// Sucht ein Python ab 3.10 (das MCP-Paket braucht es; das Python von macOS ist älter).
+/// Looks for a Python 3.10 or newer (the MCP package needs it; macOS's Python is older).
 enum PythonFinder {
     struct Found: Sendable {
         let url: URL
@@ -80,8 +80,8 @@ enum PythonFinder {
 
 // MARK: - Garmin
 
-/// Der Garmin-Server (MCP) kommt aus dem App-Bundle und bekommt eine eigene Python-Umgebung in
-/// Application Support. Die Anmeldung speichert nur ein Token in ~/.garminconnect — kein Passwort.
+/// The Garmin server (MCP) comes from the app bundle and gets its own Python environment in
+/// Application Support. Signing in stores only a token in ~/.garminconnect — no password.
 enum GarminSetup {
     static var directory: URL { AppSettings.supportDirectory.appending(path: "garmin-mcp", directoryHint: .isDirectory) }
     static var python: URL { directory.appending(path: ".venv/bin/python") }
@@ -97,7 +97,7 @@ enum GarminSetup {
         return files.contains { $0.hasSuffix(".json") }
     }
 
-    /// Kopiert den Server, legt die Python-Umgebung an und installiert garminconnect + mcp.
+    /// Copies the server, creates the Python environment and installs garminconnect + mcp.
     static func install(progress: @Sendable (String) -> Void) throws {
         guard let bundled = Bundle.main.url(forResource: "garmin-mcp", withExtension: nil) else {
             throw SetupError(String(localized: "The Garmin server is missing from the app bundle."))
@@ -121,7 +121,7 @@ enum GarminSetup {
                               directory.appending(path: "requirements.txt").path])
     }
 
-    /// Trägt den Server in die .mcp.json des Trainingsordners ein; andere Einträge bleiben erhalten.
+    /// Adds the server to the training folder's .mcp.json; other entries are kept.
     static func writeConfig(folder: URL) throws {
         let url = folder.appending(path: ".mcp.json")
         var root = (try? JSONSerialization.jsonObject(with: Data(contentsOf: url))) as? [String: Any] ?? [:]
@@ -145,8 +145,8 @@ enum GarminSetup {
     }
 }
 
-/// Garmin-Anmeldung in der App: E-Mail und Passwort gehen nur an den lokalen Garmin-Server
-/// (Umgebungsvariablen des Prozesses), gespeichert wird allein das Token.
+/// Garmin sign-in in the app: email and password go only to the local Garmin server
+/// (environment variables of the process); only the token is stored.
 @MainActor
 @Observable
 final class GarminLogin {
@@ -210,9 +210,9 @@ final class GarminLogin {
     }
 }
 
-// MARK: - Strava (über Claude Code)
+// MARK: - Strava (via Claude Code)
 
-/// Strava gibt es nur über Strava's MCP-Server in Claude Code; die Anmeldung läuft im Browser.
+/// Strava is only available through Strava's MCP server in Claude Code; sign-in happens in the browser.
 enum StravaSetup {
     static let url = "https://mcp.strava.com/mcp"
 
@@ -231,7 +231,7 @@ enum StravaSetup {
         return .unknown(text.split(separator: "\n").first(where: { $0.contains("Status") }).map(String.init) ?? String(localized: "unknown"))
     }
 
-    /// Trägt den Strava-Server für diesen Ordner in Claude Code ein (nur für dich, nicht im Ordner).
+    /// Adds the Strava server for this folder to Claude Code (just for you, not in the folder).
     static func add(folder: URL) throws {
         guard let claude = CLIResolver.find("claude") else { throw CoachError.notFound("claude") }
         let result = ProcessRunner.run(claude, ["mcp", "add", "--transport", "http", "strava-mcp", url], in: folder)
@@ -246,7 +246,7 @@ enum StravaSetup {
     }
 }
 
-// MARK: - Coach-CLIs
+// MARK: - Coach CLIs
 
 enum CLISetup {
     struct Info: Sendable {
@@ -278,7 +278,7 @@ enum CLISetup {
 
 // MARK: - Terminal
 
-/// Öffnet ein Terminal-Fenster mit einem Befehl (über eine .command-Datei — ohne Automations-Rechte).
+/// Opens a terminal window with a command (via a .command file — without automation permissions).
 enum Terminal {
     static func run(_ command: String, name: String) {
         let url = FileManager.default.temporaryDirectory.appending(path: "pacelab-\(name).command")

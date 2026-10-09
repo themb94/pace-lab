@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Die Schritte eines Workouts aus plan.json, z. B. „Einlaufen · 10 min“, „6 ×“, „Belastung · 800 m @ 4:45–5:15“.
+/// The steps of a workout from plan.json, e.g. "Warm-up · 10 min", "6 ×", "Interval · 800 m @ 4:45–5:15".
 struct WorkoutStepsView: View {
     let workout: PlanWorkout
     let bands: [PaceBand]

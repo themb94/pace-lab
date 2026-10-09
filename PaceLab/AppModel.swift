@@ -5,7 +5,7 @@ enum SidebarItem: Hashable {
     case overview, plan, runs, coach, history
 }
 
-/// Kurze Rückmeldung oben im Fenster (z. B. nach „Läufe laden“).
+/// Short feedback at the top of the window (e.g. after "Load runs").
 struct Toast: Identifiable, Equatable {
     enum Action: Equatable {
         case showRuns, showPlan, showHistory
@@ -24,7 +24,7 @@ final class AppModel {
     private(set) var snapshot: TrainingSnapshot?
     private(set) var loadError: String?
     private(set) var lastLoaded: Date?
-    /// Entwurf für einen neuen Block (plan-entwurf.json), falls vorhanden.
+    /// Draft for a new block (plan-entwurf.json), if present.
     private(set) var draft: TrainingPlan?
     private(set) var draftError: String?
 
@@ -32,19 +32,19 @@ final class AppModel {
     var selectedRunID: Run.ID?
     var selectedSessionID: PlannedSession.ID?
     var showSessionInspector = true
-    /// Plan-Ansicht: aktueller Block oder Entwurf.
+    /// Plan view: current block or draft.
     var showDraft = false
-    /// Offene Planungsanfrage (Formular).
+    /// Open planning request (form).
     var planRequest: PlanRequest?
-    /// Woche, die gerade auf Garmin angelegt werden soll (Bestätigung).
+    /// Week that is about to be created on Garmin (confirmation).
     var garminUploadWeek: Int?
     var toast: Toast?
-    /// Zählt hoch, wenn ein neuer Stand festgehalten wurde (Verlauf lädt dann neu).
+    /// Increments when a new commit was recorded (the history view then reloads).
     private(set) var historyRevision = 0
 
     let coach = CoachModel()
     let sync = RunSyncModel()
-    /// Welche Modelle die hinterlegten CLIs anbieten (live abgefragt).
+    /// Which models the configured CLIs offer (queried live).
     let models = ModelStore()
     private(set) var history: ProjectHistory
 
@@ -62,12 +62,12 @@ final class AppModel {
         coach.snapshotProvider = { [weak self] in self?.snapshot }
         reload(force: true)
         watchFolder()
-        // Was seit dem letzten Start außerhalb der App geändert wurde, als eigenen Stand festhalten.
+        // Record changes made outside the app since the last launch as their own commit.
         record(ProjectHistory.externalChanges)
         refreshModels()
     }
 
-    /// Modelllisten der CLIs prüfen — neu abgefragt wird nur, wenn sich eine CLI-Version geändert hat.
+    /// Check the CLIs' model lists — they are only queried again if a CLI version changed.
     func refreshModels(force: Bool = false) {
         let engines = coach.engines
         let folder = self.folder.url
@@ -76,17 +76,17 @@ final class AppModel {
         }
     }
 
-    /// Die Claude-Code-Engine (auch für den Strava-Abruf).
+    /// The Claude Code engine (also used for fetching from Strava).
     var claudeEngine: CoachEngine {
         coach.engines.first { $0.kind == .claudeCode } ?? .claudePreset()
     }
 
     var folder: ProjectFolder { .current }
 
-    /// Programm der Claude-Code-Engine (auch für den Strava-Abruf).
+    /// Executable of the Claude Code engine (also used for fetching from Strava).
     var claudeCommand: String { claudeEngine.command }
 
-    // MARK: - Daten
+    // MARK: - Data
 
     private struct DraftState: Sendable {
         var plan: TrainingPlan?
@@ -99,8 +99,8 @@ final class AppModel {
         case failed([String], String, DraftState)
     }
 
-    /// Liest die JSON-Dateien neu, wenn sich etwas geändert hat, und gibt sie an die Widgets weiter.
-    /// Die Datei-Zugriffe laufen im Hintergrund (beim ersten Start fragt macOS evtl. nach dem Dokumente-Ordner).
+    /// Re-reads the JSON files when something changed and passes them on to the widgets.
+    /// File access runs in the background (on first launch macOS may ask for access to the Documents folder).
     func reload(force: Bool = false) {
         guard !isReloading else {
             reloadAgain = reloadAgain || force
@@ -144,7 +144,7 @@ final class AppModel {
                 apply(draft)
                 WidgetCenter.shared.reloadAllTimelines()
             case .failed(let current, let message, let draft):
-                // Den letzten guten Stand behalten (z. B. während Claude eine Datei gerade umschreibt).
+                // Keep the last good state (e.g. while Claude is rewriting a file).
                 signature = current
                 loadError = message
                 apply(draft)
@@ -163,7 +163,7 @@ final class AppModel {
         if draft == nil && state.error == nil { showDraft = false }
     }
 
-    /// Schaut alle 2 Sekunden auf die Änderungszeiten — robust auch gegen atomares Ersetzen der Dateien.
+    /// Checks modification dates every 2 seconds — robust even against atomic file replacement.
     private func watchFolder() {
         Task { [weak self] in
             while !Task.isCancelled {
@@ -182,9 +182,9 @@ final class AppModel {
         reload(force: true)
     }
 
-    // MARK: - Versionsverwaltung
+    // MARK: - Version history
 
-    /// Hält Änderungen als Stand fest (im Hintergrund; ohne Repository passiert nichts).
+    /// Records changes as a commit (in the background; without a repository nothing happens).
     func record(_ message: String, paths: [String]? = nil) {
         let history = self.history
         Task {
@@ -199,8 +199,8 @@ final class AppModel {
         historyRevision += 1
     }
 
-    /// Löscht den Verlauf ganz (`days == nil`) oder die Stände, die älter als `days` Tage sind.
-    /// Die Dateien bleiben unverändert; Verweise in Coach-Gesprächen werden umgeschrieben.
+    /// Deletes the history entirely (`days == nil`) or the commits older than `days` days.
+    /// The files stay unchanged; references in coach conversations get rewritten.
     func deleteHistory(olderThan days: Int?) async {
         let cutoff = days.map { Date.now.addingTimeInterval(-Double($0) * 86_400) }
         do {
@@ -217,8 +217,8 @@ final class AppModel {
         }
     }
 
-    /// Nimmt die Änderungen eines Coach-Laufs zurück. Überschneiden sie sich mit späteren Änderungen,
-    /// wird nachgefragt, ob die Dateien auf den Stand vor dem Lauf gesetzt werden sollen.
+    /// Reverts the changes of a coach run. If they overlap with later changes,
+    /// asks whether the files should be reset to the state before the run.
     func undo(_ turn: CoachTurn, force: Bool = false) async -> ProjectHistory.RevertOutcome? {
         guard let commit = turn.commit else { return nil }
         let message = String(localized: "Undone: \(turn.title ?? String(turn.prompt.prefix(60)))")
@@ -243,7 +243,7 @@ final class AppModel {
         }
     }
 
-    /// Nimmt einen beliebigen Stand aus dem Verlauf zurück.
+    /// Reverts any commit from the history.
     func revert(_ entry: ProjectHistory.Entry) async -> ProjectHistory.RevertOutcome? {
         do {
             let outcome = try await history.revert(entry.id, message: String(localized: "Undone: \(entry.subject)"))
@@ -261,7 +261,7 @@ final class AppModel {
         toast = Toast(message: String(localized: "Changes undone"), symbol: "arrow.uturn.backward.circle.fill", action: .showHistory)
     }
 
-    // MARK: - Häkchen & Zuordnung
+    // MARK: - Checkmarks & assignment
 
     func toggleDone(_ session: PlannedSession) {
         guard let snapshot else { return }
@@ -277,13 +277,13 @@ final class AppModel {
         }
     }
 
-    /// Ordnet einen Lauf einer Plan-Einheit zu und hakt sie mit dem Datum des Laufs ab (nil = Zuordnung lösen).
+    /// Assigns a run to a plan session and checks it off with the run's date (nil = remove assignment).
     func assign(_ run: Run, to session: PlannedSession?) {
         guard let snapshot, let day = run.day else { return }
         let runDay = DateUtil.germanDay(day)
         do {
             try AnalysisWriter.assign(runID: run.id, to: session?.id, in: folder)
-            // Häkchen der bisherigen Einheit nur entfernen, wenn es von diesem Lauf stammt.
+            // Only remove the previous session's checkmark if it came from this run.
             if let old = run.sessionId.flatMap(snapshot.session(id:)), old.id != session?.id, snapshot.doneDate(old) == runDay {
                 try folder.setCompleted(false, sessionID: old.id)
             }
@@ -299,7 +299,7 @@ final class AppModel {
         }
     }
 
-    // MARK: - Läufe laden
+    // MARK: - Loading runs
 
     func syncRuns() {
         guard let snapshot, !sync.isRunning else { return }
@@ -327,9 +327,9 @@ final class AppModel {
         }
     }
 
-    // MARK: - Planen
+    // MARK: - Planning
 
-    /// Öffnet das Formular für eine Planungsanfrage.
+    /// Opens the form for a planning request.
     func requestPlan(_ kind: PlanRequest.Kind, week: Int? = nil, session: PlannedSession? = nil) {
         planRequest = PlanRequest(kind: kind, snapshot: snapshot, week: session?.week ?? week, sessionID: session?.id)
     }
@@ -341,7 +341,7 @@ final class AppModel {
         coach.plan(request, snapshot: snapshot, in: folder.url)
     }
 
-    /// Übernimmt den Vorschlag einer Text-CLI (Woche in plan.json bzw. Entwurf).
+    /// Applies a text CLI's suggestion (week in plan.json or draft).
     func apply(_ proposal: PlanProposal, from turn: CoachTurn) {
         do {
             let paths = try proposal.apply(in: folder)
@@ -355,7 +355,7 @@ final class AppModel {
         }
     }
 
-    /// Entwurf wird aktiver Plan; der bisherige Plan wandert nach plans/.
+    /// Draft becomes the active plan; the previous plan moves to plans/.
     func applyDraft() {
         do {
             let planURL = folder.file(TrainingFiles.plan)
@@ -442,7 +442,7 @@ final class AppModel {
         section = .coach
     }
 
-    /// Deep Links aus den Widgets: `pacelab://session/<id>`, `run/<id>`, `plan`, `runs`, `coach`.
+    /// Deep links from the widgets: `pacelab://session/<id>`, `run/<id>`, `plan`, `runs`, `coach`.
     func open(_ url: URL) {
         guard url.scheme == "pacelab" else { return }
         let id = url.pathComponents.dropFirst().first ?? ""

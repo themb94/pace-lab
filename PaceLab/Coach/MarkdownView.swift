@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Schlanke Markdown-Darstellung für Coach-Antworten: Überschriften, Absätze, Listen,
-/// Zitate, Code und Tabellen. Inline-Formatierung (fett, kursiv, Code, Links) macht AttributedString.
+/// Slim Markdown rendering for coach replies: headings, paragraphs, lists,
+/// quotes, code and tables. Inline formatting (bold, italic, code, links) is handled by AttributedString.
 struct MarkdownView: View {
     let text: String
 

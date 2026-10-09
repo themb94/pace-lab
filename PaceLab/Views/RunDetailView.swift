@@ -80,7 +80,7 @@ struct RunDetailView: View {
         }
     }
 
-    /// Frisch geladen, noch ohne Bewertung.
+    /// Freshly loaded, not yet rated.
     private var pending: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "hourglass")
@@ -127,7 +127,7 @@ struct RunDetailView: View {
     }
 }
 
-/// Lauf einer Plan-Einheit zuordnen (setzt sessionId und hakt die Einheit mit dem Laufdatum ab).
+/// Assign a run to a plan session (sets sessionId and checks off the session with the run's date).
 private struct AssignMenu: View {
     @Environment(AppModel.self) private var model
     let run: Run
@@ -186,7 +186,7 @@ private struct TextBlock: View {
     }
 }
 
-/// Grobe Einordnung des freien Wetter-Texts.
+/// Rough classification of the free-form weather text.
 private struct WeatherInfo {
     let label: String
     let symbol: String

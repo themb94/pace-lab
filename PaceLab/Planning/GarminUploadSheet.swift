@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Legt die Workouts einer Woche direkt über den Garmin-Server an — ohne Coach, aber nur nach Bestätigung.
+/// Creates a week's workouts directly through the Garmin server — without the coach, but only after confirmation.
 enum GarminUpload {
-    /// Namen der Workouts, die schon im Garmin-Konto liegen.
+    /// Names of the workouts that are already in the Garmin account.
     static func existingNames(folder: URL) async throws -> Set<String> {
         guard let config = GarminServerConfig.load(from: folder) else { throw SyncFailure(message: String(localized: "No Garmin server set up (.mcp.json is missing).")) }
         let client = try await config.connect(in: folder, readOnly: true)
@@ -15,7 +15,7 @@ enum GarminUpload {
         })
     }
 
-    /// Legt alle Nicht-Locker-Workouts der Woche an; gleichnamige werden vorher gelöscht.
+    /// Creates all non-easy workouts of the week; ones with the same name are deleted first.
     static func upload(week: Int, folder: URL) async throws -> [String] {
         guard let config = GarminServerConfig.load(from: folder) else { throw SyncFailure(message: String(localized: "No Garmin server set up (.mcp.json is missing).")) }
         let client = try await config.connect(in: folder, readOnly: false)
@@ -132,7 +132,7 @@ struct GarminUploadSheet: View {
         do {
             phase = .ready(existing: try await GarminUpload.existingNames(folder: model.folder.url))
         } catch {
-            // Ohne Liste geht es trotzdem — gleichnamige Workouts werden beim Anlegen ohnehin ersetzt.
+            // It works without the list too — workouts with the same name get replaced on creation anyway.
             phase = .ready(existing: [])
         }
     }

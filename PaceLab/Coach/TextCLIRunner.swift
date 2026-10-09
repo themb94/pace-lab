@@ -1,8 +1,8 @@
 import Foundation
 
-/// Beliebige CLI als Coach: Frage (mit Trainingsstand) rein, Antworttext raus.
-/// Argumente mit Platzhaltern {model}, {prompt}, {system}; ohne {prompt} geht die Frage über stdin,
-/// ohne {system} wird die Anweisung der Frage vorangestellt.
+/// Any CLI as a coach: question (with training state) in, reply text out.
+/// Arguments with placeholders {model}, {prompt}, {system}; without {prompt} the question goes via stdin,
+/// without {system} the instruction is prepended to the question.
 final class TextCLIRunner: CoachRunner, @unchecked Sendable {
     private let lock = NSLock()
     private var current: CLIProcess?
@@ -50,7 +50,7 @@ final class TextCLIRunner: CoachRunner, @unchecked Sendable {
         }
         continuation.yield(.started(model: engine.model.isEmpty ? nil : engine.model, servers: []))
 
-        // 1) Vorbereitung, z. B. Modell laden
+        // 1) Preparation, e.g. load the model
         let prepare = ArgumentTemplate.fill(ArgumentTemplate.tokenize(engine.prepareCommand), with: ["model": engine.model])
         if let program = prepare.first {
             guard let prepareExecutable = CLIResolver.find(program) else { throw CoachError.notFound(program) }
@@ -74,7 +74,7 @@ final class TextCLIRunner: CoachRunner, @unchecked Sendable {
             }
         }
 
-        // 2) Eigentliche Anfrage
+        // 2) The actual request
         let template = engine.arguments
         let promptAsArgument = ArgumentTemplate.uses("prompt", in: template)
         let systemAsArgument = ArgumentTemplate.uses("system", in: template)
@@ -91,7 +91,7 @@ final class TextCLIRunner: CoachRunner, @unchecked Sendable {
     }
 }
 
-/// Antworttext Zeile für Zeile, ohne Terminal-Steuerzeichen.
+/// Reply text line by line, without terminal control characters.
 struct TextOutputParser: OutputParser {
     private var gotText = false
 
@@ -116,7 +116,7 @@ struct TextOutputParser: OutputParser {
     }
 }
 
-/// Sammelt nur die letzten Zeilen (für Fehlermeldungen der Vorbereitung).
+/// Collects only the last lines (for error messages from the preparation).
 private struct CollectingParser: OutputParser {
     private(set) var lines: [String] = []
 

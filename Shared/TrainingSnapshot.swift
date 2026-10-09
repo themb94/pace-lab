@@ -1,6 +1,6 @@
 import Foundation
 
-/// Eine geplante Einheit mit ihrer Session-ID (`b1w1-tempo-0`), wie sie completed.json verwendet.
+/// A planned session with its session ID (`b1w1-tempo-0`), as used by completed.json.
 struct PlannedSession: Identifiable, Hashable, Sendable {
     let id: String
     let week: Int
@@ -11,13 +11,13 @@ struct PlannedSession: Identifiable, Hashable, Sendable {
     let phase: String
     let weekNote: String?
     let workout: PlanWorkout?
-    /// Name des Garmin-Workouts, z. B. „PL W01 · 6x800m“ (nil ohne Workout).
+    /// Name of the Garmin workout, e.g. "PL W01 · 6x800m" (nil without a workout).
     let garminName: String?
 
-    /// Kommt als Workout auf die Uhr: mit Workout, lockere Läufe nur mit `uploadEasyRuns` im Plan.
+    /// Goes to the watch as a workout: with a workout; easy runs only with `uploadEasyRuns` in the plan.
     let isUploadable: Bool
 
-    /// Geplante km: Mittel aller Zahlen im Distanz-Text ("~9 km" → 9).
+    /// Planned km: mean of all numbers in the distance text ("~9 km" → 9).
     var plannedKm: Double { Self.parseKm(dist) }
 
     static func parseKm(_ text: String) -> Double {
@@ -37,7 +37,7 @@ enum BlockStatus: Sendable, Equatable {
 
 struct WeekBucket: Identifiable, Sendable {
     let monday: Date
-    /// Blockwoche (1…n) oder nil, wenn die Kalenderwoche außerhalb des Blocks liegt.
+    /// Block week (1…n), or nil if the calendar week lies outside the block.
     let blockWeek: Int?
     let actualKm: Double
     let plannedKm: Double?
@@ -45,13 +45,13 @@ struct WeekBucket: Identifiable, Sendable {
     var id: Date { monday }
 }
 
-/// Alles, was App und Widgets anzeigen — einmal geladen, danach nur noch abgeleitet.
+/// Everything the app and widgets display — loaded once, derived from then on.
 struct TrainingSnapshot: Sendable {
     let plan: TrainingPlan
-    /// Neueste zuerst.
+    /// Newest first.
     let runs: [Run]
     let weekSummaries: [WeekSummary]
-    /// Session-ID → Datum ("" = ohne Datum abgehakt).
+    /// Session ID → date ("" = checked off without a date).
     let completed: [String: String]
     let sessions: [PlannedSession]
     let startMonday: Date
@@ -60,12 +60,12 @@ struct TrainingSnapshot: Sendable {
         self.plan = plan
         self.completed = completed
         self.weekSummaries = analysis.weekSummaries ?? []
-        // ISO-Daten sortieren lexikografisch korrekt.
+        // ISO dates sort correctly lexicographically.
         self.runs = analysis.runs.sorted { $0.date > $1.date }
         self.startMonday = DateUtil.day(fromISO: plan.startMonday) ?? DateUtil.startOfWeek(.now)
 
         let prefix = plan.idPrefix ?? "b2"
-        // Wie garmin_workouts.py: workoutPrefix, sonst das ID-Präfix in Großbuchstaben.
+        // Like garmin_workouts.py: workoutPrefix, otherwise the ID prefix in uppercase.
         let workoutPrefix = plan.workoutPrefix ?? (plan.idPrefix ?? "").uppercased()
         self.sessions = plan.weeks.enumerated().flatMap { wi, week in
             week.sessions.enumerated().map { si, s in
@@ -90,7 +90,7 @@ struct TrainingSnapshot: Sendable {
     }
 }
 
-// MARK: - Blockwochen
+// MARK: - Block weeks
 
 extension TrainingSnapshot {
     var weekCount: Int { plan.weeks.count }
@@ -110,7 +110,7 @@ extension TrainingSnapshot {
         return week > weekCount ? .finished : .running(week: week)
     }
 
-    /// Die Woche, die gerade zählt: laufende Blockwoche, vorher Woche 1, danach die letzte.
+    /// The week that currently counts: the current block week, before the block week 1, after it the last one.
     func focusWeek(on date: Date) -> Int {
         switch status(on: date) {
         case .upcoming: 1
@@ -137,7 +137,7 @@ extension TrainingSnapshot {
         weekSummaries.first { $0.week == week }
     }
 
-    /// "Woche 3 · Aufbau" bzw. "Start in 4 Tagen"
+    /// "Week 3 · Build" or "Starts in 4 days"
     func statusLine(on date: Date) -> String {
         switch status(on: date) {
         case .upcoming(let days): String(localized: "Starts \(Fmt.relativeDays(days))")
@@ -147,7 +147,7 @@ extension TrainingSnapshot {
     }
 }
 
-// MARK: - Sessions & Erledigt-Status
+// MARK: - Sessions & completion status
 
 extension TrainingSnapshot {
     func sessions(inWeek week: Int) -> [PlannedSession] {
@@ -174,7 +174,7 @@ extension TrainingSnapshot {
     }
 }
 
-// MARK: - Läufe & Kilometer
+// MARK: - Runs & kilometers
 
 extension TrainingSnapshot {
     var lastRun: Run? { runs.first }
@@ -183,7 +183,7 @@ extension TrainingSnapshot {
 
     func run(id: String) -> Run? { runs.first { $0.id == id } }
 
-    /// Läufe zwischen zwei Tagen (beide inklusive).
+    /// Runs between two days (both inclusive).
     func runs(from start: Date, through end: Date) -> [Run] {
         let lower = DateUtil.calendar.startOfDay(for: start)
         let upper = DateUtil.calendar.startOfDay(for: end)
@@ -202,7 +202,7 @@ extension TrainingSnapshot {
         sessions(inWeek: week).reduce(0) { $0 + $1.plannedKm }
     }
 
-    /// Kalenderwochen ab `firstMonday`, jeweils gelaufen vs. geplant (falls Blockwoche).
+    /// Calendar weeks from `firstMonday`, each with run vs. planned (if a block week).
     func weeklyBuckets(from firstMonday: Date, count: Int) -> [WeekBucket] {
         let cal = DateUtil.calendar
         let start = DateUtil.startOfWeek(firstMonday)
@@ -215,14 +215,14 @@ extension TrainingSnapshot {
         }
     }
 
-    /// Plan-Label für einen Lauf, z. B. "W3 · TEMPO · ~10 km" — bzw. "B1 W3 · TEMPO" für Läufe aus einem
-    /// früheren Block und "Alt W9 · LONG" für IDs ohne Präfix.
+    /// Plan label for a run, e.g. "W3 · TEMPO · ~10 km" — or "B1 W3 · TEMPO" for runs from an
+    /// earlier block and "Old W9 · LONG" for IDs without a prefix.
     func label(for run: Run) -> String? {
         guard let id = run.sessionId else { return nil }
         if let s = session(id: id) {
             return "W\(s.week) · \(s.kind.shortLabel) · \(s.dist)"
         }
-        // {Präfix}w{Woche}-{typ}-{index}; sehr alte Pläne hatten kein Präfix.
+        // {prefix}w{week}-{type}-{index}; very old plans had no prefix.
         guard let match = id.wholeMatch(of: /([a-z]*\d*?)w(\d+)-([a-z]+)-\d+/), let week = Int(match.2) else { return nil }
         let kind = SessionType(rawValue: String(match.3)) ?? .easy
         let prefix = String(match.1)
@@ -231,7 +231,7 @@ extension TrainingSnapshot {
     }
 }
 
-// MARK: - Herzfrequenz-Zonen
+// MARK: - Heart rate zones
 
 extension TrainingSnapshot {
     var zoneFloors: [Int] { plan.athlete?.zoneFloors ?? [122, 142, 162, 183] }

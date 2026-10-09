@@ -1,7 +1,7 @@
 import Foundation
 
-/// Claude Code im Hintergrund (`claude -p`), im Trainings-Projektordner —
-/// mit derselben README, demselben Gedächtnis und denselben MCP-Servern wie im Chat.
+/// Claude Code in the background (`claude -p`), in the training project folder —
+/// with the same README, the same memory and the same MCP servers as in the chat.
 final class ClaudeCodeRunner: CoachRunner, @unchecked Sendable {
     private let process = CLIProcess()
 
@@ -50,7 +50,7 @@ final class ClaudeCodeRunner: CoachRunner, @unchecked Sendable {
         if request.allowGarminWrite {
             allowed += garminWriteTools
         } else {
-            // Ohne Freigabe weder Garmin-Schreibzugriffe noch das Terminal (Token-Skript als Umweg).
+            // Without permission, neither Garmin write access nor the terminal (token script as a detour).
             disallowed += garminWriteTools + ["Bash"]
         }
 
@@ -58,7 +58,7 @@ final class ClaudeCodeRunner: CoachRunner, @unchecked Sendable {
             "-p",
             "--output-format", "stream-json",
             "--verbose",
-            // Dateien im Projekt darf der Coach ändern; alles andere Ungenehmigte wird abgelehnt, statt zu fragen.
+            // The coach may change files in the project; everything else unapproved is rejected instead of asking.
             "--permission-mode", "acceptEdits",
             "--permission-prompts", "none",
             "--append-system-prompt", request.systemPrompt,
@@ -67,7 +67,7 @@ final class ClaudeCodeRunner: CoachRunner, @unchecked Sendable {
         if !disallowed.isEmpty {
             args += ["--disallowedTools", disallowed.joined(separator: ",")]
         }
-        // Die Projekt-.mcp.json (Garmin) lädt die CLI im -p-Modus nur, wenn man sie ausdrücklich angibt.
+        // In -p mode the CLI only loads the project's .mcp.json (Garmin) if it is named explicitly.
         let mcpConfig = request.workingDirectory.appending(path: ".mcp.json")
         if FileManager.default.fileExists(atPath: mcpConfig.path) {
             args += ["--mcp-config", mcpConfig.path]
@@ -90,7 +90,7 @@ final class ClaudeCodeRunner: CoachRunner, @unchecked Sendable {
         return args
     }
 
-    /// Claude Codes Gedächtnis für diesen Ordner (~/.claude/projects/<Pfad mit - statt />/memory).
+    /// Claude Code's memory for this folder (~/.claude/projects/<path with - instead of />/memory).
     static func memoryDirectory(for folder: URL) -> URL? {
         let key = String(folder.standardizedFileURL.path.map { $0.isLetter || $0.isNumber ? $0 : "-" })
         let url = URL(filePath: NSHomeDirectory())
@@ -99,7 +99,7 @@ final class ClaudeCodeRunner: CoachRunner, @unchecked Sendable {
     }
 }
 
-/// Übersetzt `--output-format stream-json` von Claude Code.
+/// Translates `--output-format stream-json` from Claude Code.
 struct ClaudeStreamParser: OutputParser {
     private var sawResult = false
 
@@ -109,7 +109,7 @@ struct ClaudeStreamParser: OutputParser {
               let type = object["type"] as? String
         else { return [] }
 
-        // Nachrichten von Teil-Agenten nicht einzeln anzeigen.
+        // Don't show sub-agents' messages individually.
         if let parent = object["parent_tool_use_id"], !(parent is NSNull) { return [] }
 
         switch type {
@@ -180,7 +180,7 @@ struct ClaudeStreamParser: OutputParser {
     }
 }
 
-/// Lesbare deutsche Beschreibung eines Werkzeug-Aufrufs.
+/// Readable description of a tool call.
 enum ToolLabel {
     static func describe(_ name: String, input: [String: Any]) -> String {
         func fileName(_ key: String = "file_path") -> String {
@@ -224,7 +224,7 @@ enum ToolLabel {
         return tool
     }
 
-    /// Für Engines, die MCP-Aufrufe als (Server, Werkzeug) melden (Codex).
+    /// For engines that report MCP calls as (server, tool) (Codex).
     static func label(server: String, tool: String) -> String {
         let s = server.lowercased()
         if s.contains("strava") { return label(for: "mcp__strava-mcp__\(tool)") }

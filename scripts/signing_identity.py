@@ -1,7 +1,7 @@
 """
-Sucht im Schlüsselbund das passende „Developer ID Application“-Zertifikat für eine Team-ID.
-Gibt eine Zeile aus (Tab-getrennt): SHA-1, Ablauf (Unix-Zeit), alte Zertifizierungsstelle (1/0), Name.
-Gibt es mehrere gültige, gewinnt das mit dem spätesten Ablauf. Nichts gefunden → keine Ausgabe.
+Looks in the keychain for the matching "Developer ID Application" certificate for a team ID.
+Prints one line (tab-separated): SHA-1, expiry (Unix time), old certificate authority (1/0), name.
+If there are several valid ones, the one with the latest expiry wins. Nothing found → no output.
 
 Aufruf:  python3 signing_identity.py <Team-ID>
 """
@@ -19,7 +19,7 @@ def run(*command, data=None):
 
 
 team = sys.argv[1]
-# Nur gültige Identitäten (mit privatem Schlüssel, nicht abgelaufen).
+# Only valid identities (with private key, not expired).
 identities = dict(re.findall(
     r'^\s*\d+\) ([0-9A-F]{40}) "(Developer ID Application: .*\(%s\))"' % re.escape(team),
     run("security", "find-identity", "-v", "-p", "codesigning"), re.M))
@@ -33,7 +33,7 @@ for pem in re.findall(r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----"
         continue
     info = run("openssl", "x509", "-noout", "-enddate", "-issuer", data=pem)
     end = calendar.timegm(time.strptime(re.search(r"notAfter=(.*)", info).group(1).strip(), "%b %d %H:%M:%S %Y %Z"))
-    # Die alte Developer-ID-Zertifizierungsstelle (OU „Apple Certification Authority“, nicht „G2“) läuft am 1.2.2027 ab.
+    # The old Developer ID certificate authority (OU "Apple Certification Authority", not "G2") expires on 2027-02-01.
     old_authority = bool(re.search(r"OU\s*=\s*Apple Certification Authority", info))
     if best is None or end > best[1]:
         best = (sha1, end, old_authority, identities[sha1])

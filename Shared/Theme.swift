@@ -10,10 +10,10 @@ extension Color {
         )
     }
 
-    /// Markenfarbe (Orange).
+    /// Brand color (orange).
     static let brand = Color(hex: 0xFC4C02)
 
-    /// Seitenhintergrund hinter den Karten.
+    /// Page background behind the cards.
     static var pageBackground: Color {
         #if os(macOS)
         Color(nsColor: .windowBackgroundColor)
@@ -22,7 +22,7 @@ extension Color {
         #endif
     }
 
-    /// Hintergrund einer Karte.
+    /// Background of a card.
     static var cardBackground: Color {
         #if os(macOS)
         Color(nsColor: .controlBackgroundColor)
@@ -31,7 +31,7 @@ extension Color {
         #endif
     }
 
-    /// Dezente Füllung für Kacheln und Chips innerhalb einer Karte.
+    /// Subtle fill for tiles and chips inside a card.
     static var subtleFill: Color { Color.primary.opacity(0.06) }
 }
 
@@ -45,7 +45,7 @@ extension SessionType {
         }
     }
 
-    /// Kurzform ("TEMPO", "LOCKER", "LONG").
+    /// Short form ("TEMPO", "EASY", "LONG").
     var shortLabel: String {
         switch self {
         case .tempo: "TEMPO"
@@ -101,7 +101,7 @@ extension Verdict {
 }
 
 enum HRZone {
-    /// Zonenfarben (Z1 grau … Z5 rot).
+    /// Zone colors (Z1 gray … Z5 red).
     static func color(_ zone: Int) -> Color {
         switch zone {
         case 1: Color(hex: 0x7A8699)

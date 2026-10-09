@@ -1,8 +1,8 @@
 import Foundation
 
-/// Versionsverwaltung des Trainingsordners mit git. Die App hält jede Änderung als eigenen Stand fest —
-/// Coach-Läufe, Häkchen, geladene Läufe, übernommene Pläne —, damit sich alles nachvollziehen und
-/// rückgängig machen lässt. Ein Actor, damit nie zwei git-Befehle gleichzeitig laufen.
+/// Version history of the training folder using git. The app records every change as its own commit —
+/// coach runs, checkmarks, imported runs, applied plans — so everything can be traced and
+/// undone. An actor, so that two git commands never run at the same time.
 actor ProjectHistory {
     struct Entry: Identifiable, Hashable, Sendable {
         let id: String
@@ -13,13 +13,13 @@ actor ProjectHistory {
         let files: [FileStat]
 
         var shortID: String { String(id.prefix(7)) }
-        /// Der erste Stand und Zusammenführungen lassen sich nicht einzeln zurücknehmen.
+        /// The first commit and merges can't be reverted individually.
         var canRevert: Bool { parents.count == 1 }
     }
 
     struct FileStat: Hashable, Sendable {
         let path: String
-        /// nil bei Binärdateien.
+        /// nil for binary files.
         let added: Int?
         let removed: Int?
     }
@@ -27,7 +27,7 @@ actor ProjectHistory {
     enum RevertOutcome: Sendable {
         case reverted(String)
         case nothingToDo
-        /// Spätere Änderungen überschneiden sich — nur „Dateien zurücksetzen“ ginge noch.
+        /// Later changes overlap — only "Reset files" would still work.
         case conflict
     }
 
@@ -43,7 +43,7 @@ actor ProjectHistory {
         }
     }
 
-    /// Nachricht für Änderungen, die niemand über die App gemacht hat (z. B. im Chat oder von Hand).
+    /// Message for changes nobody made through the app (e.g. in the chat or by hand).
     static var externalChanges: String { String(localized: "Changes outside the app") }
 
     nonisolated let folder: URL
@@ -64,9 +64,9 @@ actor ProjectHistory {
         return nil
     }
 
-    // MARK: Einrichten
+    // MARK: Setup
 
-    /// Legt das Repository an (falls nötig), mit .gitignore, und hält den aktuellen Stand fest.
+    /// Creates the repository (if needed), with .gitignore, and records the current state.
     func setUp() throws {
         if !isRepository {
             try git(["init", "-q", "-b", "main"])
@@ -98,10 +98,10 @@ actor ProjectHistory {
 
     """
 
-    // MARK: Stände festhalten
+    // MARK: Recording commits
 
-    /// Hält Änderungen als neuen Stand fest — alle oder nur die genannten Pfade.
-    /// Gibt den neuen Stand zurück oder nil, wenn sich nichts geändert hat.
+    /// Records changes as a new commit — all of them or only the given paths.
+    /// Returns the new commit, or nil if nothing changed.
     @discardableResult
     func commit(_ message: String, paths: [String]? = nil) throws -> String? {
         guard isRepository else { return nil }
@@ -112,7 +112,7 @@ actor ProjectHistory {
         return try head()
     }
 
-    /// Hält Fremdänderungen fest und liefert den aktuellen Stand — der Ausgangspunkt eines Coach-Laufs.
+    /// Records outside changes and returns the current commit — the starting point of a coach run.
     func checkpoint() throws -> String? {
         guard isRepository else { return nil }
         try commit(Self.externalChanges)
@@ -125,7 +125,7 @@ actor ProjectHistory {
         return out?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
     }
 
-    /// Geänderte Pfade (inkl. neuer und gelöschter Dateien), relativ zum Ordner.
+    /// Changed paths (including new and deleted files), relative to the folder.
     private func changedPaths(_ paths: [String]?) throws -> [String] {
         let output = try git(["status", "--porcelain=v1", "-z", "--untracked-files=all", "--"] + (paths ?? []))
         var result: [String] = []
@@ -134,7 +134,7 @@ actor ProjectHistory {
             guard entry.count > 3 else { continue }
             let status = entry.prefix(2)
             result.append(String(entry.dropFirst(3)))
-            // Bei Umbenennungen folgt der alte Pfad als eigener Eintrag.
+            // For renames, the old path follows as its own entry.
             if status.contains("R") || status.contains("C"), let original = entries.popFirst() {
                 result.append(original)
             }
@@ -144,7 +144,7 @@ actor ProjectHistory {
         return unique
     }
 
-    // MARK: Lesen
+    // MARK: Reading
 
     func log(limit: Int = 300) throws -> [Entry] {
         guard isRepository, try head() != nil else { return [] }
@@ -167,12 +167,12 @@ actor ProjectHistory {
         }
     }
 
-    /// Unterschiede eines Stands zu seinem Vorgänger (unified diff).
+    /// Differences between a commit and its parent (unified diff).
     func diff(of commit: String) throws -> String {
         try git(["show", "--format=", "--no-color", "--no-ext-diff", "-U3", commit])
     }
 
-    /// Inhalt einer Datei in einem bestimmten Stand (nil, wenn es sie dort nicht gab).
+    /// Content of a file at a given commit (nil if it didn't exist there).
     func contents(of path: String, at commit: String) -> Data? {
         guard let text = try? git(["show", "\(commit):\(path)"]) else { return nil }
         return Data(text.utf8)
@@ -183,10 +183,10 @@ actor ProjectHistory {
             .split(separator: "\n").map(String.init)
     }
 
-    // MARK: Zurücknehmen
+    // MARK: Reverting
 
-    /// Nimmt die Änderungen eines Stands zurück (als neuer Stand). Spätere Änderungen an anderen
-    /// Stellen bleiben erhalten; überschneiden sie sich, passiert nichts und es gibt `.conflict`.
+    /// Reverts the changes of a commit (as a new commit). Later changes elsewhere are kept;
+    /// if they overlap, nothing happens and the result is `.conflict`.
     func revert(_ commit: String, message: String) throws -> RevertOutcome {
         try self.commit(Self.externalChanges)
         do {
@@ -204,8 +204,8 @@ actor ProjectHistory {
         return .reverted(try head() ?? commit)
     }
 
-    /// Setzt Dateien auf ihren Inhalt in `commit` zurück (dort nicht vorhandene werden gelöscht).
-    /// Spätere Änderungen an diesen Dateien gehen dabei verloren.
+    /// Resets files to their content in `commit` (files not present there are deleted).
+    /// Later changes to these files are lost.
     @discardableResult
     func restore(_ paths: [String], to commit: String, message: String) throws -> String? {
         try self.commit(Self.externalChanges)
@@ -219,20 +219,20 @@ actor ProjectHistory {
         return try self.commit(message, paths: paths)
     }
 
-    // MARK: Verlauf löschen
+    // MARK: Deleting history
 
     struct PruneResult: Sendable {
-        /// Gelöschte Stände.
+        /// Deleted commits.
         let removed: Int
-        /// Behaltene Stände (ohne den neuen Ausgangsstand).
+        /// Kept commits (without the new root commit).
         let kept: Int
-        /// Alte → neue Kennung der behaltenen Stände (für Verweise in Coach-Gesprächen).
+        /// Old → new hash of the kept commits (for references in coach conversations).
         let mapping: [String: String]
     }
 
-    /// Löscht alle Stände vor `cutoff` (nil = den ganzen Verlauf). Die Dateien bleiben, wie sie sind: Der jüngste
-    /// gelöschte Stand wird zum neuen Ausgangsstand, spätere Stände bleiben mit Nachricht und Datum erhalten.
-    /// Danach räumt git die alten Stände endgültig weg — das lässt sich nicht rückgängig machen.
+    /// Deletes all commits before `cutoff` (nil = the entire history). The files stay as they are: the most recent
+    /// deleted commit becomes the new root commit, later commits are kept with their message and date.
+    /// Afterwards git permanently cleans up the old commits — this can't be undone.
     func deleteHistory(before cutoff: Date?) throws -> PruneResult {
         guard isRepository else { return PruneResult(removed: 0, kept: 0, mapping: [:]) }
         try commit(Self.externalChanges)
@@ -257,9 +257,9 @@ actor ProjectHistory {
             }
         guard entries.last?.hash == head else { throw Failure.command(String(localized: "The history is not linear — please clean it up in Terminal.")) }
 
-        // Alles vor `split` wird gelöscht; entries[split - 1] liefert den Inhalt des neuen Ausgangsstands.
+        // Everything before `split` is deleted; entries[split - 1] provides the content of the new root commit.
         let split = cutoff.map { cut in entries.firstIndex { $0.time >= cut.timeIntervalSince1970 } ?? entries.count } ?? entries.count
-        // Nichts zu tun, wenn es nur einen Stand gibt bzw. höchstens der erste vor der Grenze liegt.
+        // Nothing to do if there is only one commit or at most the first one lies before the cutoff.
         guard cutoff == nil ? entries.count > 1 : split > 1 else {
             return PruneResult(removed: 0, kept: entries.count, mapping: [:])
         }
@@ -280,14 +280,14 @@ actor ProjectHistory {
         }
         let branch = try git(["symbolic-ref", "--short", "HEAD"]).trimmingCharacters(in: .whitespacesAndNewlines)
         try git(["update-ref", "-m", "History deleted", "refs/heads/\(branch)", parent, head])
-        // Alte Stände endgültig entfernen.
+        // Permanently remove old commits.
         _ = try? git(["update-ref", "-d", "ORIG_HEAD"])
         try git(["reflog", "expire", "--expire=now", "--all"])
         try git(["gc", "--prune=now", "--quiet"])
         return PruneResult(removed: split, kept: entries.count - split, mapping: mapping)
     }
 
-    // MARK: git ausführen
+    // MARK: Running git
 
     @discardableResult
     private func git(_ arguments: [String], environment: [String: String] = [:]) throws -> String {
@@ -304,8 +304,8 @@ actor ProjectHistory {
     }
 }
 
-/// Kurzer, synchroner Prozessaufruf mit getrennter Ausgabe — liest stdout und stderr gleichzeitig,
-/// damit große Ausgaben (Diffs) nicht hängen bleiben. Nicht auf dem Main Thread benutzen.
+/// Short, synchronous process call with separate output — reads stdout and stderr concurrently
+/// so that large outputs (diffs) don't get stuck. Don't use on the main thread.
 enum ProcessRunner {
     struct Result: Sendable {
         let status: Int32

@@ -1,29 +1,29 @@
 import Foundation
 
-/// Anweisungen und Trainingsstand für die Coach-Engines.
-/// Die Texte gehen an die Modelle und stehen deshalb auf Englisch; in welcher Sprache der Coach antwortet,
-/// bestimmt `replyLanguage` (die Sprache der App).
+/// Instructions and training state for the coach engines.
+/// The texts go to the models and are therefore in English; the language the coach replies in
+/// is determined by `replyLanguage` (the app's language).
 enum CoachContext {
-    /// Zeile, mit der ein Agent signalisiert, dass als Nächstes ein Garmin-Upload anstünde.
+    /// Line with which an agent signals that a Garmin upload would be next.
     static let uploadMarker = "[[GARMIN-APPROVAL]]"
 
-    /// Frühere Versionen schrieben „[[GARMIN-FREIGABE]]“ — in älteren Gesprächen werden beide erkannt.
+    /// Earlier versions wrote "[[GARMIN-FREIGABE]]" — both are recognized in older conversations.
     static let uploadMarkers = [uploadMarker, "[[GARMIN-FREIGABE]]"]
 
     static let uploadRelease = "\n\n[Garmin approval: In this message you may create, schedule or delete Garmin workouts.]"
 
-    /// Sprache, in der der Coach antwortet: die der App.
+    /// Language the coach replies in: the app's.
     static var replyLanguage: String { Locale(identifier: "en").localizedString(forLanguageCode: AppLanguage.code) ?? "English" }
 
-    // MARK: Wer trainiert
+    // MARK: Who is training
 
-    /// Name aus den Einstellungen — die Anweisungen bleiben ohne Namen neutral.
+    /// Name from Settings — the instructions stay neutral without a name.
     private static var person: (name: String, subject: String) {
         let name = AppSettings.athleteName
         return name.isEmpty ? ("", "The person you coach") : (name, name)
     }
 
-    // MARK: Agenten (Claude Code, Codex)
+    // MARK: Agents (Claude Code, Codex)
 
     static func agentInstructions(for kind: CoachEngine.Kind) -> String {
         let memory = kind == .claudeCode
@@ -45,7 +45,7 @@ enum CoachContext {
         """
     }
 
-    // MARK: Reine Text-CLIs (z. B. lokale Modelle)
+    // MARK: Plain text CLIs (e.g. local models)
 
     static var textInstructions: String {
         let p = person
@@ -60,14 +60,14 @@ enum CoachContext {
 
     private static let readOnlyNote = "You can’t change anything. If something in the plan or the data should change, point out that Claude Code or Codex is needed as the engine."
 
-    /// Für Planungsanfragen an reine Text-CLIs: gleiche Regeln, aber Antwort mit JSON-Vorschlag.
+    /// For planning requests to plain text CLIs: the same rules, but the reply is a JSON suggestion.
     static var textPlanningInstructions: String {
         textInstructions.replacingOccurrences(
             of: readOnlyNote,
             with: "You can’t change files, but you can make a plan suggestion as JSON that the app applies after confirmation. Follow the requested schema exactly and write valid JSON.")
     }
 
-    /// Abschnitt „## Athletenprofil“ bzw. „## Athlete profile“ aus der README des Trainingsordners (für Engines ohne Dateizugriff).
+    /// Section "## Athletenprofil" or "## Athlete profile" from the training folder's README (for engines without file access).
     static func athleteProfile(folder: URL) -> String? {
         guard let readme = try? String(contentsOf: folder.appending(path: "README.md"), encoding: .utf8) else { return nil }
         for heading in ["## Athletenprofil", "## Athlete profile"] {
@@ -80,7 +80,7 @@ enum CoachContext {
         return nil
     }
 
-    /// Trainingsstand als Text — kompakt genug auch für lokale Modelle mit kleinem Kontext.
+    /// Training state as text — compact enough even for local models with a small context.
     static func training(_ snapshot: TrainingSnapshot?, level: CoachEngine.ContextLevel, folder: URL,
                          today: Date = .now) -> String {
         guard level != .none, let s = snapshot else { return "" }
@@ -141,7 +141,7 @@ enum CoachContext {
         return lines.joined(separator: "\n")
     }
 
-    /// Bisheriges Gespräch für Engines ohne eigene Sessions.
+    /// Previous conversation for engines without sessions of their own.
     static func history(_ turns: [CoachTurn], limit: Int = 6) -> String {
         let recent = turns.filter { $0.state == .done }.suffix(limit)
         guard !recent.isEmpty else { return "" }
@@ -154,7 +154,7 @@ enum CoachContext {
         return lines.joined(separator: "\n")
     }
 
-    /// Denk-Abschnitte lokaler Modelle (`<think>…</think>`) aus der Antwort entfernen.
+    /// Remove local models' thinking sections (`<think>…</think>`) from the reply.
     static func removeThinking(_ text: String) -> String {
         text.replacing(/<think>[\s\S]*?<\/think>/, with: "")
             .trimmingCharacters(in: .whitespacesAndNewlines)

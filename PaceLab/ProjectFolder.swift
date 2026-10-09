@@ -1,6 +1,6 @@
 import Foundation
 
-/// Einstellungen der App (UserDefaults; die App ist nicht sandboxed).
+/// The app's settings (UserDefaults; the app is not sandboxed).
 enum AppSettings {
     static let defaultProjectPath = "\(NSHomeDirectory())/Documents/Pace Lab"
 
@@ -13,20 +13,26 @@ enum AppSettings {
         UserDefaults.standard.string(forKey: Key.projectPath) ?? defaultProjectPath
     }
 
-    /// Wie der Coach dich anspricht (leer = neutral).
+    /// How the coach addresses you (empty = neutral).
     static var athleteName: String {
         (UserDefaults.standard.string(forKey: Key.athleteName) ?? "").trimmingCharacters(in: .whitespaces)
     }
 
-    /// Eigene Dateien der App (Gespräche, Modelllisten, Garmin-Server) in Application Support.
+    /// The app's own files (conversations, model lists, Garmin server) in Application Support.
     static let supportDirectory: URL = {
-        let url = URL.applicationSupportDirectory.appending(path: "Pace Lab", directoryHint: .isDirectory)
+        var url = URL.applicationSupportDirectory.appending(path: "Pace Lab", directoryHint: .isDirectory)
+        #if DEBUG
+        // Development/demo only: `-debugSupportDirectory <folder>` keeps conversations and model lists apart from the real data.
+        if let path = UserDefaults.standard.string(forKey: "debugSupportDirectory") {
+            url = URL(filePath: path, directoryHint: .isDirectory)
+        }
+        #endif
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }()
 }
 
-/// Der Trainings-Projektordner (plan.json, analysis.json, completed.json, README.md, garmin-mcp/ …).
+/// The training project folder (plan.json, analysis.json, completed.json, README.md, garmin-mcp/ …).
 struct ProjectFolder: Sendable {
     let url: URL
 
@@ -36,7 +42,7 @@ struct ProjectFolder: Sendable {
 
     func exists(_ name: String) -> Bool { FileManager.default.fileExists(atPath: file(name).path) }
 
-    /// Änderungsstempel der Datendateien — ändert sich, sobald jemand (Claude, App, Hand) schreibt.
+    /// Modification stamp of the data files — changes as soon as someone (Claude, app, by hand) writes.
     func signature() -> [String] {
         (TrainingFiles.all + [PlanFiles.draft]).map { name in
             let values = try? file(name).resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey])
@@ -55,8 +61,8 @@ struct ProjectFolder: Sendable {
         return files
     }
 
-    /// Setzt oder entfernt ein Häkchen direkt in completed.json. Bestehende Einträge
-    /// behalten Reihenfolge und Format, neue kommen ans Ende.
+    /// Sets or removes a checkmark directly in completed.json. Existing entries
+    /// keep their order and format, new ones go at the end.
     func setCompleted(_ done: Bool, sessionID: String, on date: Date = .now) throws {
         let url = file(TrainingFiles.completed)
         let raw = (try? String(contentsOf: url, encoding: .utf8)) ?? "{}"
@@ -75,7 +81,7 @@ struct ProjectFolder: Sendable {
     }
 }
 
-/// Flaches JSON-Objekt mit stabiler Schlüssel-Reihenfolge (JSONSerialization kennt keine).
+/// Flat JSON object with a stable key order (JSONSerialization doesn't have one).
 enum CompletedJSON {
     enum Value: Equatable {
         case string(String)
@@ -91,7 +97,7 @@ enum CompletedJSON {
         let object = try JSONSerialization.jsonObject(with: Data(text.utf8))
         guard let dict = object as? [String: Any] else { throw CocoaError(.propertyListReadCorrupt) }
 
-        // Schlüssel in Datei-Reihenfolge: in einem flachen Objekt folgt nur auf Schlüssel ein Doppelpunkt.
+        // Keys in file order: in a flat object, only keys are followed by a colon.
         let pattern = /"((?:[^"\\]|\\.)*)"\s*:/
         var ordered: [String] = []
         for match in text.matches(of: pattern) {

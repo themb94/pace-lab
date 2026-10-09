@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Alle festgehaltenen Stände des Trainingsordners (git) — mit Änderungen und „Rückgängig“.
+/// All recorded commits of the training folder (git) — with changes and "Undo".
 struct HistoryView: View {
     @Environment(AppModel.self) private var model
     @State private var entries: [ProjectHistory.Entry] = []
@@ -8,7 +8,7 @@ struct HistoryView: View {
     @State private var loadError: String?
     @State private var loaded = false
     @State private var settingUp = false
-    /// Offene Rückfrage: nil = ganzer Verlauf, sonst Stände älter als so viele Tage.
+    /// Pending confirmation: nil = entire history, otherwise commits older than this many days.
     @State private var deleteRequest: DeleteRequest?
     @State private var deleting = false
 
@@ -146,7 +146,7 @@ struct HistoryView: View {
         var id: String { title }
     }
 
-    /// Nach Tagen gruppiert: „Heute“, „Gestern“, „Mittwoch, 23. September“.
+    /// Grouped by day: "Today", "Yesterday", "Wednesday, 23 September".
     private var groups: [Group_] {
         var result: [Group_] = []
         for entry in entries {
@@ -331,7 +331,7 @@ private struct HistoryDetail: View {
     }
 }
 
-/// Eine Zeile eines unified diff, fürs Einfärben.
+/// One line of a unified diff, for coloring.
 struct DiffLine: Identifiable {
     enum Kind { case file, hunk, added, removed, context }
 

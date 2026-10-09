@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - Karten & Pillen
+// MARK: - Cards & pills
 
 struct CardModifier: ViewModifier {
     var tint: Color? = nil
@@ -93,7 +93,7 @@ struct ProgressBar: View {
     }
 }
 
-/// Ganze Karte klickbar, mit dezentem Hover-Effekt.
+/// Whole card clickable, with a subtle hover effect.
 struct CardButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -123,7 +123,7 @@ struct DoneToggle: View {
 
 // MARK: - Zeilen
 
-/// Inhalt einer Plan-Einheit (ohne Erledigt-Knopf).
+/// Content of a plan session (without the done button).
 struct SessionRowContent: View {
     let session: PlannedSession
     let isDone: Bool
@@ -309,7 +309,7 @@ struct ZoneLegend: View {
     }
 }
 
-// MARK: - Fließlayout (Flags, Legenden)
+// MARK: - Flow layout (flags, legends)
 
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
@@ -361,7 +361,7 @@ struct FlowLayout: Layout {
     }
 }
 
-// MARK: - Zwei Spalten, wenn Platz ist
+// MARK: - Two columns when there's room
 
 struct AdaptiveColumns<Leading: View, Trailing: View>: View {
     var spacing: CGFloat = 20
@@ -383,7 +383,7 @@ struct AdaptiveColumns<Leading: View, Trailing: View>: View {
     }
 }
 
-// MARK: - Fehlerzustände
+// MARK: - Error states
 
 struct LoadErrorView: View {
     @Environment(AppModel.self) private var model

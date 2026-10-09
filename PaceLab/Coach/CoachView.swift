@@ -70,7 +70,7 @@ struct CoachView: View {
     }
 }
 
-/// Auswahl der CLI, mit der der Coach arbeitet.
+/// Selection of the CLI the coach works with.
 private struct EnginePicker: View {
     @Environment(AppModel.self) private var model
 
@@ -99,7 +99,7 @@ private struct EnginePicker: View {
     }
 }
 
-// MARK: - Begrüßung
+// MARK: - Greeting
 
 private struct CoachWelcome: View {
     @Environment(AppModel.self) private var model
@@ -240,7 +240,7 @@ private struct CoachTranscript: View {
         }
     }
 
-    /// Ändert sich bei jedem neuen Block, neuem Text oder Statuswechsel → mitscrollen.
+    /// Changes with every new block, new text or status change → keep scrolling along.
     private var progress: Int {
         conversation.turns.reduce(0) { sum, turn in
             sum + turn.blocks.count * 4 + (turn.blocks.last?.text.count ?? 0) / 200 + (turn.state == .running ? 0 : 1)
@@ -396,7 +396,7 @@ private struct TurnView: View {
         return String(localized: "Finished · \(duration) · \(end.formatted(.dateTime.hour().minute().locale(Fmt.locale)))\(used)")
     }
 
-    /// Aufeinanderfolgende Werkzeug-Schritte zu einem Block zusammenfassen.
+    /// Merge consecutive tool steps into one block.
     private var pieces: [Piece] {
         var result: [Piece] = []
         for block in turn.blocks {
@@ -424,7 +424,7 @@ private struct TurnView: View {
     }
 }
 
-/// Was der Coach in diesem Lauf geändert hat — mit Rückgängig.
+/// What the coach changed in this run — with undo.
 private struct ChangesCard: View {
     @Environment(AppModel.self) private var model
     let turn: CoachTurn
@@ -510,7 +510,7 @@ private struct ChangesCard: View {
     }
 }
 
-/// Plan-Vorschlag einer reinen Text-CLI — übernehmen erst nach Zustimmung.
+/// Plan suggestion from a plain text CLI — applied only after approval.
 private struct ProposalCard: View {
     @Environment(AppModel.self) private var model
     let turn: CoachTurn

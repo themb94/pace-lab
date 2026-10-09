@@ -1,10 +1,10 @@
 import Foundation
 
-/// OpenAI Codex im Hintergrund (`codex exec --json`), im Trainings-Projektordner.
-/// Codex kann sich nicht bei Strava anmelden — Läufe holt es über den Garmin-Server, der deshalb
-/// immer eingebunden wird. Garmin-Sperre: Ohne Freigabe startet der Server mit GARMIN_READONLY=1
-/// und bietet keine Werkzeuge zum Anlegen/Einplanen/Löschen an; Terminal-Befehle laufen in Codex'
-/// Sandbox ohne Netzwerk (kein Umweg übers Token-Skript).
+/// OpenAI Codex in the background (`codex exec --json`), in the training project folder.
+/// Codex can't sign in to Strava — it fetches runs through the Garmin server, which is therefore
+/// always included. Garmin lock: without permission the server starts with GARMIN_READONLY=1
+/// and offers no tools for creating/scheduling/deleting; terminal commands run in Codex's
+/// sandbox without network (no detour via the token script).
 final class CodexRunner: CoachRunner, @unchecked Sendable {
     private let process = CLIProcess()
 
@@ -39,7 +39,7 @@ final class CodexRunner: CoachRunner, @unchecked Sendable {
         var args = ["exec", "--json", "--skip-git-repo-check", "--color", "never",
                     "-C", request.workingDirectory.path,
                     "-s", "workspace-write",
-                    // Befehle in der Sandbox ohne Netz — auch wenn die Codex-Konfiguration anderes sagt.
+                    // Commands in the sandbox without network — even if the Codex configuration says otherwise.
                     "-c", "sandbox_workspace_write.network_access=false"]
         if !engine.model.isEmpty { args += ["-m", engine.model] }
         if !engine.effort.isEmpty { args += ["-c", "model_reasoning_effort=\"\(engine.effort)\""] }
@@ -49,11 +49,11 @@ final class CodexRunner: CoachRunner, @unchecked Sendable {
         if let thread = request.resumeSessionID, !request.ephemeral {
             args += ["resume", thread]
         }
-        args.append("-")   // Anfrage kommt über stdin
+        args.append("-")   // request comes via stdin
         return args
     }
 
-    /// Der Garmin-Server aus der Projekt-.mcp.json als Codex-Konfiguration.
+    /// The Garmin server from the project's .mcp.json as a Codex configuration.
     static func garminServer(in folder: URL, readOnly: Bool) -> [String] {
         guard let data = try? Data(contentsOf: folder.appending(path: ".mcp.json")),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -66,7 +66,7 @@ final class CodexRunner: CoachRunner, @unchecked Sendable {
         let args = (garmin["args"] as? [String] ?? []).map(toml).joined(separator: ", ")
         var result = ["-c", "mcp_servers.garmin-workouts.command=\(toml(command))",
                       "-c", "mcp_servers.garmin-workouts.args=[\(args)]",
-                      // Im Hintergrund kann niemand bestätigen — ohne Freigabe gibt es ohnehin nur Lese-Werkzeuge.
+                      // Nobody can confirm in the background — without permission there are only read tools anyway.
                       "-c", "mcp_servers.garmin-workouts.default_tools_approval_mode=\"approve\""]
         var env = garmin["env"] as? [String: String] ?? [:]
         if readOnly { env["GARMIN_READONLY"] = "1" }
@@ -78,7 +78,7 @@ final class CodexRunner: CoachRunner, @unchecked Sendable {
     }
 }
 
-/// Übersetzt die JSONL-Ereignisse von `codex exec --json`.
+/// Translates the JSONL events of `codex exec --json`.
 struct CodexStreamParser: OutputParser {
     private var done = false
     private var lastError: String?
@@ -108,7 +108,7 @@ struct CodexStreamParser: OutputParser {
                       !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return [] }
                 return [.text(text)]
             case "error":
-                // Meist Hinweise (z. B. fehlende Modell-Metadaten) — nur für den Fehlerfall merken.
+                // Mostly hints (e.g. missing model metadata) — only remember them for the error case.
                 lastError = item["message"] as? String
                 return []
             default:
@@ -146,7 +146,7 @@ struct CodexStreamParser: OutputParser {
         return .finished(CoachResult(isError: true, message: message))
     }
 
-    // MARK: Hilfen
+    // MARK: Helpers
 
     private static func label(for item: [String: Any]) -> String? {
         switch item["type"] as? String {
@@ -161,7 +161,7 @@ struct CodexStreamParser: OutputParser {
         case "web_search":
             return String(localized: "Web search: \(item["query"] as? String ?? "")")
         default:
-            return nil   // Denken, Aufgabenlisten usw. nicht als Schritt zeigen
+            return nil   // don't show thinking, task lists etc. as a step
         }
     }
 
@@ -183,7 +183,7 @@ struct CodexStreamParser: OutputParser {
         return c.count > 80 ? String(c.prefix(79)) + "…" : c
     }
 
-    /// Codex liefert API-Fehler oft als JSON im Text — die eigentliche Meldung herausziehen.
+    /// Codex often delivers API errors as JSON in the text — extract the actual message.
     private static func readable(_ message: String?) -> String? {
         guard let message else { return nil }
         if let data = message.data(using: .utf8),

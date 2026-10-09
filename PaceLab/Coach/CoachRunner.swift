@@ -1,21 +1,21 @@
 import Foundation
 
-// MARK: - Anfrage & Ereignisse (für alle Engines gleich)
+// MARK: - Request & events (the same for all engines)
 
 struct CoachRequest: Sendable {
     var engine: CoachEngine
     var workingDirectory: URL
-    /// Fertig zusammengesetzter Text (bei Text-CLIs inkl. Trainingsstand und Verlauf).
+    /// Fully assembled text (for text CLIs including training state and history).
     var prompt: String
     var systemPrompt: String
-    /// Session der Engine zum Fortsetzen (Claude: Session-ID, Codex: Thread-ID); nil = neu.
+    /// Engine session to resume (Claude: session ID, Codex: thread ID); nil = new.
     var resumeSessionID: String?
-    /// Claude Code: ID für eine neue Session.
+    /// Claude Code: ID for a new session.
     var newSessionID: UUID
     var sessionName: String
-    /// Nur dann dürfen Garmin-Workouts angelegt, eingeplant oder gelöscht werden.
+    /// Only then may Garmin workouts be created, scheduled or deleted.
     var allowGarminWrite: Bool
-    /// Nichts dauerhaft speichern (Test in den Einstellungen).
+    /// Don't store anything permanently (test in Settings).
     var ephemeral = false
 }
 
@@ -28,11 +28,11 @@ struct McpStatus: Sendable, Hashable, Codable {
 
 enum CoachEvent: Sendable {
     case started(model: String?, servers: [McpStatus])
-    /// Session-/Thread-ID der Engine, mit der das Gespräch fortgesetzt wird.
+    /// Session/thread ID of the engine that the conversation is resumed with.
     case session(String)
-    /// Ein vollständiger Antwort-Absatz (Agenten).
+    /// A complete reply paragraph (agents).
     case text(String)
-    /// Gestreamter Antworttext (Text-CLIs) — wird an den laufenden Block angehängt.
+    /// Streamed reply text (text CLIs) — appended to the current block.
     case textDelta(String)
     case toolStarted(id: String, name: String, label: String)
     case toolFinished(id: String, failed: Bool)
@@ -43,7 +43,7 @@ enum CoachEvent: Sendable {
 struct CoachResult: Sendable {
     var isError: Bool
     var message: String?
-    /// Werkzeuge, die mangels Freigabe nicht laufen durften (Tool-Namen).
+    /// Tools that weren't allowed to run for lack of permission (tool names).
     var deniedTools: [String] = []
     var durationSeconds: Double? = nil
 }
@@ -77,15 +77,15 @@ enum CoachRunners {
     }
 }
 
-/// Übersetzt die Ausgabe einer CLI Zeile für Zeile in CoachEvents.
+/// Translates a CLI's output line by line into CoachEvents.
 protocol OutputParser {
     mutating func parse(_ line: String) -> [CoachEvent]
-    /// Nach Prozessende: Abschluss-Ereignis, falls die CLI selbst keins geliefert hat.
+    /// After the process ends: final event, if the CLI didn't deliver one itself.
     mutating func finish(_ outcome: CLIProcess.Outcome) -> CoachEvent?
 }
 
 extension OutputParser {
-    /// Startet einen Prozess und reicht seine Ereignisse an `continuation` weiter.
+    /// Starts a process and passes its events on to `continuation`.
     mutating func stream(_ process: CLIProcess, _ executable: URL, _ arguments: [String], in directory: URL,
                          input: String?, to continuation: AsyncThrowingStream<CoachEvent, any Error>.Continuation) async throws {
         let lines = try process.start(executable, arguments, in: directory, input: input)
@@ -97,9 +97,9 @@ extension OutputParser {
     }
 }
 
-// MARK: - Prozess
+// MARK: - Process
 
-/// Ein CLI-Aufruf: startet das Programm, liefert stdout zeilenweise, sammelt stderr.
+/// A CLI call: starts the program, delivers stdout line by line, collects stderr.
 final class CLIProcess: @unchecked Sendable {
     struct Outcome: Sendable {
         let exitCode: Int32
@@ -158,7 +158,7 @@ final class CLIProcess: @unchecked Sendable {
             throw CoachError.launchFailed(error.localizedDescription)
         }
         if let inPipe, let input {
-            // (SIGPIPE ist beim App-Start abgeschaltet, falls der Prozess sofort wieder endet.)
+            // (SIGPIPE is turned off at app launch, in case the process ends right away.)
             try? inPipe.fileHandleForWriting.write(contentsOf: Data(input.utf8))
             try? inPipe.fileHandleForWriting.close()
         }
@@ -178,7 +178,7 @@ final class CLIProcess: @unchecked Sendable {
     }
 }
 
-/// Zerlegt Byte-Blöcke in Zeilen — leere Zeilen bleiben erhalten (wichtig für Markdown).
+/// Splits chunks of bytes into lines — empty lines are kept (important for Markdown).
 final class LineSplitter: @unchecked Sendable {
     private let lock = NSLock()
     private var buffer = Data()
@@ -203,7 +203,7 @@ final class LineSplitter: @unchecked Sendable {
     }
 }
 
-/// Behält die letzten Zeilen von stderr für Fehlermeldungen (ohne bekanntes Rauschen).
+/// Keeps the last lines of stderr for error messages (without known noise).
 final class LockedText: @unchecked Sendable {
     private let lock = NSLock()
     private var data = Data()
@@ -233,7 +233,7 @@ final class LockedText: @unchecked Sendable {
 }
 
 enum ANSI {
-    /// Entfernt Farb-/Cursor-Steuerzeichen; bei \r gilt (wie im Terminal) nur der letzte Teil.
+    /// Removes color/cursor control characters; for \r only the last part counts (as in a terminal).
     static func strip(_ text: String) -> String {
         let withoutCodes = text
             .replacing(/\u{1B}\[[0-9;?]*[ -\/]*[@-~]/, with: "")
@@ -245,20 +245,20 @@ enum ANSI {
     }
 }
 
-// MARK: - Programme finden & Umgebung
+// MARK: - Finding programs & environment
 
 enum CLIResolver {
-    /// Übliche Installationsorte — GUI-Apps kennen den PATH der Shell nicht.
+    /// Usual installation locations — GUI apps don't know the shell's PATH.
     static var searchDirectories: [String] {
         let home = NSHomeDirectory()
         return ["/opt/homebrew/bin", "/usr/local/bin", "\(home)/.local/bin", "\(home)/.lmstudio/bin",
                 "\(home)/.npm-global/bin", "\(home)/.claude/local", "/usr/bin", "/bin", "/usr/sbin", "/sbin",
-                // LM-Studio-CLI, wie sie Bionic bzw. LM Studio mitbringen
+                // LM Studio CLI, as shipped with Bionic or LM Studio
                 "/Applications/Bionic.app/Contents/Resources/app/.webpack-bionic",
                 "/Applications/LM Studio.app/Contents/Resources/app/.webpack"]
     }
 
-    /// Pfad (auch mit ~) oder Befehlsname → ausführbare Datei.
+    /// Path (also with ~) or command name → executable file.
     static func find(_ command: String) -> URL? {
         let trimmed = command.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return nil }
@@ -270,14 +270,14 @@ enum CLIResolver {
             let path = "\(dir)/\(expanded)"
             if FileManager.default.isExecutableFile(atPath: path) { return URL(filePath: path) }
         }
-        // Letzter Versuch: die Login-Shell fragen.
+        // Last resort: ask the login shell.
         let quoted = "'" + expanded.replacingOccurrences(of: "'", with: "'\\''") + "'"
         let output = runSync(URL(filePath: "/bin/zsh"), ["-lc", "command -v \(quoted)"])
         let path = output.split(separator: "\n").last.map(String.init)?.trimmingCharacters(in: .whitespaces) ?? ""
         return path.hasPrefix("/") && FileManager.default.isExecutableFile(atPath: path) ? URL(filePath: path) : nil
     }
 
-    /// Kurzer, synchroner Aufruf (Version, Modell-Liste) — nicht auf dem Main Thread benutzen.
+    /// Short, synchronous call (version, model list) — don't use on the main thread.
     static func runSync(_ executable: URL, _ arguments: [String], in directory: URL? = nil) -> String {
         let process = Process()
         let pipe = Pipe()
@@ -296,8 +296,8 @@ enum CLIResolver {
 }
 
 enum CLIEnvironment {
-    /// Umgebung der App plus die üblichen Programmordner im PATH. Variablen einer umgebenden
-    /// Claude-Code-Sitzung werden entfernt, damit jede CLI ihr eigenes Login nutzt.
+    /// The app's environment plus the usual program folders in PATH. Variables of a surrounding
+    /// Claude Code session are removed so that each CLI uses its own login.
     static func make(for executable: URL) -> [String: String] {
         var env = ProcessInfo.processInfo.environment.filter { key, _ in
             !(key.hasPrefix("CLAUDE") || key.hasPrefix("ANTHROPIC") || key.hasPrefix("MCP_"))

@@ -1,7 +1,7 @@
 import Foundation
 
-/// Titel der Verlaufs-Einträge (Git-Commits): Sie entstehen in der Sprache der App. Erkannt werden deutsche und
-/// englische Titel, damit ältere Einträge und ein Sprachwechsel den Verlauf nicht durcheinanderbringen.
+/// Titles of the history entries (git commits): they are created in the app's language. German and
+/// English titles are both recognized, so that older entries and a language change don't mix up the history.
 enum HistorySubject {
     enum Kind {
         case coach, checkedOff, unchecked, runsLoaded, assigned, undone, plan, initial, external, other

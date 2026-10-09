@@ -1,8 +1,8 @@
 import AppKit
 import Observation
 
-/// Vorgefertigte Anfragen für die Wochenroutine: auswerten → vorbereiten → hochladen.
-/// Brauchen einen Agenten (Claude Code oder Codex).
+/// Predefined requests for the weekly routine: review → prepare → upload.
+/// Require an agent (Claude Code or Codex).
 struct CoachAction: Identifiable, Hashable {
     let id: String
     let title: String
@@ -10,9 +10,9 @@ struct CoachAction: Identifiable, Hashable {
     let help: String
     let prompt: String
     let allowUpload: Bool
-    /// Startet immer ein neues Gespräch (die Auswertung ist der Beginn des Wochenzyklus).
+    /// Always starts a new conversation (the review is the start of the weekly cycle).
     let startsConversation: Bool
-    /// Nur sinnvoll in einem laufenden Gespräch (z. B. Upload der gerade besprochenen Woche).
+    /// Only useful in an ongoing conversation (e.g. uploading the week just discussed).
     let needsConversation: Bool
 
     static let reviewWeek = CoachAction(
@@ -47,17 +47,17 @@ struct CoachAction: Identifiable, Hashable {
     static let all = [reviewWeek, prepareWeek, uploadWeek]
 }
 
-// MARK: - Gesprächsdaten (werden als JSON in Application Support gespeichert)
+// MARK: - Conversation data (stored as JSON in Application Support)
 
 struct CoachConversation: Identifiable, Codable {
     let id: UUID
     var title: String
     var createdAt: Date
     var updatedAt: Date
-    /// Engine, mit der das Gespräch geführt wird (nil = Claude Code, ältere Gespräche).
+    /// Engine the conversation runs on (nil = Claude Code, older conversations).
     var engineID: UUID?
     var engineName: String?
-    /// Session bzw. Thread der Engine zum Fortsetzen (Claude: Session-ID, Codex: Thread-ID).
+    /// Engine session or thread to resume (Claude: session ID, Codex: thread ID).
     var engineSessionID: String?
     var turns: [CoachTurn]
 }
@@ -75,25 +75,25 @@ struct CoachTurn: Identifiable, Codable {
     var state: State
     var errorMessage: String?
     var deniedTools: [String]
-    /// Modell, das tatsächlich geantwortet hat (z. B. „claude-opus-5“), laut Start-Ereignis der CLI.
+    /// Model that actually answered (e.g. "claude-opus-5"), per the CLI's start event.
     var model: String?
-    /// Planungsanfrage (für Vorschläge reiner Text-CLIs).
+    /// Planning request (for suggestions from plain text CLIs).
     var planning: TurnPlanning?
-    /// Versionsverwaltung: Stand vor und nach dem Lauf, geänderte Dateien.
+    /// Version history: state before and after the run, changed files.
     var baseCommit: String?
     var commit: String?
     var changedFiles: [String]?
-    /// Was sich an plan.json geändert hat (lesbar).
+    /// What changed in plan.json (human-readable).
     var planChanges: [String]?
-    /// Titel des Entwurfs, falls der Coach plan-entwurf.json geschrieben hat.
+    /// Title of the draft, if the coach wrote plan-entwurf.json.
     var draftTitle: String?
-    /// Stand, der die Änderungen dieses Laufs zurückgenommen hat.
+    /// Commit that reverted this run's changes.
     var revertCommit: String?
-    /// JSON-Vorschlag einer reinen Text-CLI und ob er übernommen wurde.
+    /// JSON suggestion from a plain text CLI and whether it was applied.
     var proposal: PlanProposal?
     var proposalApplied: Bool?
 
-    /// Der Agent hat signalisiert, dass als Nächstes ein Garmin-Upload anstünde.
+    /// The agent signaled that a Garmin upload would be next.
     var suggestsUpload: Bool {
         !allowUpload && blocks.last(where: { $0.kind == .text }).map { block in CoachContext.uploadMarkers.contains { block.text.contains($0) } } == true
     }
@@ -110,13 +110,13 @@ struct CoachBlock: Identifiable, Codable {
 
     let id: String
     var kind: Kind
-    /// Antworttext bzw. Beschreibung des Werkzeug-Aufrufs.
+    /// Reply text or description of the tool call.
     var text: String
     var toolName: String?
     var state: StepState?
 }
 
-// MARK: - Modell
+// MARK: - Model
 
 @MainActor
 @Observable
@@ -129,21 +129,21 @@ final class CoachModel {
     var draft = ""
     var allowUpload = false
 
-    /// Hinterlegte CLIs (Einstellungen → Coach).
+    /// Configured CLIs (Settings → Coach).
     var engines: [CoachEngine] {
         didSet {
             if engines.isEmpty { engines = [.claudePreset()] }
             EngineStore.save(engines)
         }
     }
-    /// Engine für neue Gespräche.
+    /// Engine for new conversations.
     private(set) var selectedEngineID: UUID?
 
-    /// Wird nach jedem Lauf aufgerufen (die Engine hat evtl. Dateien geändert).
+    /// Called after every run (the engine may have changed files).
     var onRunFinished: (@MainActor () -> Void)?
-    /// Aktueller Trainingsstand für Engines, die keine Dateien lesen können.
+    /// Current training state for engines that can't read files.
     var snapshotProvider: (@MainActor () -> TrainingSnapshot?)?
-    /// Versionsverwaltung des Trainingsordners: Stand vor und nach jedem Lauf.
+    /// Version history of the training folder: state before and after every run.
     var history: ProjectHistory?
 
     private var runner: (any CoachRunner)?
@@ -154,11 +154,11 @@ final class CoachModel {
         engines = EngineStore.load()
         selectedEngineID = EngineStore.selectedID
         load()
-        // Ein kürzlich geführtes Gespräch gleich wieder öffnen.
+        // Reopen a recent conversation right away.
         if let latest = conversations.first, latest.updatedAt > .now.addingTimeInterval(-12 * 3600) {
             currentID = latest.id
         }
-        // Beim Beenden der App keinen CLI-Prozess verwaist weiterlaufen lassen.
+        // Don't leave a CLI process running orphaned when the app quits.
         NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.runner?.cancel() }
         }
@@ -175,13 +175,13 @@ final class CoachModel {
         engines.first { $0.id == selectedEngineID } ?? engines[0]
     }
 
-    /// Engine des offenen Gesprächs bzw. die gewählte für ein neues.
+    /// Engine of the open conversation, or the selected one for a new conversation.
     var activeEngine: CoachEngine {
         if let conversation = current, let engine = engine(of: conversation) { return engine }
         return selectedEngine
     }
 
-    /// Beschreibung des gerade laufenden Schritts, z. B. "Strava: Aktivitäten abrufen".
+    /// Description of the step currently running, e.g. "Strava: fetching activities".
     var liveStep: String? {
         guard let runningTurnID, let turn = current?.turns.first(where: { $0.id == runningTurnID }) else { return nil }
         return turn.blocks.last(where: { $0.kind == .tool && $0.state == .running })?.text
@@ -192,7 +192,7 @@ final class CoachModel {
         return engines.first { $0.id == id }
     }
 
-    /// Engine wechseln — ein offenes Gespräch einer anderen Engine wird geschlossen.
+    /// Switch engine — an open conversation of another engine gets closed.
     func selectEngine(_ id: UUID) {
         guard !isRunning else { return }
         selectedEngineID = id
@@ -220,7 +220,7 @@ final class CoachModel {
         runner?.cancel()
     }
 
-    // MARK: Senden
+    // MARK: Sending
 
     func run(_ action: CoachAction, in folder: URL) {
         guard !isRunning, activeEngine.kind.isAgent else { return }
@@ -229,7 +229,7 @@ final class CoachModel {
         send(prompt: action.prompt, title: action.title, allowUpload: action.allowUpload, in: folder)
     }
 
-    /// Planungsanfrage: Agenten ändern plan.json bzw. schreiben einen Entwurf, Text-CLIs schlagen JSON vor.
+    /// Planning request: agents change plan.json or write a draft, text CLIs suggest JSON.
     func plan(_ request: PlanRequest, snapshot: TrainingSnapshot, in folder: URL) {
         guard !isRunning else { return }
         let engine = activeEngine
@@ -251,7 +251,7 @@ final class CoachModel {
         allowUpload = false
     }
 
-    /// Wiederholt eine Anfrage, die an fehlender Garmin-Freigabe gescheitert ist.
+    /// Retries a request that failed because of missing Garmin permission.
     func retryWithUpload(in folder: URL) {
         send(prompt: String(localized: "You now have approval for Garmin. Carry out the step that was just blocked."),
              title: String(localized: "Repeat with Garmin approval"), allowUpload: true, in: folder)
@@ -261,7 +261,7 @@ final class CoachModel {
         guard !isRunning else { return }
         let engine = activeEngine
 
-        // Offenes Gespräch nur fortsetzen, wenn es zur Engine passt.
+        // Only continue the open conversation if it belongs to the engine.
         var conversation: CoachConversation
         if let open = current, self.engine(of: open)?.id == engine.id {
             conversation = open
@@ -279,12 +279,12 @@ final class CoachModel {
         upsert(conversation)
         currentID = conversation.id
 
-        // Anfrage passend zur Engine zusammensetzen.
+        // Build the request to suit the engine.
         var text = allowUpload ? prompt + CoachContext.uploadRelease : prompt
         var system = CoachContext.agentInstructions(for: engine.kind)
         switch engine.kind {
         case .claudeCode:
-            break   // Anweisungen gehen per --append-system-prompt mit
+            break   // instructions are passed via --append-system-prompt
         case .codex:
             if conversation.engineSessionID == nil {
                 text = system + "\n\n---\n\n" + text
@@ -292,7 +292,7 @@ final class CoachModel {
         case .textCLI:
             system = planning == nil ? CoachContext.textInstructions : CoachContext.textPlanningInstructions
             let context = CoachContext.training(snapshotProvider?(), level: engine.context, folder: folder)
-            // Bei „Ausführlich“ steckt das Profil schon in der mitgeschickten README.
+            // With "Detailed", the profile is already part of the attached README.
             let profile = engine.context == .compact ? CoachContext.athleteProfile(folder: folder) ?? "" : ""
             text = [profile, context, CoachContext.history(earlier), "# New message\n\(prompt)"]
                 .filter { !$0.isEmpty }
@@ -321,7 +321,7 @@ final class CoachModel {
         let commitMessage = Self.commitMessage(title: title, prompt: prompt, engine: engine, conversation: conversation.title)
 
         Task {
-            // Stand vor dem Lauf festhalten (inkl. Änderungen, die inzwischen außerhalb der App passiert sind).
+            // Record the state before the run (including changes made outside the app in the meantime).
             if let base = try? await projectHistory?.checkpoint() {
                 mutateTurn(turn.id, in: conversationID) { $0.baseCommit = base }
             }
@@ -352,7 +352,7 @@ final class CoachModel {
                     mutateTurn(turn.id, in: conversationID) { $0.proposal = proposal }
                 }
             }
-            // Was der Lauf geändert hat, als eigenen Stand festhalten.
+            // Record what the run changed as its own commit.
             if let projectHistory {
                 await recordChanges(of: turn.id, in: conversationID, history: projectHistory, message: commitMessage)
             }
@@ -363,7 +363,7 @@ final class CoachModel {
         }
     }
 
-    /// Nach einem Lauf: Stand festhalten, geänderte Dateien und Plan-Änderungen am Turn vermerken.
+    /// After a run: record the state, note changed files and plan changes on the turn.
     private func recordChanges(of turnID: UUID, in conversationID: UUID, history: ProjectHistory, message: String) async {
         guard let commit = try? await history.commit(message) else { return }
         let base = turn(turnID, in: conversationID)?.baseCommit
@@ -391,8 +391,8 @@ final class CoachModel {
         save()
     }
 
-    /// Nach dem Löschen (eines Teils) des Verlaufs: Verweise auf Stände umschreiben; gelöschte fallen weg,
-    /// damit kein „Rückgängig“ auf einen Stand zeigt, den es nicht mehr gibt.
+    /// After deleting (part of) the history: rewrite references to commits; deleted ones are dropped
+    /// so that no "Undo" points to a commit that no longer exists.
     func remapCommits(_ mapping: [String: String]) {
         for c in conversations.indices {
             for t in conversations[c].turns.indices {
@@ -404,7 +404,7 @@ final class CoachModel {
         save()
     }
 
-    // MARK: Gespräche löschen
+    // MARK: Deleting conversations
 
     func deleteConversation(_ id: UUID) {
         guard !(isRunning && currentID == id) else { return }
@@ -421,14 +421,14 @@ final class CoachModel {
         save()
     }
 
-    /// Vermerkt, dass die Änderungen eines Laufs zurückgenommen wurden.
+    /// Notes that a run's changes were reverted.
     func markReverted(turn turnID: UUID, commit: String) {
         guard let conversationID = conversation(containing: turnID) else { return }
         mutateTurn(turnID, in: conversationID) { $0.revertCommit = commit }
         save()
     }
 
-    /// Vermerkt, dass der Vorschlag einer Text-CLI übernommen wurde.
+    /// Notes that a text CLI's suggestion was applied.
     func markProposalApplied(turn turnID: UUID) {
         guard let conversationID = conversation(containing: turnID) else { return }
         mutateTurn(turnID, in: conversationID) { $0.proposalApplied = true }
@@ -510,9 +510,9 @@ final class CoachModel {
         save()
     }
 
-    // MARK: Test (Einstellungen)
+    // MARK: Test (Settings)
 
-    /// Kurzer Probelauf einer Engine, ohne Gespräch und ohne Spuren in dessen Verlauf.
+    /// Short trial run of an engine, without a conversation and without leaving traces in its history.
     func test(_ engine: CoachEngine, in folder: URL) async -> (ok: Bool, message: String) {
         let request = CoachRequest(
             engine: engine, workingDirectory: folder,
@@ -541,7 +541,7 @@ final class CoachModel {
         return (true, String(localized: "Reply: “\(reply.prefix(80))” · \(seconds.formatted(.number.precision(.fractionLength(1)).locale(Fmt.locale))) s"))
     }
 
-    // MARK: Hilfen
+    // MARK: Helpers
 
     private func turn(_ id: UUID, in conversationID: UUID) -> CoachTurn? {
         conversations.first { $0.id == conversationID }?.turns.first { $0.id == id }
@@ -572,7 +572,7 @@ final class CoachModel {
         return line.count > 48 ? String(line.prefix(47)) + "…" : line
     }
 
-    // MARK: Speichern
+    // MARK: Saving
 
     private static var storeURL: URL {
         AppSettings.supportDirectory.appending(path: "coach.json")
@@ -581,7 +581,7 @@ final class CoachModel {
     private func load() {
         guard let data = try? Data(contentsOf: Self.storeURL),
               var stored = try? JSONDecoder().decode([CoachConversation].self, from: data) else { return }
-        // Beim Beenden unterbrochene Läufe als abgebrochen markieren.
+        // Mark runs interrupted by quitting as cancelled.
         for c in stored.indices {
             for t in stored[c].turns.indices where stored[c].turns[t].state == .running {
                 stored[c].turns[t].state = .cancelled
@@ -596,7 +596,7 @@ final class CoachModel {
             try FileManager.default.createDirectory(at: Self.storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             try JSONEncoder().encode(recent).write(to: Self.storeURL, options: .atomic)
         } catch {
-            // Verlauf ist Komfort — ein Fehler hier darf den Coach nicht stören.
+            // History is a convenience — an error here must not disrupt the coach.
         }
     }
 }

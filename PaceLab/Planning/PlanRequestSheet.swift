@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Formular „Mit dem Coach planen“: Woche anpassen, Einheit ändern oder neuen Block entwerfen.
+/// Form "Plan with the coach": adjust a week, change a session or draft a new block.
 struct PlanRequestSheet: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss

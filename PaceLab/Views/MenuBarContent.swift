@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Kleines Panel in der Menüleiste: nächste Einheit, Wochenstand, Coach.
+/// Small panel in the menu bar: next session, week status, coach.
 struct MenuBarContent: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openWindow) private var openWindow

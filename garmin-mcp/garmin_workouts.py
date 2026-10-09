@@ -61,7 +61,7 @@ def _target_block(target):
 
 
 # ---------------------------------------------------------------------------
-# Step-DTO-Builder
+# Step DTO builder
 # ---------------------------------------------------------------------------
 def _exec_dto(order, stype, end, val, target=None, desc=None, child=None):
     ttype, v1, v2, zone = _target_block(target)
@@ -212,7 +212,7 @@ def workout_steps(workout, bands):
 
 
 def build_plan(path=None):
-    """Alle Workouts des aktiven Plans: [{week, kind, name, steps, upload}] in Plan-Reihenfolge.
+    """All workouts of the active plan: [{week, kind, name, steps, upload}] in plan order.
     Sessions without a "workout" (e.g. a race) are skipped. upload=False for easy
     runs, unless the plan sets "uploadEasyRuns": true."""
     plan = load_plan(path)
@@ -287,6 +287,6 @@ if __name__ == "__main__":
         for line in describe_steps(w["steps"]):
             print(line)
         print()
-    # Beispiel-Payload zur Kontrolle
+    # Sample payload for checking
     print("--- Beispiel-Payload (erstes Workout) ---")
     print(json.dumps(make_payload(plan[0]["name"], plan[0]["steps"]), indent=2, ensure_ascii=False))

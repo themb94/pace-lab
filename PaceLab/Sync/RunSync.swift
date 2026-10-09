@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-/// Einstellungen für „Läufe laden“ (UserDefaults).
+/// Settings for "Load runs" (UserDefaults).
 enum SyncSettings {
     enum Key {
         static let source = "runSource"
@@ -14,7 +14,7 @@ enum SyncSettings {
         UserDefaults.standard.string(forKey: Key.source).flatMap(RunSource.init(rawValue:)) ?? .garmin
     }
 
-    /// Kleines, schnelles Modell reicht — es ruft nur zwei Werkzeuge auf.
+    /// A small, fast model is enough — it only calls two tools.
     static let defaultStravaModel = "haiku"
 
     static var stravaModel: String {
@@ -25,8 +25,8 @@ enum SyncSettings {
         UserDefaults.standard.object(forKey: Key.autoAssign) as? Bool ?? true
     }
 
-    /// Ab wann gesucht wird: drei Tage vor dem neuesten gespeicherten Lauf (Nachzügler),
-    /// höchstens 60 Tage zurück.
+    /// Where the search starts: three days before the newest stored run (stragglers),
+    /// at most 60 days back.
     static func since(_ snapshot: TrainingSnapshot, today: Date = .now) -> String {
         let cal = DateUtil.calendar
         let floor = cal.date(byAdding: .day, value: -60, to: today)!
@@ -36,7 +36,7 @@ enum SyncSettings {
     }
 }
 
-/// Holt neue Läufe von Garmin oder Strava und trägt sie in analysis.json ein.
+/// Fetches new runs from Garmin or Strava and enters them in analysis.json.
 @MainActor
 @Observable
 final class RunSyncModel {
@@ -50,7 +50,7 @@ final class RunSyncModel {
     struct Summary: Equatable {
         let message: String
         let date: Date
-        /// IDs der neuen Läufe (wie `Run.id`) — zum Anzeigen.
+        /// IDs of the new runs (like `Run.id`) — for display.
         let runIDs: [String]
     }
 
@@ -76,8 +76,8 @@ final class RunSyncModel {
         task?.cancel()
     }
 
-    /// `claudeCommand`: Programm der Claude-Code-Engine (für Strava). `onFinish(changed)` kommt immer,
-    /// `changed` = es wurden Läufe eingetragen.
+    /// `claudeCommand`: program of the Claude Code engine (for Strava). `onFinish(changed)` is always called,
+    /// `changed` = runs were entered.
     func start(folder: ProjectFolder, snapshot: TrainingSnapshot, history: ProjectHistory?, claudeCommand: String,
                onFinish: @escaping @MainActor (Bool) -> Void) {
         guard !isRunning else { return }
@@ -108,7 +108,7 @@ final class RunSyncModel {
                 }
                 try Task.checkCancellation()
 
-                // Eindeutige Workout-Läufe gleich der Einheit zuordnen und abhaken.
+                // Immediately assign unambiguous workout runs to their session and check them off.
                 var ticks: [(session: PlannedSession, date: String)] = []
                 if autoAssign {
                     for i in runs.indices {

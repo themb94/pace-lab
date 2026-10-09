@@ -1,20 +1,20 @@
-// Signatur und Kennungen von Pace Lab.
+// Signing and identifiers of Pace Lab.
 //
-// Eigene Werte NICHT hier eintragen, sondern in Config/Signing.local.xcconfig
-// (Vorlage: Signing.local.example.xcconfig). Diese Datei ist per .gitignore
-// vom Repository ausgeschlossen.
+// Do NOT enter your own values here, but in Config/Signing.local.xcconfig
+// (template: Signing.local.example.xcconfig). This file is excluded from the
+// repository via .gitignore.
 
-// Team-ID aus developer.apple.com → Membership (auch ein kostenloses Konto
-// hat ein „Personal Team“). Nötig, damit App und Widgets Daten teilen können.
+// Team ID from developer.apple.com → Membership (even a free account
+// has a "Personal Team"). Required so that the app and widgets can share data.
 DEVELOPMENT_TEAM =
 
-// Eigene, eindeutige Kennung, z. B. com.deinname.pacelab
+// Your own unique identifier, e.g. com.yourname.pacelab
 PACELAB_BUNDLE_ID = com.example.pacelab
 
 CODE_SIGN_STYLE = Manual
 CODE_SIGN_IDENTITY = Apple Development
 
-// App-Group für den Datenaustausch mit den Widgets (Team-Präfix, macOS).
+// App group for data exchange with the widgets (team prefix, macOS).
 PACELAB_APP_GROUP = $(DEVELOPMENT_TEAM).$(PACELAB_BUNDLE_ID)
 
 #include? "Signing.local.xcconfig"
