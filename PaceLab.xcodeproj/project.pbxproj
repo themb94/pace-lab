@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		7A0000000000000000000092 /* Template in Resources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000090 /* Template */; };
 		7A0000000000000000000093 /* garmin-mcp in Resources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000091 /* garmin-mcp */; };
+		7A0000000000000000000095 /* polar-mcp in Resources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000094 /* polar-mcp */; };
 		7A0000000000000000000036 /* PaceLabWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000021 /* PaceLabWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,7 @@
 /* Begin PBXFileReference section */
 		7A0000000000000000000090 /* Template */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Template; sourceTree = "<group>"; };
 		7A0000000000000000000091 /* garmin-mcp */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "garmin-mcp"; sourceTree = "<group>"; };
+		7A0000000000000000000094 /* polar-mcp */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "polar-mcp"; sourceTree = "<group>"; };
 		7A0000000000000000000020 /* Pace Lab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pace Lab.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A0000000000000000000021 /* PaceLabWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PaceLabWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -93,6 +95,7 @@
 				7A0000000000000000000013 /* Config */,
 				7A0000000000000000000090 /* Template */,
 				7A0000000000000000000091 /* garmin-mcp */,
+				7A0000000000000000000094 /* polar-mcp */,
 				7A0000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -203,6 +206,7 @@
 			files = (
 				7A0000000000000000000092 /* Template in Resources */,
 				7A0000000000000000000093 /* garmin-mcp in Resources */,
+				7A0000000000000000000095 /* polar-mcp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

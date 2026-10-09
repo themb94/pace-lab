@@ -185,7 +185,7 @@ private struct CoachWelcome: View {
     private func intro(for engine: CoachEngine) -> String {
         switch engine.kind {
         case .claudeCode:
-            String(localized: "The coach is Claude Code on your Mac — with the same README, the same memory and the same Strava and Garmin connection as in the chat. Whatever it changes in the plan and analyses, you see right away in the app.")
+            String(localized: "The coach is Claude Code on your Mac — with the same README, the same memory and the same Strava and watch connection as in the chat. Whatever it changes in the plan and analyses, you see right away in the app.")
         case .codex:
             String(localized: "The coach is Codex on your Mac — it works in the training folder following the README. Whatever it changes in the plan and analyses, you see right away in the app.")
         case .textCLI:
@@ -326,7 +326,7 @@ private struct TurnView: View {
                 if turn.commit != nil || turn.changedFiles?.isEmpty == false {
                     ChangesCard(turn: turn)
                 }
-                if turn.suggestsUpload {
+                if turn.suggestsUpload && model.watch.canUpload {
                     HStack(spacing: 12) {
                         Image(systemName: "applewatch")
                             .font(.title2)
@@ -621,7 +621,7 @@ private struct CoachComposer: View {
                 Label(note, systemImage: "hourglass").font(.caption).foregroundStyle(.orange)
             }
             HStack(spacing: 8) {
-                ForEach(CoachAction.all) { action in
+                ForEach(CoachAction.available(for: model.watch)) { action in
                     Button {
                         model.startCoach(action)
                     } label: {
@@ -638,13 +638,13 @@ private struct CoachComposer: View {
                 .help("Adjust a week, change a session or draft a new block")
                 .disabled(coach.isRunning || model.sync.isRunning || model.snapshot == nil)
                 Spacer()
-                if isAgent {
+                if isAgent && model.watch.canUpload {
                     Toggle(isOn: $coach.allowUpload) {
                         Text("Allow Garmin upload")
                     }
                     .toggleStyle(.checkbox)
                     .help("For the next message only: the coach may create, schedule or delete workouts on Garmin.")
-                } else {
+                } else if !isAgent {
                     Label("Text only — your training status is sent along", systemImage: "info.circle")
                         .foregroundStyle(.secondary)
                 }
@@ -707,7 +707,7 @@ private struct ConnectionBadges: View {
                         Circle()
                             .fill(server.isConnected ? Color.green : Color.orange)
                             .frame(width: 7, height: 7)
-                        Text(server.name == "strava-mcp" ? "Strava" : server.name == "garmin-workouts" ? "Garmin" : server.name)
+                        Text(server.name == "strava-mcp" ? "Strava" : server.name == "garmin-workouts" ? "Garmin" : server.name == "polar" ? "Polar" : server.name)
                     }
                     .help(server.isConnected ? "\(server.name): connected" : "\(server.name): \(server.status)")
                 }

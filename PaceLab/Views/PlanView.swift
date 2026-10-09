@@ -197,7 +197,7 @@ private struct WeekHeader: View {
     }
 }
 
-/// "…" menu of a week: adjust with the coach or create directly on Garmin.
+/// "…" menu of a week: adjust with the coach or send it to the watch (Garmin) / show it for Polar.
 private struct WeekMenu: View {
     @Environment(AppModel.self) private var model
     let week: Int
@@ -211,19 +211,22 @@ private struct WeekMenu: View {
                 Label("Adjust with coach …", systemImage: "wand.and.stars")
             }
             .disabled(model.coach.isRunning)
-            Button {
-                model.garminUploadWeek = week
-            } label: {
-                Label("Create on Garmin …", systemImage: "applewatch")
+            if model.watch != .none {
+                Button {
+                    model.watchWeek = week
+                } label: {
+                    Label(model.watch == .polar ? String(localized: "Show for Polar …") : String(localized: "Create on Garmin …"),
+                          systemImage: "applewatch")
+                }
+                .disabled(!uploadable)
             }
-            .disabled(!uploadable)
         } label: {
             Image(systemName: "ellipsis.circle")
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
         .fixedSize()
-        .help("Week \(week): adjust or create on Garmin")
+        .help(model.watch == .none ? String(localized: "Week \(week): adjust") : String(localized: "Week \(week): adjust or send to the watch"))
     }
 }
 

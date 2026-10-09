@@ -35,10 +35,7 @@ struct SessionDetailView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             WorkoutStepsView(workout: workout, bands: snapshot.plan.paceBands ?? [])
                             Divider()
-                            Label(session.isUploadable
-                                  ? "On the watch as “\(session.garminName ?? workout.name)”"
-                                  : "Easy runs are not sent to the watch — run by feel.",
-                                  systemImage: "applewatch")
+                            Label(watchNote(session, workout: workout), systemImage: "applewatch")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -80,11 +77,13 @@ struct SessionDetailView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .disabled(model.coach.isRunning)
-                    if session.isUploadable {
+                    if session.isUploadable && model.watch != .none {
                         Button {
-                            model.garminUploadWeek = session.week
+                            model.watchWeek = session.week
                         } label: {
-                            Label("Create week \(session.week) on Garmin …", systemImage: "applewatch")
+                            Label(model.watch == .polar ? String(localized: "Week \(session.week) for Polar …")
+                                                        : String(localized: "Create week \(session.week) on Garmin …"),
+                                  systemImage: "applewatch")
                                 .frame(maxWidth: .infinity)
                         }
                     }
@@ -128,6 +127,17 @@ struct SessionDetailView: View {
                 }
             }
             .padding(16)
+        }
+    }
+
+    /// What happens with the workout on the profile's watch.
+    private func watchNote(_ session: PlannedSession, workout: PlanWorkout) -> String {
+        guard session.isUploadable else { return String(localized: "Easy runs are not sent to the watch — run by feel.") }
+        let name = session.garminName ?? workout.name
+        switch model.watch {
+        case .garmin: return String(localized: "On the watch as “\(name)”")
+        case .polar: return String(localized: "For Polar as phased training target “\(name)”")
+        case .none: return String(localized: "No watch connected — the steps are your guide.")
         }
     }
 }

@@ -158,6 +158,7 @@ private struct GeneralSettings: View {
 
 private struct RunSourceSettings: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openWindow) private var openWindow
     @AppStorage private var source: String
     @AppStorage private var stravaModel: String
     @AppStorage private var autoAssign: Bool
@@ -171,16 +172,40 @@ private struct RunSourceSettings: View {
         _autoAssign = AppStorage(wrappedValue: true, SyncSettings.Key.autoAssign, store: defaults)
     }
 
+    /// Strava or the watch — "garmin"/"polar" stored both mean "the watch".
+    private var effectiveSource: RunSource { SyncSettings.source(stored: source, watch: model.watch) }
+
     var body: some View {
         Form {
             Section {
-                Picker("Fetch runs from", selection: $source) {
-                    ForEach(RunSource.allCases) { Text($0.label).tag($0.rawValue) }
+                Picker("Your watch", selection: Binding(get: { model.watch }, set: { model.setWatch($0) })) {
+                    ForEach(WatchKind.allCases) { Text($0.label).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                if model.watch != .none {
+                    HStack {
+                        Text(WatchServerConfig.load(from: model.folder.url, watch: model.watch) == nil
+                             ? String(localized: "The \(model.watch.label) server isn’t set up for this profile yet.")
+                             : String(localized: "\(model.watch.label) server registered in the training folder."))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Set up \(model.watch.label) …") { openWindow(id: "setup") }
+                    }
+                }
+            } header: {
+                Text("Watch")
+            } footer: {
+                Text(watchFooter)
+            }
+
+            Section {
+                Picker("Fetch runs from", selection: Binding(get: { effectiveSource }, set: { source = $0.rawValue })) {
+                    ForEach([model.watch.runSource, .strava].compactMap { $0 }) { Text($0.label).tag($0) }
                 }
                 .pickerStyle(.radioGroup)
-                Text(source == RunSource.strava.rawValue
-                     ? "In the background, Claude Code only calls the two Strava read tools; the app takes the raw data straight from the reply. Takes about 10–20 seconds and counts minimally against your Claude quota."
-                     : "The app starts the Garmin server from the .mcp.json in read-only mode and queries the latest runs directly — without a language model and without using any quota. Takes a few seconds.")
+                Text(effectiveSource == .strava
+                     ? String(localized: "In the background, Claude Code only calls the two Strava read tools; the app takes the raw data straight from the reply. Takes about 10–20 seconds and counts minimally against your Claude quota.")
+                     : String(localized: "The app starts the \(effectiveSource.shortLabel) server from the .mcp.json in read-only mode and queries the latest runs directly — without a language model and without using any quota. Takes a few seconds."))
                     .font(.callout)
                     .foregroundStyle(.secondary)
             } header: {
@@ -189,7 +214,7 @@ private struct RunSourceSettings: View {
                 Text("“Load runs” (⌘R, button at the top left) fetches all runs from three days before the newest saved one and adds new ones to analysis.json — without a rating yet. A run that already exists from the other source is recognized and not entered twice.")
             }
 
-            if source == RunSource.strava.rawValue {
+            if effectiveSource == .strava {
                 Section("Claude Code") {
                     Picker("Model", selection: $stravaModel) {
                         ForEach(stravaChoices, id: \.value) { choice in
@@ -200,10 +225,17 @@ private struct RunSourceSettings: View {
                 }
             }
 
-            Section {
-                Toggle("Automatically assign workout runs and tick them off", isOn: $autoAssign)
-            } footer: {
-                Text("Garmin copies the workout name (e.g. “PL W01 · 6x800m”) into the run — that is how the app identifies the session unambiguously. You assign other runs under Runs → “Assign” or leave it to the coach during the review.")
+            if effectiveSource == .polar {
+                Section {
+                    Text("Polar passes on no workout names, so runs can’t be assigned automatically. You assign them under Runs → “Assign” or leave it to the coach during the review.")
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                Section {
+                    Toggle("Automatically assign workout runs and tick them off", isOn: $autoAssign)
+                } footer: {
+                    Text("Garmin copies the workout name (e.g. “PL W01 · 6x800m”) into the run — that is how the app identifies the session unambiguously. You assign other runs under Runs → “Assign” or leave it to the coach during the review.")
+                }
             }
 
             Section {
@@ -230,8 +262,18 @@ private struct RunSourceSettings: View {
             }
         }
         .formStyle(.grouped)
-        .frame(height: 560)
+        .frame(height: 640)
         .onChange(of: source) { result = nil }
+        .onChange(of: model.watch) { result = nil }
+    }
+
+    private var watchFooter: String {
+        let text = switch model.watch {
+        case .garmin: String(localized: "Runs come directly from Garmin Connect, workouts go to the watch after your approval.")
+        case .polar: String(localized: "Runs come directly from Polar Flow (read-only). Polar doesn’t let apps put workouts on the watch — the app shows each week as phases to enter in Polar Flow.")
+        case .none: String(localized: "Without a watch, runs come from Strava or the coach enters them.")
+        }
+        return text + " " + String(localized: "Switching keeps the other watch’s setup, so you can switch back at any time.")
     }
 
     /// Models of the Claude Code engine; haiku is enough for the two tool calls.
@@ -257,25 +299,16 @@ private struct RunSourceSettings: View {
         result = nil
         let folder = model.folder.url
         let command = model.claudeCommand
-        let isStrava = source == RunSource.strava.rawValue
+        let isStrava = effectiveSource == .strava
+        let watch = model.watch
         Task {
             if isStrava {
-                let check = await Task.detached { ConnectionCheck.run(command: command, folder: folder) }.value
+                let check = await Task.detached { ConnectionCheck.run(command: command, folder: folder, watch: watch) }.value
                 if let strava = check.lines.first {
                     result = (strava.ok, strava.text)
                 }
             } else {
-                do {
-                    guard let config = GarminServerConfig.load(from: folder) else {
-                        throw SyncFailure(message: String(localized: "No .mcp.json with “garmin-workouts” in the training folder."))
-                    }
-                    let client = try await config.connect(in: folder, readOnly: true)
-                    let text = try await client.callTool("garmin_status", timeout: 60)
-                    client.close()
-                    result = (!text.hasPrefix("❌"), text.replacingOccurrences(of: "✅ ", with: "").replacingOccurrences(of: "❌ ", with: ""))
-                } catch {
-                    result = (false, error.localizedDescription)
-                }
+                result = await WatchCheck.run(watch, folder: folder)
             }
             checking = false
         }
@@ -491,7 +524,8 @@ private struct EngineEditor: View {
                         .disabled(testing)
                     if testing { ProgressView().controlSize(.small) }
                     if engine.kind == .claudeCode {
-                        Button("Check Strava/Garmin", action: checkConnections)
+                        Button(model.watch == .none ? String(localized: "Check Strava") : String(localized: "Check Strava/\(model.watch.label)"),
+                               action: checkConnections)
                     }
                     Spacer()
                     Button("Use for new conversations") { model.coach.selectEngine(engine.id) }
@@ -626,13 +660,14 @@ private struct EngineEditor: View {
     private func checkConnections() {
         let command = engine.command
         let folder = model.folder.url
+        let watch = model.watch
         Task {
-            connections = await Task.detached { ConnectionCheck.run(command: command, folder: folder) }.value
+            connections = await Task.detached { ConnectionCheck.run(command: command, folder: folder, watch: watch) }.value
         }
     }
 }
 
-/// Checks the Strava and Garmin connection for Claude Code without calling the model.
+/// Checks the Strava and watch connection for Claude Code without calling the model.
 struct ConnectionCheck: Sendable {
     struct Line: Sendable {
         let text: String
@@ -641,7 +676,7 @@ struct ConnectionCheck: Sendable {
 
     let lines: [Line]
 
-    static func run(command: String, folder: URL) -> ConnectionCheck {
+    static func run(command: String, folder: URL, watch: WatchKind) -> ConnectionCheck {
         guard let exe = CLIResolver.find(command) else {
             return ConnectionCheck(lines: [Line(text: CoachError.notFound(command).localizedDescription, ok: false)])
         }
@@ -654,15 +689,13 @@ struct ConnectionCheck: Sendable {
             lines.append(Line(text: String(localized: "Strava MCP is not set up for this folder"), ok: false))
         }
 
-        if let data = try? Data(contentsOf: folder.appending(path: ".mcp.json")),
-           let config = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-           let servers = config["mcpServers"] as? [String: Any],
-           let garmin = servers["garmin-workouts"] as? [String: Any],
-           let program = garmin["command"] as? String {
-            let ok = FileManager.default.isExecutableFile(atPath: program)
-            lines.append(Line(text: ok ? String(localized: "Garmin server found (loaded at startup)") : String(localized: "Garmin: \(program) is missing"), ok: ok))
-        } else {
-            lines.append(Line(text: String(localized: "Garmin: no .mcp.json in the folder"), ok: false))
+        if watch != .none {
+            if let config = WatchServerConfig.load(from: folder, watch: watch) {
+                let ok = FileManager.default.isExecutableFile(atPath: config.command)
+                lines.append(Line(text: ok ? String(localized: "\(watch.label) server found (loaded at startup)") : String(localized: "\(watch.label): \(config.command) is missing"), ok: ok))
+            } else {
+                lines.append(Line(text: String(localized: "\(watch.label): not registered in the folder’s .mcp.json"), ok: false))
+            }
         }
         return ConnectionCheck(lines: lines)
     }

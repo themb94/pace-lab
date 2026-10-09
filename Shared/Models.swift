@@ -119,6 +119,7 @@ struct AnalysisFile: Codable, Sendable {
 struct Run: Codable, Sendable, Identifiable, Hashable {
     var stravaId: String?
     var garminId: String?
+    var polarId: String?
     var source: String?
     /// Plan session (`b1w1-tempo-0`, older IDs without prefix `w3-long-2`) or nil for extra runs.
     var sessionId: String?
@@ -141,9 +142,9 @@ struct Run: Codable, Sendable, Identifiable, Hashable {
     var analysis: String?
     var adjustments: String?
 
-    var id: String { stravaId ?? garminId ?? "\(date)-\(name)" }
+    var id: String { stravaId ?? garminId ?? polarId ?? "\(date)-\(name)" }
 
-    /// Not yet rated or analyzed — e.g. just loaded from Strava/Garmin.
+    /// Not yet rated or analyzed — e.g. just loaded from Strava, Garmin or Polar.
     var isAnalyzed: Bool { verdict != nil || !(analysis ?? "").isEmpty }
 
     static func == (lhs: Run, rhs: Run) -> Bool { lhs.id == rhs.id }

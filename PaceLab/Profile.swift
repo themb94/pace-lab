@@ -4,7 +4,7 @@ import Synchronization
 
 /// A person who trains with Pace Lab. Profiles are completely separate from each other: each one has its
 /// own training folder, settings, coach conversations and model lists, and its own sign-ins for Claude Code,
-/// Codex, Garmin and Strava — so every profile needs its own setup.
+/// Codex, the watch (Garmin or Polar) and Strava — so every profile needs its own setup.
 ///
 /// The main profile (the first one) keeps the app's original locations: UserDefaults.standard,
 /// Application Support/Pace Lab, the CLIs' default configuration (~/.claude, ~/.codex) and ~/.garminconnect.
@@ -77,6 +77,11 @@ struct Profile: Codable, Identifiable, Hashable, Sendable {
     /// Where the Garmin server keeps this profile's token.
     var garminTokenStore: String {
         isMain ? "\(NSHomeDirectory())/.garminconnect" : dataDirectory.appending(path: "garminconnect").path
+    }
+
+    /// Where the Polar server keeps this profile's client and token (polar.json).
+    var polarTokenStore: String {
+        dataDirectory.appending(path: "polar").path
     }
 
     /// Claude Code's own files (memory, ~/.claude.json): with its own configuration everything is inside that folder.

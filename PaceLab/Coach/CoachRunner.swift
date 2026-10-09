@@ -15,6 +15,8 @@ struct CoachRequest: Sendable {
     var sessionName: String
     /// Only then may Garmin workouts be created, scheduled or deleted.
     var allowGarminWrite: Bool
+    /// The profile's watch: which server the coach may read runs from.
+    var watch: WatchKind = .garmin
     /// Don't store anything permanently (test in Settings).
     var ephemeral = false
 }

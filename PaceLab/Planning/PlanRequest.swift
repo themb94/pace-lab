@@ -81,10 +81,10 @@ enum PlanPrompts {
             \(task(request, snapshot))
 
             Change plan.json directly for this: the affected sessions (type, dist, desc) and, matching each, its “workout” \
-            (schema: README, section “Plan schema” — garmin_workouts.py builds the Garmin workouts from it, so don’t change anything there). \
+            (schema: README, section “Plan schema” — the workouts for the watch are built from it, so don’t change anything there). \
             Only adjust other weeks if this change really requires it, and explain why. The ticks are tied to the \
             type and position of a session ({idPrefix}w{week}-{type}-{index}) — so don’t change type or order of sessions that are already ticked off. \
-            Follow the training principles in the README. Don’t upload anything to Garmin. At the end, briefly \
+            Follow the training principles in the README. Don’t send anything to the watch. At the end, briefly \
             summarize what you changed and why.
             """)
         case .block:

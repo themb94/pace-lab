@@ -4,7 +4,7 @@ import SwiftUI
 enum GarminUpload {
     /// Names of the workouts that are already in the Garmin account.
     static func existingNames(folder: URL) async throws -> Set<String> {
-        guard let config = GarminServerConfig.load(from: folder) else { throw SyncFailure(message: String(localized: "No Garmin server set up (.mcp.json is missing).")) }
+        guard let config = WatchServerConfig.load(from: folder, watch: .garmin) else { throw SyncFailure(message: String(localized: "No Garmin server set up (.mcp.json is missing).")) }
         let client = try await config.connect(in: folder, readOnly: true)
         defer { client.close() }
         let text = try await client.callTool("list_workouts", timeout: 60)
@@ -17,7 +17,7 @@ enum GarminUpload {
 
     /// Creates all non-easy workouts of the week; ones with the same name are deleted first.
     static func upload(week: Int, folder: URL) async throws -> [String] {
-        guard let config = GarminServerConfig.load(from: folder) else { throw SyncFailure(message: String(localized: "No Garmin server set up (.mcp.json is missing).")) }
+        guard let config = WatchServerConfig.load(from: folder, watch: .garmin) else { throw SyncFailure(message: String(localized: "No Garmin server set up (.mcp.json is missing).")) }
         let client = try await config.connect(in: folder, readOnly: false)
         defer { client.close() }
         let text = try await client.callTool("create_plan", arguments: ["week": week, "replace_existing": true], timeout: 240)

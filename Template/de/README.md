@@ -25,7 +25,7 @@ steht, gilt als Anweisung für den Coach — passe es an dich an.
 Standardregeln — ändere sie, wenn du es anders willst:
 
 1. **Lockere Läufe nach Gefühl**, ohne Pace- oder Pulsziel auf der Uhr. Sie werden
-   standardmäßig nicht als Garmin-Workout angelegt (`"uploadEasyRuns": true` in
+   standardmäßig nicht als Workout für die Uhr angelegt (`"uploadEasyRuns": true` in
    `plan.json` ändert das).
 2. **Long Runs** haben nur eine Distanz, kein Pace-Ziel.
 3. **Pace-Ziele** nur für die harten Abschnitte einer Qualitätseinheit;
@@ -48,7 +48,7 @@ plan-entwurf.json    (zeitweise) Entwurf für den nächsten Block — wird in de
 plans/               Frühere Blöcke (beim Übernehmen eines Entwurfs abgelegt)
 analysis.json        Alle Läufe mit Messwerten und Auswertung
 completed.json       Welche Einheiten erledigt sind
-.mcp.json            Anbindung des Garmin-Servers (legt die App an)
+.mcp.json            Anbindung des Uhr-Servers, Garmin oder Polar (legt die App an)
 .git/                Verlauf — jede Änderung ist ein Stand und lässt sich zurücknehmen
 ```
 
@@ -96,8 +96,8 @@ Neueste zuerst. Schema pro Lauf:
 
 ```jsonc
 {
-  "source": "garmin",            // "garmin" | "strava" — gesetzt, wenn die App den Lauf geladen hat
-  "garminId": "…",               // bzw. "stravaId"
+  "source": "garmin",            // "garmin" | "polar" | "strava" — gesetzt, wenn die App den Lauf geladen hat
+  "garminId": "…",               // bzw. "polarId" / "stravaId"
   "sessionId": "b1w1-tempo-0",   // oder null bei außerplanmäßigen Läufen
   "tag": "…",                    // nur wenn sessionId null ist, z. B. "Regeneration"
   "name": "…", "date": "2026-01-06",
@@ -127,14 +127,14 @@ bei Intervallen präzisieren, `sessionId`, `flags`, `verdict`, `analysis`,
 ## Wochenauswertung
 
 1. **Läufe holen** — Strava über den Strava-MCP (`list_activities`,
-   `get_activity_performance`), falls eingerichtet, sonst Garmin
-   (`list_activities`, `get_activity_data`). Oft hat die App sie schon geladen.
+   `get_activity_performance`), falls eingerichtet, sonst über die Uhr — Garmin oder
+   Polar (`list_activities`, `get_activity_data`). Oft hat die App sie schon geladen.
 2. **Struktur rekonstruieren:** Bei Intervall-Workouts ergeben aufeinanderfolgende
    Runden zusammen die geplanten Abschnitte.
 3. `completed.json` und `analysis.json` aktualisieren, Wochenfazit in `weekSummaries`.
 4. Kurze Zusammenfassung: Läufe, Bewertung, Empfehlung für die nächste Woche.
 5. Erst danach die nächste Woche vorbereiten (`plan.json`). Garmin-Workouts nur mit
-   ausdrücklicher Freigabe anlegen.
+   ausdrücklicher Freigabe anlegen (bei Polar zeigt die App die Woche zum Eintragen).
 
 ## Garmin
 
@@ -144,6 +144,15 @@ eingetragen. Werkzeuge: `garmin_status`, `list_activities`, `get_activity_data`,
 `delete_workout(id)`, `schedule_workout(id, date)`. Die Workouts entstehen aus
 `plan.json`; `replace_existing=true` ersetzt gleichnamige Workouts statt sie zu
 verdoppeln. Anlegen, Einplanen und Löschen nur mit Freigabe.
+
+## Polar
+
+Mit einer Polar-Uhr liest der Server `polar` (MCP) die Läufe über Polars offizielle
+Schnittstelle (AccessLink): `polar_status`, `list_activities`, `get_activity_data`
+(Runden sind Kilometer-Splits, berechnet aus den Messwerten der Uhr),
+`preview_plan(week)`. Polar lässt keine anderen Apps Trainingsziele auf die Uhr
+schreiben — die App zeigt eine Woche als Phasen zum Eintragen in Polar Flow
+(Trainingsziel → Phasen). Polar liefert nur Trainings der letzten 30 Tage.
 
 ## Versionsverwaltung
 

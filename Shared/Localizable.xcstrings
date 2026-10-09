@@ -151,12 +151,12 @@
         }
       }
     },
-    "%@\n\nChange plan.json directly for this: the affected sessions (type, dist, desc) and, matching each, its “workout” (schema: README, section “Plan schema” — garmin_workouts.py builds the Garmin workouts from it, so don’t change anything there). Only adjust other weeks if this change really requires it, and explain why. The ticks are tied to the type and position of a session ({idPrefix}w{week}-{type}-{index}) — so don’t change type or order of sessions that are already ticked off. Follow the training principles in the README. Don’t upload anything to Garmin. At the end, briefly summarize what you changed and why.": {
+    "%@\n\nChange plan.json directly for this: the affected sessions (type, dist, desc) and, matching each, its “workout” (schema: README, section “Plan schema” — the workouts for the watch are built from it, so don’t change anything there). Only adjust other weeks if this change really requires it, and explain why. The ticks are tied to the type and position of a session ({idPrefix}w{week}-{type}-{index}) — so don’t change type or order of sessions that are already ticked off. Follow the training principles in the README. Don’t send anything to the watch. At the end, briefly summarize what you changed and why.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@\n\nÄndere dafür plan.json direkt: die betroffenen Einheiten (type, dist, desc) und passend dazu jeweils das „workout“ (Schema: README, Abschnitt „Plan-Schema“ — garmin_workouts.py baut daraus die Garmin-Workouts, dort also nichts ändern). Andere Wochen nur anpassen, wenn es wegen dieser Änderung wirklich nötig ist, und das dann begründen. Die Häkchen hängen an Typ und Position der Einheit ({idPrefix}w{Woche}-{type}-{index}) — bei schon abgehakten Einheiten Typ und Reihenfolge also nicht ändern. Halte dich an die Trainingsprinzipien der README. Lade nichts auf Garmin hoch. Fasse zum Schluss knapp zusammen, was du geändert hast und warum."
+            "value": "%@\n\nÄndere dafür plan.json direkt: die betroffenen Einheiten (type, dist, desc) und passend dazu jeweils das „workout“ (Schema: README, Abschnitt „Plan-Schema“ — daraus entstehen die Workouts für die Uhr, dort also nichts ändern). Andere Wochen nur anpassen, wenn es wegen dieser Änderung wirklich nötig ist, und das dann begründen. Die Häkchen hängen an Typ und Position der Einheit ({idPrefix}w{Woche}-{type}-{index}) — bei schon abgehakten Einheiten Typ und Reihenfolge also nicht ändern. Halte dich an die Trainingsprinzipien der README. Schicke nichts an die Uhr. Fasse zum Schluss knapp zusammen, was du geändert hast und warum."
           }
         }
       }
@@ -391,6 +391,36 @@
         }
       }
     },
+    "%@ reports: %@\nIf the sign-in has expired, sign in again under Pace Lab → Setup → Watch.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ meldet: %2$@\nIst die Anmeldung abgelaufen, unter Pace Lab → Einrichtung → Uhr neu anmelden."
+          }
+        }
+      }
+    },
+    "%@ server found (loaded at startup)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@-Server gefunden (wird beim Start geladen)"
+          }
+        }
+      }
+    },
+    "%@ server registered in the training folder.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@-Server ist im Trainingsordner eingetragen."
+          }
+        }
+      }
+    },
     "%@ wind%@": {
       "localizations": {
         "de": {
@@ -441,12 +471,42 @@
         }
       }
     },
+    "%@: %@ is missing": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: %2$@ fehlt"
+          }
+        }
+      }
+    },
     "%@: connected": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "%@: verbunden"
+          }
+        }
+      }
+    },
+    "%@: connecting": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: verbinden"
+          }
+        }
+      }
+    },
+    "%@: fetching activities": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: Aktivitäten abrufen"
           }
         }
       }
@@ -461,12 +521,32 @@
         }
       }
     },
+    "%@: not registered in the folder’s .mcp.json": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: nicht in der .mcp.json des Ordners eingetragen"
+          }
+        }
+      }
+    },
     "%@: starting …": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "%@: starte …"
+          }
+        }
+      }
+    },
+    "%@: unexpected response to list_activities.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: unerwartete Antwort auf list_activities."
           }
         }
       }
@@ -691,6 +771,16 @@
         }
       }
     },
+    "1. Sign in at admin.polaraccesslink.com with your Polar account and create a client (free). Name: e.g. “Pace Lab”. Enter exactly this as the redirect URL:": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Melde dich unter admin.polaraccesslink.com mit deinem Polar-Konto an und lege einen Client an (kostenlos). Name: z. B. „Pace Lab“. Als Redirect-URL genau das eintragen:"
+          }
+        }
+      }
+    },
     "1M context": {
       "localizations": {
         "de": {
@@ -701,12 +791,32 @@
         }
       }
     },
-    "A profile is a Pace Lab of its own for another person: its own training folder with plan and runs, its own coach conversations and settings, and its own sign-ins for Claude Code, Codex, Garmin and Strava. Nothing is shared between profiles — the new profile is set up from scratch.": {
+    "2. Enter the client ID and secret here — they stay on this Mac.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ein Profil ist ein eigenes Pace Lab für eine weitere Person: eigener Trainingsordner mit Plan und Läufen, eigene Coach-Gespräche und Einstellungen und eigene Anmeldungen bei Claude Code, Codex, Garmin und Strava. Zwischen Profilen wird nichts geteilt — das neue Profil wird von Grund auf eingerichtet."
+            "value": "2. Client-ID und Secret hier eintragen — sie bleiben auf diesem Mac."
+          }
+        }
+      }
+    },
+    "3. Polar opens in the browser: allow access. Polar only passes on training sessions synced after this — runs from before don’t appear.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3. Polar öffnet sich im Browser: Zugriff erlauben. Polar gibt nur Trainings weiter, die danach synchronisiert werden — ältere Läufe erscheinen nicht."
+          }
+        }
+      }
+    },
+    "A profile is a Pace Lab of its own for another person: its own training folder with plan and runs, its own coach conversations and settings, and its own sign-ins for Claude Code, Codex, the watch (Garmin or Polar) and Strava. Nothing is shared between profiles — the new profile is set up from scratch.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Profil ist ein eigenes Pace Lab für eine weitere Person: eigener Trainingsordner mit Plan und Läufen, eigene Coach-Gespräche und Einstellungen und eigene Anmeldungen bei Claude Code, Codex, der Uhr (Garmin oder Polar) und Strava. Zwischen Profilen wird nichts geteilt — das neue Profil wird von Grund auf eingerichtet."
           }
         }
       }
@@ -921,22 +1031,22 @@
         }
       }
     },
-    "Agent — plans, reviews, Garmin (no Strava).": {
+    "Agent — plans, reviews, Strava and the watch.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Agent — plant, wertet aus, Garmin (kein Strava)."
+            "value": "Agent — plant, wertet aus, Strava und Uhr."
           }
         }
       }
     },
-    "Agent — plans, reviews, Strava and Garmin.": {
+    "Agent — plans, reviews, the watch (no Strava).": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Agent — plant, wertet aus, Strava und Garmin."
+            "value": "Agent — plant, wertet aus, Uhr (kein Strava)."
           }
         }
       }
@@ -1441,12 +1551,22 @@
         }
       }
     },
-    "Check Strava/Garmin": {
+    "Check Strava": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Strava/Garmin prüfen"
+            "value": "Strava prüfen"
+          }
+        }
+      }
+    },
+    "Check Strava/%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava/%@ prüfen"
           }
         }
       }
@@ -1671,6 +1791,26 @@
         }
       }
     },
+    "Client ID": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client-ID"
+          }
+        }
+      }
+    },
+    "Client secret": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client-Secret"
+          }
+        }
+      }
+    },
     "Climb": {
       "localizations": {
         "de": {
@@ -1817,6 +1957,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Auslaufen"
+          }
+        }
+      }
+    },
+    "Copied": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiert"
+          }
+        }
+      }
+    },
+    "Copy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopieren"
           }
         }
       }
@@ -2231,12 +2391,12 @@
         }
       }
     },
-    "Do the weekly review for the most recently completed training week, exactly as described in README.md: fetch runs (Strava or Garmin, as set in the README), update completed.json and analysis.json and write a week summary into weekSummaries. Runs the app has already loaded (entries with “source” and without “verdict”) you complete instead of creating them anew. Don’t create any Garmin workouts. At the end, answer with a short summary: which runs, your rating and your recommendation for next week.": {
+    "Do the weekly review for the most recently completed training week, exactly as described in README.md: fetch runs (Strava or the watch, as set in the README), update completed.json and analysis.json and write a week summary into weekSummaries. Runs the app has already loaded (entries with “source” and without “verdict”) you complete instead of creating them anew. Don’t create any workouts on the watch. At the end, answer with a short summary: which runs, your rating and your recommendation for next week.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mach die Wochenauswertung für die zuletzt gelaufene Trainingswoche, genau wie in README.md beschrieben: Läufe holen (Strava bzw. Garmin, wie in der README festgelegt), completed.json und analysis.json aktualisieren und ein Wochenfazit in weekSummaries schreiben. Läufe, die die App schon geladen hat (Einträge mit „source“ und ohne „verdict“), ergänzt du, statt sie neu anzulegen. Lege keine Garmin-Workouts an. Antworte zum Schluss mit einer kurzen Zusammenfassung: welche Läufe, deine Bewertung und deine Empfehlung für die nächste Woche."
+            "value": "Mach die Wochenauswertung für die zuletzt gelaufene Trainingswoche, genau wie in README.md beschrieben: Läufe holen (Strava bzw. über die Uhr, wie in der README festgelegt), completed.json und analysis.json aktualisieren und ein Wochenfazit in weekSummaries schreiben. Läufe, die die App schon geladen hat (Einträge mit „source“ und ohne „verdict“), ergänzt du, statt sie neu anzulegen. Lege keine Workouts auf der Uhr an. Antworte zum Schluss mit einer kurzen Zusammenfassung: welche Läufe, deine Bewertung und deine Empfehlung für die nächste Woche."
           }
         }
       }
@@ -2371,6 +2531,16 @@
         }
       }
     },
+    "Easy runs are not entered as a target — run by feel.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lockere Läufe werden nicht als Ziel eingetragen — nach Gefühl laufen."
+          }
+        }
+      }
+    },
     "Easy runs are not sent to the watch (plan option uploadEasyRuns).": {
       "localizations": {
         "de": {
@@ -2461,12 +2631,12 @@
         }
       }
     },
-    "Error from the Garmin server.": {
+    "Error from the watch server.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fehler vom Garmin-Server."
+            "value": "Fehler vom Uhr-Server."
           }
         }
       }
@@ -2571,6 +2741,16 @@
         }
       }
     },
+    "For Polar as phased training target “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für Polar als Phasen-Trainingsziel „%@“"
+          }
+        }
+      }
+    },
     "For a local model via Codex, e.g. “--oss --local-provider lmstudio” (then model = LM Studio model). Codex can’t sign in to Strava and fetches runs directly through Garmin.": {
       "localizations": {
         "de": {
@@ -2651,26 +2831,6 @@
         }
       }
     },
-    "Garmin reports: %@\nIf the sign-in has expired, sign in again under Pace Lab → Setup → Garmin.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Garmin meldet: %@\nIst die Anmeldung abgelaufen, unter Pace Lab → Einrichtung → Garmin neu anmelden."
-          }
-        }
-      }
-    },
-    "Garmin server found (loaded at startup)": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Garmin-Server gefunden (wird beim Start geladen)"
-          }
-        }
-      }
-    },
     "Garmin upload approved": {
       "localizations": {
         "de": {
@@ -2691,32 +2851,12 @@
         }
       }
     },
-    "Garmin: %@ is missing": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Garmin: %@ fehlt"
-          }
-        }
-      }
-    },
     "Garmin: checking connection": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Garmin: Verbindung prüfen"
-          }
-        }
-      }
-    },
-    "Garmin: connecting": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Garmin: Verbindung aufbauen"
           }
         }
       }
@@ -2761,16 +2901,6 @@
         }
       }
     },
-    "Garmin: no .mcp.json in the folder": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Garmin: keine .mcp.json im Ordner"
-          }
-        }
-      }
-    },
     "Garmin: previewing the week": {
       "localizations": {
         "de": {
@@ -2797,16 +2927,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Garmin: Workout einplanen"
-          }
-        }
-      }
-    },
-    "Garmin: unexpected response to list_activities.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Garmin: unerwartete Antwort auf list_activities."
           }
         }
       }
@@ -3011,12 +3131,12 @@
         }
       }
     },
-    "Installing packages (garminconnect, mcp) — may take a minute …": {
+    "Installing packages (%@) — may take a minute …": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pakete installieren (garminconnect, mcp) — kann eine Minute dauern …"
+            "value": "Pakete installieren (%@) — kann eine Minute dauern …"
           }
         }
       }
@@ -3051,12 +3171,12 @@
         }
       }
     },
-    "Its settings, coach conversations and sign-ins for Claude Code, Codex and Garmin are removed from this Mac. The training folder with plan, runs and history stays: %@": {
+    "Its settings, coach conversations and sign-ins for Claude Code, Codex, Garmin and Polar are removed from this Mac. The training folder with plan, runs and history stays: %@": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seine Einstellungen, Coach-Gespräche und Anmeldungen bei Claude Code, Codex und Garmin werden von diesem Mac entfernt. Der Trainingsordner mit Plan, Läufen und Verlauf bleibt erhalten: %@"
+            "value": "Seine Einstellungen, Coach-Gespräche und Anmeldungen bei Claude Code, Codex, Garmin und Polar werden von diesem Mac entfernt. Der Trainingsordner mit Plan, Läufen und Verlauf bleibt erhalten: %@"
           }
         }
       }
@@ -3481,22 +3601,22 @@
         }
       }
     },
-    "No .mcp.json with “garmin-workouts” in the training folder.": {
+    "No %@ server registered in the training folder — set it up under Setup → Watch.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine .mcp.json mit „garmin-workouts“ im Trainingsordner."
+            "value": "Kein %@-Server im Trainingsordner eingetragen — unter Einrichtung → Uhr einrichten."
           }
         }
       }
     },
-    "No Garmin server registered.": {
+    "No %@ server set up — set it up under Pace Lab → Setup → Watch.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kein Garmin-Server eingetragen."
+            "value": "Kein %@-Server eingerichtet — unter Pace Lab → Einrichtung → Uhr einrichten."
           }
         }
       }
@@ -3507,16 +3627,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kein Garmin-Server eingerichtet (.mcp.json fehlt)."
-          }
-        }
-      }
-    },
-    "No Garmin server set up: the training folder has no .mcp.json with “garmin-workouts”.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kein Garmin-Server eingerichtet: Im Trainingsordner fehlt die .mcp.json mit „garmin-workouts“."
           }
         }
       }
@@ -3587,6 +3697,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Noch keine Stände"
+          }
+        }
+      }
+    },
+    "No watch connected — the steps are your guide.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Uhr verbunden — die Schritte sind deine Vorgabe."
+          }
+        }
+      }
+    },
+    "No watch connected.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Uhr verbunden."
           }
         }
       }
@@ -3721,12 +3851,32 @@
         }
       }
     },
+    "Open Polar Flow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polar Flow öffnen"
+          }
+        }
+      }
+    },
     "Open README": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "README öffnen"
+          }
+        }
+      }
+    },
+    "Open admin.polaraccesslink.com": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "admin.polaraccesslink.com öffnen"
           }
         }
       }
@@ -3807,6 +3957,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Oder schreib unten einfach, was los ist — z. B. „Stadtlauf am Samstag, bau die Woche um“ oder „Beine schwer, was heißt das für Donnerstag?“"
+          }
+        }
+      }
+    },
+    "Other / none": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andere / keine"
           }
         }
       }
@@ -4041,6 +4201,86 @@
         }
       }
     },
+    "Polar Flow (direct)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polar Flow (direkt)"
+          }
+        }
+      }
+    },
+    "Polar doesn’t let other apps put workouts on the watch. Create each session as a phased training target — in the Polar Flow app (Training targets › +) or at flow.polar.com (Diary › Add › Training target › Phased) — and then sync the watch.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polar lässt keine anderen Apps Workouts auf die Uhr schreiben. Lege jede Einheit als Phasen-Trainingsziel an — in der Polar Flow App (Trainingsziele › +) oder auf flow.polar.com (Tagebuch › Hinzufügen › Trainingsziel › Phasen) — und synchronisiere dann die Uhr."
+          }
+        }
+      }
+    },
+    "Polar passes on no workout names, so runs can’t be assigned automatically. You assign them under Runs → “Assign” or leave it to the coach during the review.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polar gibt keine Workout-Namen weiter, deshalb lassen sich Läufe nicht automatisch zuordnen. Du ordnest sie unter Läufe → „Zuordnen“ zu oder überlässt es dem Coach bei der Auswertung."
+          }
+        }
+      }
+    },
+    "Polar phases use the zones of the sport profile: pick the heart-rate or pace zone that fits the range shown, or adjust the zones in the sport profile once.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polar-Phasen nutzen die Zonen des Sportprofils: Wähle die Puls- oder Pace-Zone, die zum angezeigten Bereich passt, oder passe die Zonen im Sportprofil einmal an."
+          }
+        }
+      }
+    },
+    "Polar: checking connection": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polar: Verbindung prüfen"
+          }
+        }
+      }
+    },
+    "Polar: fetching activities": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polar: Aktivitäten abrufen"
+          }
+        }
+      }
+    },
+    "Polar: previewing the week": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polar: Woche als Vorschau"
+          }
+        }
+      }
+    },
+    "Polar: run details": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polar: Laufdetails"
+          }
+        }
+      }
+    },
     "Preparation failed: %@": {
       "localizations": {
         "de": {
@@ -4061,12 +4301,12 @@
         }
       }
     },
-    "Prepare the next training week: take the latest review and everything I told you about this week into account. Adjust plan.json if needed — sessions and their “workout”; garmin_workouts.py builds the Garmin workouts from it. Show me the sessions of the week. Don’t upload anything to Garmin yet — I will approve that afterwards.": {
+    "Prepare the next training week: take the latest review and everything I told you about this week into account. Adjust plan.json if needed — sessions and their “workout”; the workouts for the watch are built from it. Show me the sessions of the week. Don’t send anything to the watch yet — I will approve that afterwards.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bereite die nächste Trainingswoche vor: Berücksichtige die letzte Auswertung und alles, was ich dir zu dieser Woche gesagt habe. Passe plan.json an, falls nötig — Einheiten und ihr „workout“; garmin_workouts.py baut die Garmin-Workouts daraus. Zeig mir die Einheiten der Woche. Lade noch nichts auf Garmin hoch — das gebe ich danach frei."
+            "value": "Bereite die nächste Trainingswoche vor: Berücksichtige die letzte Auswertung und alles, was ich dir zu dieser Woche gesagt habe. Passe plan.json an, falls nötig — Einheiten und ihr „workout“; daraus entstehen die Workouts für die Uhr. Zeig mir die Einheiten der Woche. Schicke noch nichts an die Uhr — das gebe ich danach frei."
           }
         }
       }
@@ -4121,12 +4361,12 @@
         }
       }
     },
-    "Profiles are completely separate: each has its own training folder, settings and coach conversations, and its own sign-ins for Claude Code, Codex, Garmin and Strava. The main profile uses the sign-ins of this Mac (~/.claude, ~/.codex, ~/.garminconnect); every further profile keeps its own in Application Support/Pace Lab/Profiles.": {
+    "Profiles are completely separate: each has its own training folder, settings and coach conversations, and its own sign-ins for Claude Code, Codex, the watch (Garmin or Polar) and Strava. The main profile uses the sign-ins of this Mac (~/.claude, ~/.codex, ~/.garminconnect); every further profile keeps its own in Application Support/Pace Lab/Profiles.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Profile sind vollständig getrennt: Jedes hat seinen eigenen Trainingsordner, eigene Einstellungen und Coach-Gespräche und eigene Anmeldungen bei Claude Code, Codex, Garmin und Strava. Das Hauptprofil nutzt die Anmeldungen dieses Macs (~/.claude, ~/.codex, ~/.garminconnect); jedes weitere Profil hat seine eigenen in Application Support/Pace Lab/Profiles."
+            "value": "Profile sind vollständig getrennt: Jedes hat seinen eigenen Trainingsordner, eigene Einstellungen und Coach-Gespräche und eigene Anmeldungen bei Claude Code, Codex, der Uhr (Garmin oder Polar) und Strava. Das Hauptprofil nutzt die Anmeldungen dieses Macs (~/.claude, ~/.codex, ~/.garminconnect); jedes weitere Profil hat seine eigenen in Application Support/Pace Lab/Profiles."
           }
         }
       }
@@ -4297,6 +4537,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ausgewählte CLI entfernen"
+          }
+        }
+      }
+    },
+    "Repeat %lld ×": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld × wiederholen"
           }
         }
       }
@@ -4481,6 +4731,36 @@
         }
       }
     },
+    "Runs come directly from Garmin Connect, workouts go to the watch after your approval.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läufe kommen direkt aus Garmin Connect, Workouts gehen nach deiner Freigabe auf die Uhr."
+          }
+        }
+      }
+    },
+    "Runs come directly from Polar Flow (read-only). Polar doesn’t let apps put workouts on the watch — the app shows each week as phases to enter in Polar Flow.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läufe kommen direkt aus Polar Flow (nur lesend). Polar lässt keine Apps Workouts auf die Uhr schreiben — die App zeigt jede Woche als Phasen zum Eintragen in Polar Flow."
+          }
+        }
+      }
+    },
+    "Runs come straight from Polar Flow through Polar’s official interface (AccessLink) — read-only, without a language model. Polar doesn’t let other apps put workouts on the watch: Pace Lab shows each week as phases to enter in Polar Flow instead. The app installs a small local server for this (needs Python 3.10+).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läufe kommen direkt aus Polar Flow über Polars offizielle Schnittstelle (AccessLink) — nur lesend, ohne Sprachmodell. Polar lässt keine anderen Apps Workouts auf die Uhr schreiben: Pace Lab zeigt jede Woche stattdessen als Phasen zum Eintragen in Polar Flow. Die App installiert dafür einen kleinen lokalen Server (braucht Python 3.10+)."
+          }
+        }
+      }
+    },
     "Runs loaded: %@": {
       "localizations": {
         "de": {
@@ -4651,12 +4931,22 @@
         }
       }
     },
-    "Set up Garmin server": {
+    "Set up %@ server": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Garmin-Server einrichten"
+            "value": "%@-Server einrichten"
+          }
+        }
+      }
+    },
+    "Set up %@ …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ einrichten …"
           }
         }
       }
@@ -4677,6 +4967,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Erst den Garmin-Server einrichten."
+          }
+        }
+      }
+    },
+    "Set up the Polar server first.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Richte zuerst den Polar-Server ein."
           }
         }
       }
@@ -4761,6 +5061,16 @@
         }
       }
     },
+    "Show for Polar …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für Polar anzeigen …"
+          }
+        }
+      }
+    },
     "Show in Finder": {
       "localizations": {
         "de": {
@@ -4807,6 +5117,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Neu anmelden"
+          }
+        }
+      }
+    },
+    "Sign in to Polar again …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut bei Polar anmelden …"
+          }
+        }
+      }
+    },
+    "Sign in to Polar …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Polar anmelden …"
           }
         }
       }
@@ -5141,12 +5471,12 @@
         }
       }
     },
-    "Strava: your Claude usage limit has been reached — load again later or choose Garmin as the source.": {
+    "Strava: your Claude usage limit has been reached — load again later or choose your watch as the source.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Strava: Dein Claude-Nutzungslimit ist erreicht — später erneut laden oder Garmin als Quelle wählen."
+            "value": "Strava: Dein Claude-Nutzungslimit ist erreicht — später erneut laden oder deine Uhr als Quelle wählen."
           }
         }
       }
@@ -5231,6 +5561,16 @@
         }
       }
     },
+    "Switching keeps the other watch’s setup, so you can switch back at any time.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beim Wechseln bleibt die Einrichtung der anderen Uhr erhalten, du kannst also jederzeit zurück."
+          }
+        }
+      }
+    },
     "Target race": {
       "localizations": {
         "de": {
@@ -5281,52 +5621,32 @@
         }
       }
     },
+    "The %@ server is missing from the app bundle.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der %@-Server fehlt im App-Paket."
+          }
+        }
+      }
+    },
+    "The %@ server isn’t set up for this profile yet.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der %@-Server ist für dieses Profil noch nicht eingerichtet."
+          }
+        }
+      }
+    },
     "The CLI could not be started: %@": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Die CLI ließ sich nicht starten: %@"
-          }
-        }
-      }
-    },
-    "The Garmin server is missing from the app bundle.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der Garmin-Server fehlt im App-Bundle."
-          }
-        }
-      }
-    },
-    "The Garmin server is not responding (%@, %lld s).": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der Garmin-Server antwortet nicht (%1$@, %2$lld s)."
-          }
-        }
-      }
-    },
-    "The Garmin server was terminated.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der Garmin-Server wurde beendet."
-          }
-        }
-      }
-    },
-    "The Garmin server was terminated: %@": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der Garmin-Server wurde beendet: %@"
           }
         }
       }
@@ -5351,12 +5671,12 @@
         }
       }
     },
-    "The app starts the Garmin server from the .mcp.json in read-only mode and queries the latest runs directly — without a language model and without using any quota. Takes a few seconds.": {
+    "The app starts the %@ server from the .mcp.json in read-only mode and queries the latest runs directly — without a language model and without using any quota. Takes a few seconds.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die App startet den Garmin-Server aus der .mcp.json im Nur-Lese-Modus und fragt die letzten Läufe direkt ab — ohne Sprachmodell und ohne Kontingent. Dauert ein paar Sekunden."
+            "value": "Die App startet den %@-Server aus der .mcp.json im Nur-Lese-Modus und fragt die letzten Läufe direkt ab — ohne Sprachmodell und ohne Kontingent. Dauert ein paar Sekunden."
           }
         }
       }
@@ -5371,12 +5691,12 @@
         }
       }
     },
-    "The coach is Claude Code on your Mac — with the same README, the same memory and the same Strava and Garmin connection as in the chat. Whatever it changes in the plan and analyses, you see right away in the app.": {
+    "The coach is Claude Code on your Mac — with the same README, the same memory and the same Strava and watch connection as in the chat. Whatever it changes in the plan and analyses, you see right away in the app.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Coach ist Claude Code auf deinem Mac — mit derselben README, demselben Gedächtnis und derselben Strava- und Garmin-Verbindung wie im Chat. Was er an Plan und Analysen ändert, siehst du sofort in der App."
+            "value": "Der Coach ist Claude Code auf deinem Mac — mit derselben README, demselben Gedächtnis und derselben Strava- und Uhr-Verbindung wie im Chat. Was er an Plan und Analysen ändert, siehst du sofort in der App."
           }
         }
       }
@@ -5631,6 +5951,36 @@
         }
       }
     },
+    "The watch server is not responding (%@, %lld s).": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Uhr-Server antwortet nicht (%1$@, %2$lld s)."
+          }
+        }
+      }
+    },
+    "The watch server was terminated.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Uhr-Server wurde beendet."
+          }
+        }
+      }
+    },
+    "The watch server was terminated: %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Uhr-Server wurde beendet: %@"
+          }
+        }
+      }
+    },
     "The widgets show the state the app last read. As long as Pace Lab is running (even just in the menu bar), it updates the widgets automatically on every change.": {
       "localizations": {
         "de": {
@@ -5721,12 +6071,12 @@
         }
       }
     },
-    "This profile is completely separate from the others: its own folder and its own sign-ins. Sign in to the coach, Garmin and Strava here again — even if they are already signed in on this Mac for another profile.": {
+    "This profile is completely separate from the others: its own folder and its own sign-ins. Sign in to the coach, the watch and Strava here again — even if they are already signed in on this Mac for another profile.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dieses Profil ist vollständig von den anderen getrennt: eigener Ordner, eigene Anmeldungen. Melde Coach, Garmin und Strava hier neu an — auch wenn sie auf diesem Mac für ein anderes Profil schon angemeldet sind."
+            "value": "Dieses Profil ist vollständig von den anderen getrennt: eigener Ordner, eigene Anmeldungen. Melde Coach, Uhr und Strava hier neu an — auch wenn sie auf diesem Mac für ein anderes Profil schon angemeldet sind."
           }
         }
       }
@@ -6051,6 +6401,16 @@
         }
       }
     },
+    "Waiting for the approval in the browser …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Warte auf die Freigabe im Browser …"
+          }
+        }
+      }
+    },
     "Warm-up": {
       "localizations": {
         "de": {
@@ -6067,6 +6427,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Auf-/Auslaufen und Trabpausen ohne Ziel. An warmen Tagen (>25 °C) lieber die HF deckeln als die Pace jagen."
+          }
+        }
+      }
+    },
+    "Watch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uhr"
           }
         }
       }
@@ -6117,6 +6487,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Woche %lld"
+          }
+        }
+      }
+    },
+    "Week %lld for Polar": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %lld für Polar"
+          }
+        }
+      }
+    },
+    "Week %lld for Polar …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %lld für Polar …"
           }
         }
       }
@@ -6181,12 +6571,22 @@
         }
       }
     },
-    "Week %lld: adjust or create on Garmin": {
+    "Week %lld: adjust": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Woche %lld: anpassen oder auf Garmin anlegen"
+            "value": "Woche %lld: anpassen"
+          }
+        }
+      }
+    },
+    "Week %lld: adjust or send to the watch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %lld: anpassen oder an die Uhr schicken"
           }
         }
       }
@@ -6271,6 +6671,26 @@
         }
       }
     },
+    "Without a watch connection you load runs from Strava (next step) or let the coach enter them. Workouts are not sent to a watch.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne Uhr-Anbindung lädst du Läufe aus Strava (nächster Schritt) oder lässt sie den Coach eintragen. Workouts gehen an keine Uhr."
+          }
+        }
+      }
+    },
+    "Without a watch, runs come from Strava or the coach enters them.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne Uhr kommen Läufe aus Strava oder der Coach trägt sie ein."
+          }
+        }
+      }
+    },
     "Writes straight to completed.json — the coach sees it too.": {
       "localizations": {
         "de": {
@@ -6297,6 +6717,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gestern"
+          }
+        }
+      }
+    },
+    "You can switch later in Settings → Runs, e.g. after getting a new watch.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wechseln kannst du später unter Einstellungen → Läufe, z. B. nach einer neuen Uhr."
           }
         }
       }
@@ -6341,12 +6771,12 @@
         }
       }
     },
-    "Your data stays on your Mac: in the training folder, in your CLIs and with Garmin or Strava themselves. Garmin and Strava are optional — without them you plan and tick off by hand.": {
+    "Your data stays on your Mac: in the training folder, in your CLIs and with Garmin, Polar or Strava themselves. Watch and Strava are optional — without them you plan and tick off by hand.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deine Daten bleiben auf deinem Mac: im Trainingsordner, in deinen CLIs und bei Garmin bzw. Strava selbst. Garmin und Strava sind optional — ohne sie planst und hakst du von Hand ab."
+            "value": "Deine Daten bleiben auf deinem Mac: im Trainingsordner, in deinen CLIs und bei Garmin, Polar bzw. Strava selbst. Uhr und Strava sind optional — ohne sie planst und hakst du von Hand ab."
           }
         }
       }
@@ -6417,6 +6847,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dein Nutzungslimit ist bald erreicht."
+          }
+        }
+      }
+    },
+    "Your watch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Uhr"
           }
         }
       }
@@ -6731,6 +7171,16 @@
         }
       }
     },
+    "free, by feel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "frei, nach Gefühl"
+          }
+        }
+      }
+    },
     "from ~/.codex/config.toml": {
       "localizations": {
         "de": {
@@ -6787,6 +7237,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "gut"
+          }
+        }
+      }
+    },
+    "heart rate %@ bpm": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puls %@ bpm"
+          }
+        }
+      }
+    },
+    "heart-rate zone %lld (%@ bpm)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulszone %1$lld (%2$@ bpm)"
           }
         }
       }
@@ -7191,6 +7661,16 @@
         }
       }
     },
+    "pace zone for %@/km": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace-Zone für %@/km"
+          }
+        }
+      }
+    },
     "partly cloudy": {
       "localizations": {
         "de": {
@@ -7317,6 +7797,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Südwest"
+          }
+        }
+      }
+    },
+    "stored": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gespeichert"
+          }
+        }
+      }
+    },
+    "stored: %@…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gespeichert: %@…"
           }
         }
       }

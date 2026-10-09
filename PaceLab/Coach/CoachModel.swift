@@ -20,9 +20,9 @@ struct CoachAction: Identifiable, Hashable {
         help: String(localized: "Fetch runs, tick them off and analyze them"),
         prompt: String(localized: """
         Do the weekly review for the most recently completed training week, exactly as described in README.md: \
-        fetch runs (Strava or Garmin, as set in the README), update completed.json and analysis.json and \
+        fetch runs (Strava or the watch, as set in the README), update completed.json and analysis.json and \
         write a week summary into weekSummaries. Runs the app has already loaded (entries with “source” and \
-        without “verdict”) you complete instead of creating them anew. Don’t create any Garmin workouts. At the end, answer \
+        without “verdict”) you complete instead of creating them anew. Don’t create any workouts on the watch. At the end, answer \
         with a short summary: which runs, your rating and your recommendation for next week.
         """),
         allowUpload: false, startsConversation: true, needsConversation: false)
@@ -32,8 +32,8 @@ struct CoachAction: Identifiable, Hashable {
         help: String(localized: "Check and adjust the plan, show a preview — no upload yet"),
         prompt: String(localized: """
         Prepare the next training week: take the latest review and everything I told you about \
-        this week into account. Adjust plan.json if needed — sessions and their “workout”; garmin_workouts.py \
-        builds the Garmin workouts from it. Show me the sessions of the week. Don’t upload anything to Garmin yet — I \
+        this week into account. Adjust plan.json if needed — sessions and their “workout”; the workouts for the \
+        watch are built from it. Show me the sessions of the week. Don’t send anything to the watch yet — I \
         will approve that afterwards.
         """),
         allowUpload: false, startsConversation: false, needsConversation: false)
@@ -45,6 +45,11 @@ struct CoachAction: Identifiable, Hashable {
         allowUpload: true, startsConversation: false, needsConversation: true)
 
     static let all = [reviewWeek, prepareWeek, uploadWeek]
+
+    /// The actions that make sense with this watch — only Garmin lets the coach upload workouts.
+    static func available(for watch: WatchKind) -> [CoachAction] {
+        watch.canUpload ? all : all.filter { $0 != uploadWeek }
+    }
 }
 
 // MARK: - Conversation data (stored as JSON in Application Support)
@@ -279,9 +284,11 @@ final class CoachModel {
         upsert(conversation)
         currentID = conversation.id
 
-        // Build the request to suit the engine.
+        // Build the request to suit the engine (and the profile's watch).
+        let watch = WatchSettings.current
+        let allowUpload = allowUpload && watch.canUpload
         var text = allowUpload ? prompt + CoachContext.uploadRelease : prompt
-        var system = CoachContext.agentInstructions(for: engine.kind)
+        var system = CoachContext.agentInstructions(for: engine.kind, watch: watch)
         switch engine.kind {
         case .claudeCode:
             break   // instructions are passed via --append-system-prompt
@@ -307,7 +314,8 @@ final class CoachModel {
             resumeSessionID: conversation.engineSessionID,
             newSessionID: conversation.id,
             sessionName: "Pace Lab: \(conversation.title)",
-            allowGarminWrite: allowUpload && engine.kind.isAgent)
+            allowGarminWrite: allowUpload && engine.kind.isAgent,
+            watch: watch)
 
         let runner = CoachRunners.make(for: engine.kind)
         self.runner = runner
@@ -448,7 +456,7 @@ final class CoachModel {
     private func apply(_ event: CoachEvent, turn turnID: UUID, conversation conversationID: UUID) {
         switch event {
         case .started(let model, let servers):
-            connections = servers.filter { ["strava-mcp", "garmin-workouts"].contains($0.name) }
+            connections = servers.filter { ["strava-mcp", "garmin-workouts", "polar"].contains($0.name) }
             if let model, !model.isEmpty {
                 mutateTurn(turnID, in: conversationID) { $0.model = model }
             }

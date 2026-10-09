@@ -7,7 +7,9 @@ import AppKit
 /// question, `-debugDark YES`, `-debugCreateFolder YES` (creates the empty project folder from the template), `-debugTour <folder>` (walkthrough with window captures), `-debugSupportDirectory <folder>` (separate conversations/model lists, profiles, no widget data), `-debugQuit YES` quits the app afterwards. Language: `-AppleLanguages "(en)"` or `"(de)"`. With `-projectPath <folder>` against a copy (an empty folder shows the setup).
 /// Profiles (only together with `-debugSupportDirectory`): `-debugProfile <name>` creates a test profile with the training
 /// folder `-debugProfileFolder <folder>`, switches to it and captures the profile views; everything after that runs in it.
-/// `-debugGarminConfig YES` registers the Garmin server in its folder, `-debugSwitchBack YES` returns to the main profile at the end
+/// `-debugGarminConfig YES` registers the Garmin server in its folder, `-debugWatch polar` sets its watch (and registers the
+/// Polar server; `-debugInstallWatch YES` installs it, `-debugPolarLogin <client id>` signs in against a fake Polar given by
+/// POLAR_API_BASE/POLAR_AUTH_URL/POLAR_TOKEN_URL in the environment), `-debugSwitchBack YES` returns to the main profile at the end
 /// (and `-debugDeleteProfile YES` deletes the test profile after that).
 @MainActor
 enum DebugSnapshots {
@@ -87,10 +89,10 @@ enum DebugSnapshots {
             if let sheet = mainWindow?.attachedSheet { capture(sheet, "10-plan-sheet", to: dir) }
             model.planRequest = nil
             try? await Task.sleep(for: .seconds(1))
-            model.garminUploadWeek = 1
+            model.watchWeek = 1
             try? await Task.sleep(for: .seconds(8))
             if let sheet = mainWindow?.attachedSheet { capture(sheet, "11-garmin-sheet", to: dir) }
-            model.garminUploadWeek = nil
+            model.watchWeek = nil
             try? await Task.sleep(for: .seconds(1))
         }
 
@@ -173,7 +175,36 @@ enum DebugSnapshots {
             model.folderChanged()
         }
         if defaults.bool(forKey: "debugGarminConfig") {
-            try? GarminSetup.writeConfig(folder: model.folder.url)
+            try? WatchSetup.garmin.writeConfig(folder: model.folder.url)
+        }
+        // `-debugWatch polar|garmin|none`: the test profile's watch; for Polar also registers the server.
+        if let value = defaults.string(forKey: "debugWatch"), let watch = WatchKind(rawValue: value) {
+            model.setWatch(watch)
+            if watch == .polar { try? WatchSetup.polar.writeConfig(folder: model.folder.url) }
+            // `-debugInstallWatch YES`: installs the server like the setup does (Python environment in the support directory).
+            if defaults.bool(forKey: "debugInstallWatch"), let setup = WatchSetup.for(watch) {
+                let folder = model.folder.url
+                do {
+                    try await Task.detached {
+                        try setup.install { print("WATCH install: \($0)") }
+                        try setup.writeConfig(folder: folder)
+                    }.value
+                    print("WATCH installed \(setup.directory.path)")
+                } catch {
+                    print("WATCH install failed: \(error.localizedDescription)")
+                }
+            }
+            // `-debugPolarLogin <client id>`: the sign-in against a fake Polar (POLAR_AUTH_URL etc. in the environment);
+            // the approval page is requested directly instead of opening the browser.
+            if watch == .polar, let client = defaults.string(forKey: "debugPolarLogin") {
+                let login = PolarLogin()
+                login.clientID = client
+                login.clientSecret = "debug-secret"
+                login.openURL = { url in Task.detached { _ = try? await URLSession.shared.data(from: url) } }
+                await login.start(folder: model.folder.url)
+                print("POLAR login: \(login.phase)")
+                print("POLAR check: \(await WatchCheck.run(.polar, folder: model.folder.url))")
+            }
         }
         for _ in 0..<50 where model.snapshot == nil { try? await Task.sleep(for: .milliseconds(200)) }
         try? await Task.sleep(for: .seconds(1.5))
@@ -184,6 +215,14 @@ enum DebugSnapshots {
         try? await Task.sleep(for: .seconds(6))   // CLI and Strava checks
         if let setup = NSApp.windows.first(where: { $0.isVisible && ["Einrichtung", "Setup"].contains($0.title) }) {
             capture(setup, "p2-profile-setup", to: dir)
+            // Further down: watch and Strava.
+            if let scroll = firstScrollView(in: setup.contentView), let document = scroll.documentView {
+                let y = max(0, document.frame.height - scroll.contentView.bounds.height)
+                scroll.contentView.scroll(to: NSPoint(x: 0, y: document.isFlipped ? y * 0.62 : y * 0.38))
+                scroll.reflectScrolledClipView(scroll.contentView)
+                try? await Task.sleep(for: .seconds(1))
+                capture(setup, "p2b-profile-setup-watch", to: dir)
+            }
             setup.close()
         }
 
@@ -206,6 +245,13 @@ enum DebugSnapshots {
     }
 
     private static var mainWindow: NSWindow?
+
+    private static func firstScrollView(in view: NSView?) -> NSScrollView? {
+        guard let view else { return nil }
+        if let scroll = view as? NSScrollView, scroll.documentView != nil { return scroll }
+        for child in view.subviews { if let found = firstScrollView(in: child) { return found } }
+        return nil
+    }
 
     /// The app's own window as it looks on screen (including the sidebar with vibrancy). Own windows
     /// can be captured without screen recording permission; the function only exists as a symbol now.

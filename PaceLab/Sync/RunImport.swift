@@ -1,14 +1,15 @@
 import Foundation
 
-/// Where the app gets new runs from (Settings → Runs).
+/// Where the app gets new runs from (Settings → Runs): the profile's watch or Strava.
 enum RunSource: String, CaseIterable, Identifiable, Sendable {
-    case garmin, strava
+    case garmin, polar, strava
 
     var id: String { rawValue }
 
     var label: String {
         switch self {
         case .garmin: String(localized: "Garmin Connect (direct)")
+        case .polar: String(localized: "Polar Flow (direct)")
         case .strava: String(localized: "Strava (via Claude Code)")
         }
     }
@@ -16,9 +17,13 @@ enum RunSource: String, CaseIterable, Identifiable, Sendable {
     var shortLabel: String {
         switch self {
         case .garmin: "Garmin"
+        case .polar: "Polar"
         case .strava: "Strava"
         }
     }
+
+    /// Key of the activity ID in analysis.json.
+    var idKey: String { "\(rawValue)Id" }
 }
 
 /// A newly loaded run, ready as an entry for analysis.json — not yet rated or analyzed.
@@ -46,15 +51,17 @@ struct ImportedRun: Sendable {
 }
 
 /// The already known runs — so nothing ends up in analysis.json twice, not even if a
-/// run was already entered from the other source (Strava or Garmin).
+/// run was already entered from another source (Strava, Garmin or Polar).
 struct KnownRuns: Sendable {
     private let stravaIDs: Set<String>
     private let garminIDs: Set<String>
+    private let polarIDs: Set<String>
     private let distancesByDate: [String: [Double]]
 
     init(_ runs: [Run]) {
         stravaIDs = Set(runs.compactMap(\.stravaId))
         garminIDs = Set(runs.compactMap(\.garminId))
+        polarIDs = Set(runs.compactMap(\.polarId))
         distancesByDate = Dictionary(grouping: runs, by: \.date).mapValues { $0.compactMap(\.distanceKm) }
     }
 
@@ -64,6 +71,7 @@ struct KnownRuns: Sendable {
         switch source {
         case .strava where stravaIDs.contains(id): return true
         case .garmin where garminIDs.contains(id): return true
+        case .polar where polarIDs.contains(id): return true
         default: break
         }
         // Same day, almost the same distance → the same run from the other source.
@@ -80,8 +88,8 @@ enum RunImport {
         let hr: Double?
     }
 
-    /// From `get_activity_data` of the Garmin server.
-    static func garmin(_ detail: [String: Any]) -> ImportedRun? {
+    /// From `get_activity_data` of the Garmin or Polar server (the Polar server delivers the same keys).
+    static func watch(_ detail: [String: Any], source: RunSource) -> ImportedRun? {
         guard let id = stringID(detail["activityId"]),
               let summary = detail["summary"] as? [String: Any],
               let start = summary["startTimeLocal"] as? String,
@@ -96,8 +104,8 @@ enum RunImport {
                 hr: number(lap["averageHR"]))
         }
         let entry = OrderedJSON.object([
-            ("source", .string("garmin")),
-            ("garminId", .string(id)),
+            ("source", .string(source.rawValue)),
+            (source.idKey, .string(id)),
             ("sessionId", .null),
             ("name", .string(name)),
             ("date", .string(date)),
@@ -107,7 +115,7 @@ enum RunImport {
             ("avg_hr", .int(number(summary["averageHR"]))),
             ("max_hr", .int(number(summary["maxHR"]))),
             ("elevation_gain", .int(number(summary["elevationGain"]))),
-            // Garmin counts steps of both legs, Strava and the existing entries only one.
+            // Garmin and Polar count steps of both legs, Strava and the existing entries only one.
             ("cadence", .int(number(summary["averageRunCadence"]).map { $0 / 2 })),
             ("weather", garminWeather(detail["weather"] as? [String: Any], watch: number(summary["averageTemperature"])).map(OrderedJSON.string)),
             ("splits", .array(splits(laps))),
@@ -115,7 +123,7 @@ enum RunImport {
             ("analysis", .null),
             ("adjustments", .null),
         ])
-        return ImportedRun(entry: entry, source: .garmin, activityID: id, date: date, name: name, distanceKm: km)
+        return ImportedRun(entry: entry, source: source, activityID: id, date: date, name: name, distanceKm: km)
     }
 
     /// From `list_activities` + `get_activity_performance` of the Strava MCP.
@@ -298,6 +306,7 @@ enum AnalysisWriter {
     private static func identity(of entry: OrderedJSON) -> String? {
         if let id = entry["stravaId"]?.stringValue { return id }
         if let id = entry["garminId"]?.stringValue { return id }
+        if let id = entry["polarId"]?.stringValue { return id }
         guard let date = entry["date"]?.stringValue, let name = entry["name"]?.stringValue else { return nil }
         return "\(date)-\(name)"
     }

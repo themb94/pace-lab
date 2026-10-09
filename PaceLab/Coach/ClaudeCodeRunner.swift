@@ -45,9 +45,9 @@ final class ClaudeCodeRunner: CoachRunner, @unchecked Sendable {
 
     static func arguments(for request: CoachRequest) -> [String] {
         var allowed = ["Read", "Glob", "Grep", "Edit", "Write", "MultiEdit", "WebSearch", "WebFetch", "TodoWrite",
-                       "mcp__strava-mcp"] + garminReadTools
+                       "mcp__strava-mcp"] + request.watch.readTools
         var disallowed: [String] = []
-        if request.allowGarminWrite {
+        if request.allowGarminWrite && request.watch.canUpload {
             allowed += garminWriteTools
         } else {
             // Without permission, neither Garmin write access nor the terminal (token script as a detour).
@@ -217,9 +217,13 @@ enum ToolLabel {
             "mcp__garmin-workouts__create_plan": String(localized: "Garmin: creating workouts"),
             "mcp__garmin-workouts__schedule_workout": String(localized: "Garmin: scheduling a workout"),
             "mcp__garmin-workouts__delete_workout": String(localized: "Garmin: deleting a workout"),
+            "mcp__polar__polar_status": String(localized: "Polar: checking connection"),
+            "mcp__polar__list_activities": String(localized: "Polar: fetching activities"),
+            "mcp__polar__get_activity_data": String(localized: "Polar: run details"),
+            "mcp__polar__preview_plan": String(localized: "Polar: previewing the week"),
         ]
         if let label = known[tool] { return label }
-        for (prefix, title) in [("mcp__strava-mcp__", "Strava"), ("mcp__garmin-workouts__", "Garmin")] where tool.hasPrefix(prefix) {
+        for (prefix, title) in [("mcp__strava-mcp__", "Strava"), ("mcp__garmin-workouts__", "Garmin"), ("mcp__polar__", "Polar")] where tool.hasPrefix(prefix) {
             return "\(title): \(tool.dropFirst(prefix.count).replacingOccurrences(of: "_", with: " "))"
         }
         return tool
@@ -230,6 +234,7 @@ enum ToolLabel {
         let s = server.lowercased()
         if s.contains("strava") { return label(for: "mcp__strava-mcp__\(tool)") }
         if s.contains("garmin") { return label(for: "mcp__garmin-workouts__\(tool)") }
+        if s.contains("polar") { return label(for: "mcp__polar__\(tool)") }
         return "\(server): \(tool.replacingOccurrences(of: "_", with: " "))"
     }
 }

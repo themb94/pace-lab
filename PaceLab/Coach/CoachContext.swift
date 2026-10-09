@@ -25,10 +25,12 @@ enum CoachContext {
 
     // MARK: Agents (Claude Code, Codex)
 
-    static func agentInstructions(for kind: CoachEngine.Kind) -> String {
+    static func agentInstructions(for kind: CoachEngine.Kind, watch: WatchKind = .garmin) -> String {
         let memory = kind == .claudeCode
             ? " Also take your memory into account."
-            : " Strava isn’t available to you — always fetch runs directly through Garmin (list_activities, get_activity_data), even where the README or the request mention Strava."
+            : watch == .none
+            ? " Strava isn’t available to you and no watch is connected — work with the runs that are already in analysis.json."
+            : " Strava isn’t available to you — always fetch runs directly through \(watch.label) (list_activities, get_activity_data), even where the README or the request mention Strava."
         let p = person
         let coachOf = p.name.isEmpty ? "a personal running coach" : "the personal running coach of \(p.name)"
         return """
@@ -37,12 +39,24 @@ enum CoachContext {
         - \(p.subject) reads your replies in the app, not in a terminal: write everything in \(replyLanguage) — even short remarks while you work —, clear and compact, with simple Markdown (short paragraphs, lists, small tables at most). No diffs or JSON excerpts unless asked.
         - While you work you can’t ask questions. If a decision is missing, work as far as makes sense and put the question at the end of your reply.
         - Give no medical advice (no medication or dosage tips); refer to a doctor for that. Use health notes from the athlete profile only to interpret the data.
-        - You may only create, schedule or delete Garmin workouts if the message contains an explicit Garmin approval — without it these tools aren’t available to you at all. If a Garmin upload would be the next sensible step, end your reply with a last line of its own that reads exactly: \(uploadMarker) — the app then shows a button to approve.
+        - \(watchRule(watch))
         - The app displays plan.json, analysis.json and completed.json live: follow the schemas in README.md exactly and always write valid JSON.
-        - The plan lives only in plan.json — including a “workout” per session, from which the Garmin server builds the workouts. Write a new block as a draft to plan-entwurf.json; it is applied in the app.
-        - Entries in analysis.json with “source” and without “verdict” were already loaded from Strava/Garmin by the app: during a review, complete exactly those entries (keep IDs and measurements, name splits more precisely if needed) and don’t create duplicates.
+        - The plan lives only in plan.json — including a “workout” per session, from which the workouts for the watch are built. Write a new block as a draft to plan-entwurf.json; it is applied in the app.
+        - Entries in analysis.json with “source” and without “verdict” were already loaded from Strava, Garmin or Polar by the app: during a review, complete exactly those entries (keep IDs and measurements, name splits more precisely if needed) and don’t create duplicates.
         - The app records a version (git) automatically before and after your run and can undo it. Don’t run git commands yourself.
         """
+    }
+
+    /// What the coach may do with the profile's watch.
+    private static func watchRule(_ watch: WatchKind) -> String {
+        switch watch {
+        case .garmin:
+            "You may only create, schedule or delete Garmin workouts if the message contains an explicit Garmin approval — without it these tools aren’t available to you at all. If a Garmin upload would be the next sensible step, end your reply with a last line of its own that reads exactly: \(uploadMarker) — the app then shows a button to approve."
+        case .polar:
+            "The athlete trains with a Polar watch: runs come from the server “polar” (list_activities, get_activity_data — laps are kilometer splits computed from the watch’s samples; preview_plan shows a week as Polar phases). Workouts can’t be sent to a Polar watch automatically: the app shows a week as phases to enter in Polar Flow (“Week for Polar”). Wherever the README mentions Garmin, take it to mean the Polar watch. Never write \(uploadMarker)."
+        case .none:
+            "No watch is connected: runs come from Strava or are entered by hand; nothing can be sent to a watch. Never write \(uploadMarker)."
+        }
     }
 
     // MARK: Plain text CLIs (e.g. local models)

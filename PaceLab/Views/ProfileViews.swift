@@ -86,7 +86,7 @@ struct NewProfileSheet: View {
             Label("New profile", systemImage: "person.crop.circle.badge.plus")
                 .font(.title2.bold())
                 .foregroundStyle(Color.brand)
-            Text("A profile is a Pace Lab of its own for another person: its own training folder with plan and runs, its own coach conversations and settings, and its own sign-ins for Claude Code, Codex, Garmin and Strava. Nothing is shared between profiles — the new profile is set up from scratch.")
+            Text("A profile is a Pace Lab of its own for another person: its own training folder with plan and runs, its own coach conversations and settings, and its own sign-ins for Claude Code, Codex, the watch (Garmin or Polar) and Strava. Nothing is shared between profiles — the new profile is set up from scratch.")
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             TextField("Name", text: $name, prompt: Text("e.g. Anna — the coach addresses the person by it"))
@@ -148,7 +148,7 @@ struct ProfileSettings: View {
             } header: {
                 Text("Profiles")
             } footer: {
-                Text("Profiles are completely separate: each has its own training folder, settings and coach conversations, and its own sign-ins for Claude Code, Codex, Garmin and Strava. The main profile uses the sign-ins of this Mac (~/.claude, ~/.codex, ~/.garminconnect); every further profile keeps its own in Application Support/Pace Lab/Profiles.")
+                Text("Profiles are completely separate: each has its own training folder, settings and coach conversations, and its own sign-ins for Claude Code, Codex, the watch (Garmin or Polar) and Strava. The main profile uses the sign-ins of this Mac (~/.claude, ~/.codex, ~/.garminconnect); every further profile keeps its own in Application Support/Pace Lab/Profiles.")
             }
 
             Section {
@@ -170,7 +170,7 @@ struct ProfileSettings: View {
             Button("Delete profile", role: .destructive) { model.deleteProfile(profile.id) }
             Button("Cancel", role: .cancel) {}
         } message: { profile in
-            Text("Its settings, coach conversations and sign-ins for Claude Code, Codex and Garmin are removed from this Mac. The training folder with plan, runs and history stays: \(profile.projectPath)")
+            Text("Its settings, coach conversations and sign-ins for Claude Code, Codex, Garmin and Polar are removed from this Mac. The training folder with plan, runs and history stays: \(profile.projectPath)")
         }
     }
 

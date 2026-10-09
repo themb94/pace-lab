@@ -88,7 +88,7 @@ struct RunDetailView: View {
                 .foregroundStyle(.blue)
             VStack(alignment: .leading, spacing: 4) {
                 Text("Not reviewed yet").font(.headline)
-                let origin = run.source == "strava" ? "Strava" : run.source == "garmin" ? "Garmin" : String(localized: "the watch")
+                let origin = run.source.flatMap { RunSource(rawValue: $0)?.shortLabel } ?? String(localized: "the watch")
                 Text("Loaded from \(origin). The coach adds the rating, analysis and exact split names during the weekly review — or right away via “Review”.")
                     .font(.callout)
                     .foregroundStyle(.secondary)

@@ -7,7 +7,7 @@ final class ProgressText {
     var text: String?
 }
 
-/// Setup: training folder, name, coach CLIs, Garmin and Strava — everything needed before the first plan.
+/// Setup: training folder, name, coach CLIs, watch (Garmin or Polar) and Strava — everything needed before the first plan.
 /// Always for the active profile: every profile is set up on its own.
 struct SetupView: View {
     @Environment(AppModel.self) private var model
@@ -20,12 +20,13 @@ struct SetupView: View {
     @State private var claude: CLISetup.Info?
     @State private var codex: CLISetup.Info?
     @State private var lms: CLISetup.Info?
-    @State private var garminConfigured: String?
-    @State private var garminInstalling: String?
-    @State private var garminProgress = ProgressText()
-    @State private var garminError: String?
-    @State private var garminCheck: (ok: Bool, text: String)?
+    @State private var serverConfigured: String?
+    @State private var installing: String?
+    @State private var installProgress = ProgressText()
+    @State private var installError: String?
+    @State private var watchCheck: (ok: Bool, text: String)?
     @State private var login = GarminLogin()
+    @State private var polar = PolarLogin()
     @State private var strava: StravaSetup.Status?
     @State private var stravaError: String?
 
@@ -50,11 +51,11 @@ struct SetupView: View {
                           systemImage: "figure.run.circle.fill")
                         .font(.largeTitle.bold())
                         .foregroundStyle(Color.brand)
-                    Text("Your data stays on your Mac: in the training folder, in your CLIs and with Garmin or Strava themselves. Garmin and Strava are optional — without them you plan and tick off by hand.")
+                    Text("Your data stays on your Mac: in the training folder, in your CLIs and with Garmin, Polar or Strava themselves. Watch and Strava are optional — without them you plan and tick off by hand.")
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     if !profile.isMain {
-                        Label("This profile is completely separate from the others: its own folder and its own sign-ins. Sign in to the coach, Garmin and Strava here again — even if they are already signed in on this Mac for another profile.",
+                        Label("This profile is completely separate from the others: its own folder and its own sign-ins. Sign in to the coach, the watch and Strava here again — even if they are already signed in on this Mac for another profile.",
                               systemImage: "person.crop.circle")
                             .font(.callout)
                             .fixedSize(horizontal: false, vertical: true)
@@ -66,7 +67,7 @@ struct SetupView: View {
                 step(1, String(localized: "Training folder"), done: folderReady) { folderStep }
                 step(2, String(localized: "About you"), done: !profile.trimmedName.isEmpty) { aboutStep }
                 step(3, "Coach", done: claude?.loggedIn == true || codex?.loggedIn == true || lms?.path != nil) { coachStep }
-                step(4, "Garmin (optional)", done: garminConfigured != nil && GarminSetup.hasToken) { garminStep }
+                step(4, String(localized: "Watch"), done: watchReady) { watchStep }
                 step(5, String(localized: "Strava (optional, via Claude Code)"), done: strava == .connected) { stravaStep }
                 step(6, String(localized: "Get started"), done: false) { startStep }
             }
@@ -76,6 +77,11 @@ struct SetupView: View {
         .frame(minWidth: 640, minHeight: 560)
         .background(Color.pageBackground)
         .task(id: projectPath) { await refresh() }
+        .onChange(of: model.watch) {
+            watchCheck = nil
+            installError = nil
+            Task { await refresh() }
+        }
     }
 
     // MARK: Schritte
@@ -138,9 +144,9 @@ struct SetupView: View {
                  ? String(localized: "The coach is a CLI on your Mac that you install yourself and use with your own account. One is enough.")
                  : String(localized: "The coach is a CLI on your Mac that you use with your own account. One is enough. This profile signs in separately — with its own account or one you share."))
                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            cliRow("Claude Code", info: claude, detail: String(localized: "Agent — plans, reviews, Strava and Garmin."),
+            cliRow("Claude Code", info: claude, detail: String(localized: "Agent — plans, reviews, Strava and the watch."),
                    login: "claude auth login", install: "https://docs.claude.com/en/docs/claude-code/setup")
-            cliRow("Codex", info: codex, detail: String(localized: "Agent — plans, reviews, Garmin (no Strava)."),
+            cliRow("Codex", info: codex, detail: String(localized: "Agent — plans, reviews, the watch (no Strava)."),
                    login: "codex login", install: "https://developers.openai.com/codex/cli")
             cliRow(String(localized: "Local model (LM Studio / Bionic)"), info: lms, detail: String(localized: "Text only — advises from the status sent along, changes nothing."),
                    login: nil, install: "https://lmstudio.ai")
@@ -180,26 +186,52 @@ struct SetupView: View {
         }
     }
 
-    private var garminStep: some View {
+    private var watchStep: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("For “Load runs” directly from Garmin and to send workouts to your watch. The app installs a small local server for this (needs Python 3.10+). You sign in with your Garmin account; only a token is stored (\(GarminSetup.tokenStore.replacingOccurrences(of: NSHomeDirectory(), with: "~"))), never your password.")
-                .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            if let configured = garminConfigured {
+            Picker("Your watch", selection: Binding(get: { model.watch }, set: { model.setWatch($0) })) {
+                ForEach(WatchKind.allCases) { Text($0.label).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 360)
+            Text("You can switch later in Settings → Runs, e.g. after getting a new watch.")
+                .font(.caption).foregroundStyle(.secondary)
+            switch model.watch {
+            case .garmin:
+                Text("For “Load runs” directly from Garmin and to send workouts to your watch. The app installs a small local server for this (needs Python 3.10+). You sign in with your Garmin account; only a token is stored (\(abbreviated(WatchSetup.garmin.tokenStore))), never your password.")
+                    .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                serverRow(.garmin)
+                if serverConfigured != nil {
+                    Divider()
+                    garminLoginForm
+                }
+            case .polar:
+                Text("Runs come straight from Polar Flow through Polar’s official interface (AccessLink) — read-only, without a language model. Polar doesn’t let other apps put workouts on the watch: Pace Lab shows each week as phases to enter in Polar Flow instead. The app installs a small local server for this (needs Python 3.10+).")
+                    .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                serverRow(.polar)
+                if serverConfigured != nil {
+                    Divider()
+                    polarLoginForm
+                }
+            case .none:
+                Text("Without a watch connection you load runs from Strava (next step) or let the coach enter them. Workouts are not sent to a watch.")
+                    .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private func serverRow(_ setup: WatchSetup) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if let configured = serverConfigured {
                 Label("Server registered: \(configured)", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green).font(.callout).lineLimit(2)
             }
             HStack {
-                Button(garminConfigured == nil ? "Set up Garmin server" : "Reinstall server") { installGarmin() }
-                    .disabled(garminInstalling != nil || !folderReady)
-                if garminInstalling != nil { ProgressView().controlSize(.small) }
-                if let step = garminInstalling { Text(step).font(.caption).foregroundStyle(.secondary) }
+                Button(serverConfigured == nil ? String(localized: "Set up \(setup.watch.label) server") : String(localized: "Reinstall server")) { install(setup) }
+                    .disabled(installing != nil || !folderReady)
+                if installing != nil { ProgressView().controlSize(.small) }
+                if let step = installing { Text(step).font(.caption).foregroundStyle(.secondary) }
             }
-            if let garminError { Label(garminError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange).textSelection(.enabled) }
-
-            if garminConfigured != nil {
-                Divider()
-                garminLoginForm
-            }
+            if let installError { Label(installError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange).textSelection(.enabled) }
         }
     }
 
@@ -217,26 +249,95 @@ struct SetupView: View {
             HStack { ProgressView().controlSize(.small); Text("Signing in to Garmin …") }
         default:
             VStack(alignment: .leading, spacing: 8) {
-                if GarminSetup.hasToken {
+                if WatchSetup.garmin.hasToken {
                     Label("Signed in (token present)", systemImage: "checkmark.circle.fill").foregroundStyle(.green).font(.callout)
                 }
                 HStack {
                     TextField("Garmin email", text: $login.email).textFieldStyle(.roundedBorder).frame(maxWidth: 240)
                     SecureField("Password", text: $login.password).textFieldStyle(.roundedBorder).frame(maxWidth: 180)
-                    Button(GarminSetup.hasToken ? "Sign in again" : "Sign in") { Task { await login.start(folder: folder) } }
+                    Button(WatchSetup.garmin.hasToken ? "Sign in again" : "Sign in") { Task { await login.start(folder: folder) } }
                         .disabled(login.email.isEmpty || login.password.isEmpty)
                 }
-                HStack {
-                    Button("Check connection") { checkGarmin() }
-                    if let garminCheck {
-                        Label(garminCheck.text, systemImage: garminCheck.ok ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                            .foregroundStyle(garminCheck.ok ? Color.green : Color.orange).font(.callout).lineLimit(2)
-                    }
-                }
+                checkRow
                 if case .done(let text) = login.phase { Label(text, systemImage: "checkmark.circle.fill").foregroundStyle(.green) }
                 if case .failed(let text) = login.phase { Label(text, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange).textSelection(.enabled) }
             }
         }
+    }
+
+    @ViewBuilder
+    private var polarLoginForm: some View {
+        let stored = PolarAccount.load()
+        VStack(alignment: .leading, spacing: 10) {
+            if stored?.hasToken == true {
+                Label("Signed in (token present)", systemImage: "checkmark.circle.fill").foregroundStyle(.green).font(.callout)
+            }
+            Text("1. Sign in at admin.polaraccesslink.com with your Polar account and create a client (free). Name: e.g. “Pace Lab”. Enter exactly this as the redirect URL:")
+                .font(.callout).fixedSize(horizontal: false, vertical: true)
+            HStack {
+                Text(PolarAccount.redirectURL).font(.callout.monospaced()).textSelection(.enabled)
+                Button {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(PolarAccount.redirectURL, forType: .string)
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                }
+                .buttonStyle(.borderless)
+                .help("Copy")
+                Link("Open admin.polaraccesslink.com", destination: PolarAccount.adminURL)
+            }
+            Text("2. Enter the client ID and secret here — they stay on this Mac.")
+                .font(.callout)
+            switch polar.phase {
+            case .waiting:
+                HStack {
+                    ProgressView().controlSize(.small)
+                    Text("Waiting for the approval in the browser …")
+                    Button("Cancel") { polar.cancel() }
+                }
+            default:
+                HStack {
+                    TextField("Client ID", text: $polar.clientID,
+                              prompt: Text(stored?.clientID.map { String(localized: "stored: \($0.prefix(8))…") } ?? String(localized: "Client ID")))
+                        .textFieldStyle(.roundedBorder).frame(maxWidth: 260)
+                    SecureField("Client secret", text: $polar.clientSecret,
+                                prompt: Text(stored?.clientID != nil ? String(localized: "stored") : String(localized: "Client secret")))
+                        .textFieldStyle(.roundedBorder).frame(maxWidth: 200)
+                }
+                Button(stored?.hasToken == true ? String(localized: "Sign in to Polar again …") : String(localized: "Sign in to Polar …")) {
+                    Task { await polar.start(folder: folder); await refresh() }
+                }
+                .disabled(stored?.clientID == nil && (polar.clientID.trimmingCharacters(in: .whitespaces).isEmpty
+                                                      || polar.clientSecret.trimmingCharacters(in: .whitespaces).isEmpty))
+                Text("3. Polar opens in the browser: allow access. Polar only passes on training sessions synced after this — runs from before don’t appear.")
+                    .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            }
+            checkRow
+            if case .done(let text) = polar.phase { Label(text, systemImage: "checkmark.circle.fill").foregroundStyle(.green) }
+            if case .failed(let text) = polar.phase { Label(text, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange).textSelection(.enabled) }
+        }
+    }
+
+    private var checkRow: some View {
+        HStack {
+            Button("Check connection") { checkWatch() }
+            if let watchCheck {
+                Label(watchCheck.text, systemImage: watchCheck.ok ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                    .foregroundStyle(watchCheck.ok ? Color.green : Color.orange).font(.callout).lineLimit(2)
+            }
+        }
+    }
+
+    private var watchReady: Bool {
+        switch model.watch {
+        case .none: true
+        case .garmin: serverConfigured != nil && WatchSetup.garmin.hasToken
+        case .polar: serverConfigured != nil && WatchSetup.polar.hasToken
+        }
+    }
+
+    private func abbreviated(_ path: String) -> String {
+        path.replacingOccurrences(of: NSHomeDirectory(), with: "~")
     }
 
     private var stravaStep: some View {
@@ -314,7 +415,7 @@ struct SetupView: View {
     private func refresh() async {
         folderReady = TrainingFolderSetup.isReady(folder)
         let folder = self.folder
-        garminConfigured = GarminServerConfig.load(from: folder).map { config in
+        serverConfigured = WatchServerConfig.load(from: folder, watch: model.watch).map { config in
             (config.arguments.first ?? config.command).replacingOccurrences(of: NSHomeDirectory(), with: "~")
         }
         (claude, codex, lms) = await Task.detached { (CLISetup.claude(), CLISetup.codex(), CLISetup.lmStudio()) }.value
@@ -329,45 +430,39 @@ struct SetupView: View {
         strava = await Task.detached { StravaSetup.status(folder: folder) }.value
     }
 
-    private func installGarmin() {
-        garminInstalling = String(localized: "Starting …")
-        garminError = nil
+    private func install(_ setup: WatchSetup) {
+        installing = String(localized: "Starting …")
+        installError = nil
         let folder = self.folder
-        let tracker = garminProgress
+        let tracker = installProgress
         Task {
             let watch = Task {
                 while !Task.isCancelled {
-                    if let text = tracker.text { garminInstalling = text }
+                    if let text = tracker.text { installing = text }
                     try? await Task.sleep(for: .milliseconds(300))
                 }
             }
             do {
                 try await Task.detached {
-                    try GarminSetup.install { step in Task { @MainActor in tracker.text = step } }
-                    try GarminSetup.writeConfig(folder: folder)
+                    try setup.install { step in Task { @MainActor in tracker.text = step } }
+                    try setup.writeConfig(folder: folder)
                 }.value
             } catch {
-                garminError = error.localizedDescription
+                installError = error.localizedDescription
             }
             watch.cancel()
-            garminInstalling = nil
+            installing = nil
+            tracker.text = nil
             await refresh()
         }
     }
 
-    private func checkGarmin() {
-        garminCheck = nil
+    private func checkWatch() {
+        watchCheck = nil
         let folder = self.folder
+        let watch = model.watch
         Task {
-            do {
-                guard let config = GarminServerConfig.load(from: folder) else { throw SetupError(String(localized: "No Garmin server registered.")) }
-                let client = try await config.connect(in: folder, readOnly: true)
-                let text = try await client.callTool("garmin_status", timeout: 60)
-                client.close()
-                garminCheck = (!text.hasPrefix("❌"), text.replacingOccurrences(of: "✅ ", with: "").replacingOccurrences(of: "❌ ", with: ""))
-            } catch {
-                garminCheck = (false, error.localizedDescription)
-            }
+            watchCheck = await WatchCheck.run(watch, folder: folder)
         }
     }
 

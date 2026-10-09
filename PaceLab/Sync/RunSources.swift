@@ -8,25 +8,30 @@ struct SyncFailure: LocalizedError {
     var errorDescription: String? { message }
 }
 
-// MARK: - Garmin (direct)
+// MARK: - Watch (Garmin or Polar, direct)
 
-/// Runs straight from the local Garmin server — read-only and without a language model.
-struct GarminRunSource: Sendable {
+/// Runs straight from the local watch server — read-only and without a language model. The Polar server
+/// offers the same tools and keys as the Garmin server.
+struct WatchRunSource: Sendable {
     let folder: URL
+    let source: RunSource
+
+    private var watch: WatchKind { source == .polar ? .polar : .garmin }
+    private var name: String { source.shortLabel }
 
     func fetch(since: String, known: KnownRuns, progress: SyncProgress) async throws -> [ImportedRun] {
-        guard let config = GarminServerConfig.load(from: folder) else {
-            throw SyncFailure(message: String(localized: "No Garmin server set up: the training folder has no .mcp.json with “garmin-workouts”."))
+        guard let config = WatchServerConfig.load(from: folder, watch: watch) else {
+            throw SyncFailure(message: String(localized: "No \(name) server set up — set it up under Pace Lab → Setup → Watch."))
         }
-        progress(String(localized: "Garmin: connecting"))
+        progress(String(localized: "\(name): connecting"))
         let client = try await config.connect(in: folder, readOnly: true)
         return try await withTaskCancellationHandler {
             defer { client.close() }
-            progress(String(localized: "Garmin: fetching activities"))
-            let list = try Self.checked(try await client.callTool(
+            progress(String(localized: "\(name): fetching activities"))
+            let list = try checked(try await client.callTool(
                 "list_activities", arguments: ["limit": 30, "activity_type": "running"]))
             guard let activities = try? JSONSerialization.jsonObject(with: Data(list.utf8)) as? [[String: Any]] else {
-                throw SyncFailure(message: String(localized: "Garmin: unexpected response to list_activities."))
+                throw SyncFailure(message: String(localized: "\(name): unexpected response to list_activities."))
             }
 
             var candidates: [(id: String, name: String)] = []
@@ -36,18 +41,18 @@ struct GarminRunSource: Sendable {
                 let date = String(start.prefix(10))
                 let km = (RunImport.number(activity["distance_m"]) ?? 0) / 1000
                 guard date >= since, km >= 0.5,
-                      !known.contains(source: .garmin, id: id, date: date, distanceKm: km) else { continue }
+                      !known.contains(source: source, id: id, date: date, distanceKm: km) else { continue }
                 candidates.append((id, activity["activityName"] as? String ?? String(localized: "Run")))
             }
 
             var runs: [ImportedRun] = []
             for (index, candidate) in candidates.enumerated() {
                 try Task.checkCancellation()
-                progress("Garmin: \(candidate.name) (\(index + 1)/\(candidates.count))")
-                let text = try Self.checked(try await client.callTool(
+                progress("\(name): \(candidate.name) (\(index + 1)/\(candidates.count))")
+                let text = try checked(try await client.callTool(
                     "get_activity_data", arguments: ["activity_id": candidate.id]))
                 guard let detail = try? JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any],
-                      let run = RunImport.garmin(detail) else { continue }
+                      let run = RunImport.watch(detail, source: source) else { continue }
                 runs.append(run)
             }
             return runs
@@ -56,11 +61,11 @@ struct GarminRunSource: Sendable {
         }
     }
 
-    /// The Garmin server reports errors as text starting with "❌".
-    private static func checked(_ text: String) throws -> String {
+    /// The watch servers report errors as text starting with "❌".
+    private func checked(_ text: String) throws -> String {
         guard text.hasPrefix("❌") else { return text }
         let message = text.dropFirst().trimmingCharacters(in: .whitespaces)
-        throw SyncFailure(message: String(localized: "Garmin reports: \(message)\nIf the sign-in has expired, sign in again under Pace Lab → Setup → Garmin."))
+        throw SyncFailure(message: String(localized: "\(name) reports: \(message)\nIf the sign-in has expired, sign in again under Pace Lab → Setup → Watch."))
     }
 }
 
@@ -228,7 +233,7 @@ struct StravaStreamParser {
     func check(_ outcome: CLIProcess.Outcome) throws {
         if outcome.signaled { throw CancellationError() }
         if limitReached {
-            throw SyncFailure(message: String(localized: "Strava: your Claude usage limit has been reached — load again later or choose Garmin as the source."))
+            throw SyncFailure(message: String(localized: "Strava: your Claude usage limit has been reached — load again later or choose your watch as the source."))
         }
         if activities.isEmpty, let status = stravaStatus, status != "connected" {
             throw SyncFailure(message: String(localized: "Strava is not connected in Claude Code (status: \(status)). In Terminal, start “claude” in the training folder and sign in to “strava-mcp” under /mcp."))

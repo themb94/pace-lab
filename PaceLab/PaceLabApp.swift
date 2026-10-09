@@ -35,7 +35,7 @@ struct PaceLabApp: App {
                     .keyboardShortcut("p", modifiers: [.command, .shift])
                     .disabled(model.coach.isRunning || model.snapshot == nil)
                 Divider()
-                ForEach(CoachAction.all) { action in
+                ForEach(CoachAction.available(for: model.watch)) { action in
                     Button(action.title) { model.startCoach(action) }
                         .disabled(model.coach.isRunning || !model.coach.activeEngine.kind.isAgent
                                   || (action.needsConversation && model.coach.current == nil))
@@ -178,9 +178,13 @@ private struct ProfileRootView: View {
             PlanRequestSheet(request: request)
         }
         .sheet(item: Binding(
-            get: { model.garminUploadWeek.map(UploadWeek.init) },
-            set: { model.garminUploadWeek = $0?.week })) { item in
-            GarminUploadSheet(week: item.week)
+            get: { model.watchWeek.map(UploadWeek.init) },
+            set: { model.watchWeek = $0?.week })) { item in
+            if model.watch == .polar {
+                PolarWeekSheet(week: item.week)
+            } else {
+                GarminUploadSheet(week: item.week)
+            }
         }
     }
 }

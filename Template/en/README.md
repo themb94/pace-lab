@@ -25,7 +25,7 @@ instruction for the coach — adapt it to yourself.
 Default rules — change them if you want it differently:
 
 1. **Easy runs by feel**, without a pace or heart-rate target on the watch. By
-   default they are not created as a Garmin workout (`"uploadEasyRuns": true` in
+   default they are not created as a workout for the watch (`"uploadEasyRuns": true` in
    `plan.json` changes that).
 2. **Long runs** have a distance only, no pace target.
 3. **Pace targets** only for the hard segments of a quality session; warm-up,
@@ -46,7 +46,7 @@ plan-entwurf.json    (temporary) draft for the next block ("entwurf" = draft) �
 plans/               Earlier blocks (stored when a draft is applied)
 analysis.json        All runs with measurements and review
 completed.json       Which sessions are done
-.mcp.json            Connection of the Garmin server (created by the app)
+.mcp.json            Connection of the watch server, Garmin or Polar (created by the app)
 .git/                History — every change is a version and can be undone
 ```
 
@@ -94,8 +94,8 @@ Newest first. Schema per run:
 
 ```jsonc
 {
-  "source": "garmin",            // "garmin" | "strava" — set when the app loaded the run
-  "garminId": "…",               // or "stravaId"
+  "source": "garmin",            // "garmin" | "polar" | "strava" — set when the app loaded the run
+  "garminId": "…",               // or "polarId" / "stravaId"
   "sessionId": "b1w1-tempo-0",   // or null for unplanned runs
   "tag": "…",                    // only if sessionId is null, e.g. "recovery"
   "name": "…", "date": "2026-01-06",
@@ -125,14 +125,14 @@ date (`DD.MM.YYYY`). Keep the order of existing entries.
 ## Weekly review
 
 1. **Fetch runs** — Strava through the Strava MCP (`list_activities`,
-   `get_activity_performance`) if set up, otherwise Garmin
-   (`list_activities`, `get_activity_data`). The app has often loaded them already.
+   `get_activity_performance`) if set up, otherwise through the watch — Garmin or
+   Polar (`list_activities`, `get_activity_data`). The app has often loaded them already.
 2. **Reconstruct the structure:** for interval workouts, consecutive laps add up
    to the planned segments.
 3. Update `completed.json` and `analysis.json`, write the week summary into `weekSummaries`.
 4. Short summary: runs, rating, recommendation for next week.
 5. Only then prepare the next week (`plan.json`). Create Garmin workouts only with
-   explicit approval.
+   explicit approval (with Polar, the app shows the week for entering it by hand).
 
 ## Garmin
 
@@ -142,6 +142,15 @@ The Garmin server (MCP) is set up by Pace Lab and registered in `.mcp.json`. Too
 `delete_workout(id)`, `schedule_workout(id, date)`. The workouts are built from
 `plan.json`; `replace_existing=true` replaces workouts with the same name instead
 of duplicating them. Create, schedule and delete only with approval.
+
+## Polar
+
+With a Polar watch, the server `polar` (MCP) reads runs through Polar's official
+interface (AccessLink): `polar_status`, `list_activities`, `get_activity_data`
+(laps are kilometer splits computed from the watch's samples), `preview_plan(week)`.
+Polar doesn't let other apps put training targets on the watch — the app shows a
+week as phases to enter in Polar Flow (training target → phased). Polar only
+passes on training sessions from the last 30 days.
 
 ## Version control
 

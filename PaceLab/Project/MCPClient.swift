@@ -1,20 +1,21 @@
 import Foundation
 
-/// The local Garmin MCP server, as registered in the project's .mcp.json.
-struct GarminServerConfig: Sendable {
+/// A local watch server (Garmin or Polar MCP), as registered in the project's .mcp.json.
+struct WatchServerConfig: Sendable {
     let command: String
     let arguments: [String]
     let environment: [String: String]
 
-    static func load(from folder: URL) -> GarminServerConfig? {
-        guard let data = try? Data(contentsOf: folder.appending(path: ".mcp.json")),
+    static func load(from folder: URL, watch: WatchKind) -> WatchServerConfig? {
+        guard let name = watch.serverName,
+              let data = try? Data(contentsOf: folder.appending(path: ".mcp.json")),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let servers = root["mcpServers"] as? [String: Any],
-              let garmin = servers["garmin-workouts"] as? [String: Any],
-              let command = garmin["command"] as? String else { return nil }
-        return GarminServerConfig(command: command,
-                                  arguments: garmin["args"] as? [String] ?? [],
-                                  environment: garmin["env"] as? [String: String] ?? [:])
+              let server = servers[name] as? [String: Any],
+              let command = server["command"] as? String else { return nil }
+        return WatchServerConfig(command: command,
+                                 arguments: server["args"] as? [String] ?? [],
+                                 environment: server["env"] as? [String: String] ?? [:])
     }
 
     /// Starts the server and signs in. `readOnly`: without tools for creating/deleting.
@@ -30,7 +31,7 @@ struct GarminServerConfig: Sendable {
 }
 
 /// Minimal MCP client over stdio (JSON-RPC 2.0, one message per line). The app uses it to call
-/// tools of the Garmin server directly — without a language model in between.
+/// tools of the watch servers directly — without a language model in between.
 final class MCPClient: @unchecked Sendable {
     struct Failure: LocalizedError {
         let message: String
@@ -143,7 +144,7 @@ final class MCPClient: @unchecked Sendable {
             }
             Task { [weak self] in
                 try? await Task.sleep(for: .seconds(timeout))
-                self?.resume(id, with: .failure(Failure(message: String(localized: "The Garmin server is not responding (\(method), \(Int(timeout)) s)."))))
+                self?.resume(id, with: .failure(Failure(message: String(localized: "The watch server is not responding (\(method), \(Int(timeout)) s)."))))
             }
         }
     }
@@ -170,7 +171,7 @@ final class MCPClient: @unchecked Sendable {
         }
         guard let id = (message["id"] as? NSNumber)?.intValue else { return }
         if let error = message["error"] as? [String: Any] {
-            resume(id, with: .failure(Failure(message: error["message"] as? String ?? String(localized: "Error from the Garmin server."))))
+            resume(id, with: .failure(Failure(message: error["message"] as? String ?? String(localized: "Error from the watch server."))))
         } else {
             resume(id, with: .success(data))
         }
@@ -193,6 +194,6 @@ final class MCPClient: @unchecked Sendable {
 
     private var stoppedMessage: String {
         let tail = errorTail.tail()
-        return tail.isEmpty ? String(localized: "The Garmin server was terminated.") : String(localized: "The Garmin server was terminated: \(tail)")
+        return tail.isEmpty ? String(localized: "The watch server was terminated.") : String(localized: "The watch server was terminated: \(tail)")
     }
 }

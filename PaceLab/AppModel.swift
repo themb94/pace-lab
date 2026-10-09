@@ -36,8 +36,8 @@ final class AppModel {
     var showDraft = false
     /// Open planning request (form).
     var planRequest: PlanRequest?
-    /// Week that is about to be created on Garmin (confirmation).
-    var garminUploadWeek: Int?
+    /// Week that is about to go to the watch: created on Garmin (confirmation) or shown as phases for Polar.
+    var watchWeek: Int?
     var toast: Toast?
     /// Increments when a new commit was recorded (the history view then reloads).
     private(set) var historyRevision = 0
@@ -46,6 +46,8 @@ final class AppModel {
 
     /// Everyone who trains with the app; everything below belongs to the active profile.
     let profiles = ProfileStore()
+    /// The profile's watch (Garmin, Polar or none).
+    private(set) var watch: WatchKind
     private(set) var coach: CoachModel
     private(set) var sync: RunSyncModel
     /// Which models the configured CLIs offer (queried live).
@@ -62,6 +64,7 @@ final class AppModel {
 
     init() {
         // (profiles is initialized first: it sets the active profile everything else reads.)
+        watch = WatchSettings.current
         coach = CoachModel()
         sync = RunSyncModel()
         models = ModelStore()
@@ -103,6 +106,7 @@ final class AppModel {
             return false
         }
         profiles.activate(id)
+        watch = WatchSettings.current
         generation += 1
         coach = CoachModel()
         sync = RunSyncModel()
@@ -121,7 +125,7 @@ final class AppModel {
         selectedSessionID = nil
         showDraft = false
         planRequest = nil
-        garminUploadWeek = nil
+        watchWeek = nil
         toast = nil
         historyRevision += 1
 
@@ -130,6 +134,15 @@ final class AppModel {
         record(ProjectHistory.externalChanges)
         refreshModels()
         return true
+    }
+
+    /// Another watch (setup or Settings → Runs). "Load runs" follows it; the other server stays in .mcp.json
+    /// so switching back needs no new setup.
+    func setWatch(_ newWatch: WatchKind) {
+        guard newWatch != watch else { return }
+        WatchSettings.set(newWatch)
+        watch = newWatch
+        if !newWatch.canUpload { coach.allowUpload = false }
     }
 
     /// Creates a profile and switches to it (if nothing is running right now).

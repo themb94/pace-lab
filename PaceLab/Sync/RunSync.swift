@@ -10,8 +10,15 @@ enum SyncSettings {
         static let lastSync = "lastRunSync"
     }
 
+    /// Strava, or else the profile's watch ("garmin"/"polar" stored both mean "the watch", so switching
+    /// watches doesn't need a second setting). Without a watch: Strava.
     static var source: RunSource {
-        AppSettings.defaults.string(forKey: Key.source).flatMap(RunSource.init(rawValue:)) ?? .garmin
+        source(stored: AppSettings.defaults.string(forKey: Key.source), watch: WatchSettings.current)
+    }
+
+    static func source(stored: String?, watch: WatchKind) -> RunSource {
+        if stored == RunSource.strava.rawValue { return .strava }
+        return watch.runSource ?? .strava
     }
 
     /// A small, fast model is enough — it only calls two tools.
@@ -101,8 +108,8 @@ final class RunSyncModel {
             do {
                 var runs: [ImportedRun]
                 switch source {
-                case .garmin:
-                    runs = try await GarminRunSource(folder: folder.url).fetch(since: since, known: known, progress: progress)
+                case .garmin, .polar:
+                    runs = try await WatchRunSource(folder: folder.url, source: source).fetch(since: since, known: known, progress: progress)
                 case .strava:
                     runs = try await StravaViaClaudeSource(folder: folder.url, command: claudeCommand, model: model)
                         .fetch(since: since, knownIDs: knownStrava, known: known, progress: progress)

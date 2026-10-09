@@ -78,59 +78,89 @@ enum PythonFinder {
     }
 }
 
-// MARK: - Garmin
+// MARK: - Watch servers (Garmin, Polar)
 
-/// The Garmin server (MCP) comes from the app bundle and gets its own Python environment in
+/// A watch server (MCP) comes from the app bundle and gets its own Python environment in
 /// Application Support, shared by all profiles. Signing in stores only a token — no password —
-/// per profile (main profile: ~/.garminconnect).
-enum GarminSetup {
-    static var directory: URL { AppSettings.supportDirectory.appending(path: "garmin-mcp", directoryHint: .isDirectory) }
-    static var python: URL { directory.appending(path: ".venv/bin/python") }
-    static var server: URL { directory.appending(path: "server.py") }
-    static var tokenStore: String { ActiveProfile.current.garminTokenStore }
+/// per profile (main profile: Garmin in ~/.garminconnect, Polar in Application Support/Pace Lab/polar).
+struct WatchSetup: Sendable {
+    let watch: WatchKind
+    /// Folder in the app bundle and in Application Support.
+    let folderName: String
+    let files: [String]
+    /// Environment variable that tells the server where the token lives.
+    let tokenVariable: String
+    let packages: String
 
-    static var isInstalled: Bool {
+    static let garmin = WatchSetup(watch: .garmin, folderName: "garmin-mcp",
+                                   files: ["server.py", "garmin_workouts.py", "login.py", "requirements.txt"],
+                                   tokenVariable: "GARMIN_TOKENSTORE", packages: "garminconnect, mcp")
+    static let polar = WatchSetup(watch: .polar, folderName: "polar-mcp",
+                                  files: ["server.py", "polar_api.py", "polar_targets.py", "requirements.txt"],
+                                  tokenVariable: "POLAR_TOKENSTORE", packages: "mcp")
+
+    static func `for`(_ watch: WatchKind) -> WatchSetup? {
+        switch watch {
+        case .garmin: .garmin
+        case .polar: .polar
+        case .none: nil
+        }
+    }
+
+    var directory: URL { AppSettings.supportDirectory.appending(path: folderName, directoryHint: .isDirectory) }
+    var python: URL { directory.appending(path: ".venv/bin/python") }
+    var server: URL { directory.appending(path: "server.py") }
+
+    /// Token of the active profile.
+    var tokenStore: String {
+        watch == .polar ? ActiveProfile.current.polarTokenStore : ActiveProfile.current.garminTokenStore
+    }
+
+    var isInstalled: Bool {
         FileManager.default.isExecutableFile(atPath: python.path) && FileManager.default.fileExists(atPath: server.path)
     }
 
-    static var hasToken: Bool {
+    /// The active profile is signed in (a token was stored).
+    var hasToken: Bool {
+        if watch == .polar { return PolarAccount.load()?.hasToken == true }
         let files = (try? FileManager.default.contentsOfDirectory(atPath: tokenStore)) ?? []
         return files.contains { $0.hasSuffix(".json") }
     }
 
-    /// Copies the server, creates the Python environment and installs garminconnect + mcp.
-    static func install(progress: @Sendable (String) -> Void) throws {
-        guard let bundled = Bundle.main.url(forResource: "garmin-mcp", withExtension: nil) else {
-            throw SetupError(String(localized: "The Garmin server is missing from the app bundle."))
+    /// Copies the server, creates the Python environment and installs the packages.
+    func install(progress: @Sendable (String) -> Void) throws {
+        guard let bundled = Bundle.main.url(forResource: folderName, withExtension: nil) else {
+            throw SetupError(String(localized: "The \(watch.label) server is missing from the app bundle."))
         }
         guard let python = PythonFinder.find() else {
             throw SetupError(String(localized: "Python 3.10 or newer is missing. Install it e.g. with “brew install python” or from python.org and then try again."))
         }
         let fm = FileManager.default
         try fm.createDirectory(at: directory, withIntermediateDirectories: true)
-        for name in ["server.py", "garmin_workouts.py", "login.py", "requirements.txt"] {
+        for name in files {
             let target = directory.appending(path: name)
             try? fm.removeItem(at: target)
             try fm.copyItem(at: bundled.appending(path: name), to: target)
         }
         if !fm.isExecutableFile(atPath: self.python.path) {
             progress(String(localized: "Creating Python environment (Python \(python.version)) …"))
-            try run(python.url, ["-m", "venv", directory.appending(path: ".venv").path])
+            try Self.run(python.url, ["-m", "venv", directory.appending(path: ".venv").path])
         }
-        progress(String(localized: "Installing packages (garminconnect, mcp) — may take a minute …"))
-        try run(self.python, ["-m", "pip", "install", "--disable-pip-version-check", "-q", "-r",
-                              directory.appending(path: "requirements.txt").path])
+        progress(String(localized: "Installing packages (\(packages)) — may take a minute …"))
+        try Self.run(self.python, ["-m", "pip", "install", "--disable-pip-version-check", "-q", "-r",
+                                   directory.appending(path: "requirements.txt").path])
     }
 
     /// Adds the server to the training folder's .mcp.json; other entries are kept.
-    static func writeConfig(folder: URL) throws {
+    func writeConfig(folder: URL) throws {
+        guard let name = watch.serverName else { return }
         let url = folder.appending(path: ".mcp.json")
         var root = (try? JSONSerialization.jsonObject(with: Data(contentsOf: url))) as? [String: Any] ?? [:]
         var servers = root["mcpServers"] as? [String: Any] ?? [:]
-        servers["garmin-workouts"] = [
+        servers[name] = [
             "command": python.path,
             "args": [server.path],
-            "env": ["GARMIN_TOKENSTORE": tokenStore, "PACELAB_PLAN": folder.appending(path: TrainingFiles.plan).path],
+            "env": [tokenVariable: tokenStore, "PACELAB_PLAN": folder.appending(path: TrainingFiles.plan).path],
         ]
         root["mcpServers"] = servers
         let data = try JSONSerialization.data(withJSONObject: root, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
@@ -162,7 +192,7 @@ final class GarminLogin {
     private var client: MCPClient?
 
     func start(folder: URL) async {
-        guard let config = GarminServerConfig.load(from: folder) else {
+        guard let config = WatchServerConfig.load(from: folder, watch: .garmin) else {
             phase = .failed(String(localized: "Set up the Garmin server first."))
             return
         }
@@ -207,6 +237,98 @@ final class GarminLogin {
         client = nil
         password = ""
         code = ""
+        self.phase = phase
+    }
+}
+
+/// Asks the watch server whether the sign-in works (Setup, Settings).
+enum WatchCheck {
+    static func run(_ watch: WatchKind, folder: URL) async -> (ok: Bool, text: String) {
+        guard watch != .none else { return (true, String(localized: "No watch connected.")) }
+        guard let config = WatchServerConfig.load(from: folder, watch: watch) else {
+            return (false, String(localized: "No \(watch.label) server registered in the training folder — set it up under Setup → Watch."))
+        }
+        do {
+            let client = try await config.connect(in: folder, readOnly: true)
+            defer { client.close() }
+            let text = try await client.callTool(watch.statusTool, timeout: 60)
+            return (!text.hasPrefix("❌"), text.replacingOccurrences(of: "✅ ", with: "").replacingOccurrences(of: "❌ ", with: ""))
+        } catch {
+            return (false, error.localizedDescription)
+        }
+    }
+}
+
+/// The Polar sign-in as stored by the Polar server (polar.json in the profile's token store).
+/// The app only reads whether there is a client and a token — never the secret.
+struct PolarAccount {
+    let clientID: String?
+    let hasToken: Bool
+
+    static func load(store: String = ActiveProfile.current.polarTokenStore) -> PolarAccount? {
+        guard let data = try? Data(contentsOf: URL(filePath: store).appending(path: "polar.json")),
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+        return PolarAccount(clientID: object["client_id"] as? String,
+                            hasToken: (object["access_token"] as? String)?.isEmpty == false)
+    }
+
+    /// Must be entered exactly like this for the client at admin.polaraccesslink.com (polar_api.REDIRECT_URI).
+    static let redirectURL = "http://localhost:8721/pacelab/callback"
+    static let adminURL = URL(string: "https://admin.polaraccesslink.com")!
+}
+
+/// Polar sign-in: the app's own AccessLink client (ID + secret) and approval in the browser.
+/// The server waits on localhost for Polar's redirect and stores only the token and the client.
+@MainActor
+@Observable
+final class PolarLogin {
+    enum Phase: Equatable {
+        case idle, waiting, done(String), failed(String)
+    }
+
+    var clientID = ""
+    var clientSecret = ""
+    private(set) var phase = Phase.idle
+    private var client: MCPClient?
+    /// Opens Polar's approval page (development: replaced by a direct request against a fake).
+    var openURL: (URL) -> Void = { NSWorkspace.shared.open($0) }
+
+    func start(folder: URL) async {
+        guard let config = WatchServerConfig.load(from: folder, watch: .polar) else {
+            phase = .failed(String(localized: "Set up the Polar server first."))
+            return
+        }
+        phase = .waiting
+        var credentials: [String: String] = [:]
+        if !clientID.trimmingCharacters(in: .whitespaces).isEmpty { credentials["POLAR_CLIENT_ID"] = clientID.trimmingCharacters(in: .whitespaces) }
+        if !clientSecret.trimmingCharacters(in: .whitespaces).isEmpty { credentials["POLAR_CLIENT_SECRET"] = clientSecret.trimmingCharacters(in: .whitespaces) }
+        do {
+            let client = try await config.connect(in: folder, readOnly: true, extraEnvironment: credentials)
+            self.client = client
+            clientSecret = ""
+            let started = try await client.callTool("polar_login_start", timeout: 30)
+            guard let object = try? JSONSerialization.jsonObject(with: Data(started.utf8)) as? [String: Any],
+                  let link = (object["url"] as? String).flatMap(URL.init(string:)) else {
+                finish(.failed(started.replacingOccurrences(of: "❌ ", with: "")))
+                return
+            }
+            openURL(link)
+            let result = try await client.callTool("polar_login_finish", arguments: ["timeout": 300], timeout: 330)
+            finish(result.hasPrefix("✅") ? .done(result.replacingOccurrences(of: "✅ ", with: ""))
+                                          : .failed(result.replacingOccurrences(of: "❌ ", with: "")))
+        } catch {
+            if phase == .waiting { finish(.failed(error.localizedDescription)) }
+        }
+    }
+
+    func cancel() {
+        finish(.idle)
+    }
+
+    private func finish(_ phase: Phase) {
+        client?.close()
+        client = nil
+        clientSecret = ""
         self.phase = phase
     }
 }

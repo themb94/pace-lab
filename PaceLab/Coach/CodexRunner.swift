@@ -1,8 +1,8 @@
 import Foundation
 
 /// OpenAI Codex in the background (`codex exec --json`), in the training project folder.
-/// Codex can't sign in to Strava — it fetches runs through the Garmin server, which is therefore
-/// always included. Garmin lock: without permission the server starts with GARMIN_READONLY=1
+/// Codex can't sign in to Strava — it fetches runs through the watch server (Garmin or Polar), which is
+/// therefore always included. Garmin lock: without permission the server starts with GARMIN_READONLY=1
 /// and offers no tools for creating/scheduling/deleting; terminal commands run in Codex's
 /// sandbox without network (no detour via the token script).
 final class CodexRunner: CoachRunner, @unchecked Sendable {
@@ -43,7 +43,8 @@ final class CodexRunner: CoachRunner, @unchecked Sendable {
                     "-c", "sandbox_workspace_write.network_access=false"]
         if !engine.model.isEmpty { args += ["-m", engine.model] }
         if !engine.effort.isEmpty { args += ["-c", "model_reasoning_effort=\"\(engine.effort)\""] }
-        args += garminServer(in: request.workingDirectory, readOnly: !request.allowGarminWrite)
+        args += watchServer(in: request.workingDirectory, watch: request.watch,
+                            readOnly: !(request.allowGarminWrite && request.watch.canUpload))
         if request.ephemeral { args.append("--ephemeral") }
         args += ArgumentTemplate.tokenize(engine.arguments)
         if let thread = request.resumeSessionID, !request.ephemeral {
@@ -53,27 +54,27 @@ final class CodexRunner: CoachRunner, @unchecked Sendable {
         return args
     }
 
-    /// The Garmin server from the project's .mcp.json as a Codex configuration.
-    static func garminServer(in folder: URL, readOnly: Bool) -> [String] {
-        guard let data = try? Data(contentsOf: folder.appending(path: ".mcp.json")),
+    /// The profile's watch server from the project's .mcp.json as a Codex configuration.
+    static func watchServer(in folder: URL, watch: WatchKind, readOnly: Bool) -> [String] {
+        guard let name = watch.serverName,
+              let data = try? Data(contentsOf: folder.appending(path: ".mcp.json")),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let servers = root["mcpServers"] as? [String: Any],
-              let garmin = servers["garmin-workouts"] as? [String: Any],
-              let command = garmin["command"] as? String else { return [] }
+              let server = servers[name] as? [String: Any],
+              let command = server["command"] as? String else { return [] }
         func toml(_ s: String) -> String {
             "\"" + s.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"") + "\""
         }
-        let args = (garmin["args"] as? [String] ?? []).map(toml).joined(separator: ", ")
-        var result = ["-c", "mcp_servers.garmin-workouts.command=\(toml(command))",
-                      "-c", "mcp_servers.garmin-workouts.args=[\(args)]",
+        let args = (server["args"] as? [String] ?? []).map(toml).joined(separator: ", ")
+        var result = ["-c", "mcp_servers.\(name).command=\(toml(command))",
+                      "-c", "mcp_servers.\(name).args=[\(args)]",
                       // Nobody can confirm in the background — without permission there are only read tools anyway.
-                      "-c", "mcp_servers.garmin-workouts.default_tools_approval_mode=\"approve\""]
-        var env = garmin["env"] as? [String: String] ?? [:]
+                      "-c", "mcp_servers.\(name).default_tools_approval_mode=\"approve\""]
+        var env = server["env"] as? [String: String] ?? [:]
         if readOnly { env["GARMIN_READONLY"] = "1" }
-        if !env.isEmpty {
-            let pairs = env.sorted { $0.key < $1.key }.map { "\($0.key) = \(toml($0.value))" }.joined(separator: ", ")
-            result += ["-c", "mcp_servers.garmin-workouts.env={ \(pairs) }"]
-        }
+        env["PACELAB_LANG"] = AppLanguage.code
+        let pairs = env.sorted { $0.key < $1.key }.map { "\($0.key) = \(toml($0.value))" }.joined(separator: ", ")
+        result += ["-c", "mcp_servers.\(name).env={ \(pairs) }"]
         return result
     }
 }
