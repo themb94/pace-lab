@@ -38,7 +38,8 @@ server, no account and no telemetry.
 - Optional for Garmin or Polar: Python 3.10+ (e.g. `brew install python`) and a
   Garmin Connect or Polar Flow account
 - Optional for Strava: Claude Code and access to
-  [Strava's MCP server](https://mcp.strava.com/mcp)
+  [Strava's MCP server](https://mcp.strava.com/mcp) — Strava offers it to
+  subscribers only
 
 ## Build
 

@@ -352,7 +352,7 @@ struct SetupView: View {
 
     private var stravaStep: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Strava is only reachable through Strava’s own MCP server in Claude Code. The app registers it for this folder; you sign in in the browser.")
+            Text("Strava is only reachable through Strava’s own MCP server in Claude Code — and Strava offers it only to subscribers. The app registers it for this folder; you sign in in the browser with this profile’s Strava account.")
                 .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             switch strava {
             case nil:

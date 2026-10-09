@@ -5361,12 +5361,12 @@
         }
       }
     },
-    "Strava is only reachable through Strava’s own MCP server in Claude Code. The app registers it for this folder; you sign in in the browser.": {
+    "Strava is only reachable through Strava’s own MCP server in Claude Code — and Strava offers it only to subscribers. The app registers it for this folder; you sign in in the browser with this profile’s Strava account.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Strava ist nur über Stravas eigenen MCP-Server in Claude Code erreichbar. Die App trägt ihn für diesen Ordner ein; angemeldet wird im Browser."
+            "value": "Strava ist nur über Stravas eigenen MCP-Server in Claude Code erreichbar — und den bietet Strava nur Abonnenten an. Die App trägt ihn für diesen Ordner ein; angemeldet wird im Browser mit dem Strava-Konto dieses Profils."
           }
         }
       }
