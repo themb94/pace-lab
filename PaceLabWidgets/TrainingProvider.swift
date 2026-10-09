@@ -1,5 +1,8 @@
 import WidgetKit
 import SwiftUI
+import os
+
+private let log = Logger(subsystem: "pacelab.widgets", category: "timeline")
 
 struct TrainingEntry: TimelineEntry {
     let date: Date
@@ -51,8 +54,11 @@ struct TrainingProvider: AppIntentTimelineProvider {
         let shown = id.flatMap { profiles?.entry($0) }
         let several = (profiles?.profiles.count ?? 0) > 1
         do {
-            return TrainingEntry(date: date, snapshot: try SnapshotStore.load(profile: id), profile: shown, showsProfile: several)
+            let snapshot = try SnapshotStore.load(profile: id)
+            log.info("timeline profile=\(id ?? "nil", privacy: .public) configured=\(profile ?? "nil", privacy: .public) sessions=\(snapshot.sessions.count)")
+            return TrainingEntry(date: date, snapshot: snapshot, profile: shown, showsProfile: several)
         } catch {
+            log.error("timeline failed profile=\(id ?? "nil", privacy: .public) list=\(profiles == nil ? "missing" : "ok", privacy: .public) dir=\(SnapshotStore.directory?.path ?? "nil", privacy: .public): \(String(describing: error), privacy: .public)")
             return TrainingEntry(date: date, snapshot: nil, errorMessage: error.localizedDescription, profile: shown, showsProfile: several)
         }
     }
