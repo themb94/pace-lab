@@ -231,6 +231,9 @@ struct SetupView: View {
                 if installing != nil { ProgressView().controlSize(.small) }
                 if let step = installing { Text(step).font(.caption).foregroundStyle(.secondary) }
             }
+            if !folderReady {
+                folderFirstHint
+            }
             if let installError { Label(installError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange).textSelection(.enabled) }
         }
     }
@@ -318,6 +321,13 @@ struct SetupView: View {
         }
     }
 
+    /// Why a button is disabled: it registers something in the training folder, which doesn't exist yet.
+    private var folderFirstHint: some View {
+        Label("Create the training folder first (step 1) — this is registered there.", systemImage: "info.circle")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
     private var checkRow: some View {
         HStack {
             Button("Check connection") { checkWatch() }
@@ -355,6 +365,7 @@ struct SetupView: View {
                     Task { await refreshStrava() }
                 }
                 .disabled(!folderReady)
+                if !folderReady { folderFirstHint }
             case .needsLogin:
                 Button("Sign in to Strava …") { StravaSetup.openLogin(folder: folder) }
             case .connected:

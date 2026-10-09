@@ -2031,6 +2031,16 @@
         }
       }
     },
+    "Create the training folder first (step 1) — this is registered there.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lege zuerst den Trainingsordner an (Schritt 1) — dort wird das eingetragen."
+          }
+        }
+      }
+    },
     "Create week %lld on Garmin": {
       "localizations": {
         "de": {
