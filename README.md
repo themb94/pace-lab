@@ -13,6 +13,9 @@ through **Claude Code**, **Codex** or a **local model** (LM Studio).
   see planned vs. run kilometres per week.
 - **Runs** — load new runs from **Garmin Connect** or **Polar Flow** (directly,
   no AI involved) or **Strava** (through Claude Code). Splits, heart-rate zones, analysis.
+  With Garmin also the **running dynamics** (cadence, stride length, ground contact
+  time and balance, vertical oscillation and ratio) on Garmin's color scale, how they
+  change during the run, and the coach's recommendations for a better running form.
 - **Coach** — weekly review, adjusting a week, planning a whole new block. The
   coach edits your plan files; every change is versioned with git and can be
   undone. Garmin workouts are only created after your explicit approval.
@@ -138,7 +141,7 @@ PaceLab/          App (SwiftUI): Coach/, Planning/, Sync/, Project/ (git, JSON, 
 PaceLabWidgets/   Widgets (WidgetKit)
 Shared/           Models and calculations used by app and widgets, and the translations (Localizable.xcstrings)
 Template/         Contents of a new training folder, per language: Template/en, Template/de (bundled into the app)
-garmin-mcp/       Garmin MCP server (Python, bundled into the app)
+garmin-mcp/       Garmin MCP server (Python, bundled into the app; tests: python3 -m unittest test_garmin)
 polar-mcp/        Polar MCP server (Python, Polar AccessLink; tests: python3 -m unittest test_polar)
 Config/           Info.plists, entitlements, signing (Signing.xcconfig + your local override)
 scripts/          Release build: signed, notarized DMG (release.sh)

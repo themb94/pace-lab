@@ -1341,6 +1341,26 @@
         }
       }
     },
+    "Balance L/R": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balance L/R"
+          }
+        }
+      }
+    },
+    "Balance: left and right carry unevenly — single-leg strength work (lunges, single-leg squats, calf raises) evens it out; have pain checked by a doctor or physiotherapist.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balance: Links und rechts tragen ungleich — einbeinige Kraftübungen (Ausfallschritte, einbeinige Kniebeugen, Wadenheben) gleichen das aus; Schmerzen ärztlich oder physiotherapeutisch abklären lassen."
+          }
+        }
+      }
+    },
     "Base": {
       "localizations": {
         "de": {
@@ -1397,6 +1417,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kadenz"
+          }
+        }
+      }
+    },
+    "Cadence: shorter, quicker steps — raise it gradually (about 5 percent at a time), e.g. with a metronome or music to the beat; strides help.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schrittfrequenz: kürzere, schnellere Schritte — nach und nach erhöhen (jeweils etwa 5 Prozent), z. B. mit Metronom oder Musik im Takt; Steigerungsläufe helfen."
           }
         }
       }
@@ -1877,6 +1907,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Codex meldet: %@"
+          }
+        }
+      }
+    },
+    "Colors follow Garmin’s scale, a comparison with other runners. At an easy pace a lower cadence and longer ground contact are normal — what counts is the comparison with your own runs at a similar pace.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Farben folgen Garmins Skala, einem Vergleich mit anderen Läufern. Bei lockerem Tempo sind eine niedrigere Schrittfrequenz und längere Bodenkontakte normal — entscheidend ist der Vergleich mit deinen eigenen Läufen bei ähnlichem Tempo."
           }
         }
       }
@@ -2731,6 +2771,16 @@
         }
       }
     },
+    "First → last third: ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erstes → letztes Drittel: "
+          }
+        }
+      }
+    },
     "Fixed version": {
       "localizations": {
         "de": {
@@ -3011,6 +3061,26 @@
         }
       }
     },
+    "Ground contact": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bodenkontaktzeit"
+          }
+        }
+      }
+    },
+    "Ground contact: push off more reactively — running drills (skips, ankle work), rope skipping and strides train it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bodenkontaktzeit: reaktiver abdrücken — Lauf-ABC (Skippings, Fußgelenksarbeit), Seilspringen und Steigerungsläufe trainieren das."
+          }
+        }
+      }
+    },
     "HR zones": {
       "localizations": {
         "de": {
@@ -3251,6 +3321,16 @@
         }
       }
     },
+    "Let the coach look at your running form and recommend what to work on": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den Coach auf deinen Laufstil schauen lassen — mit Empfehlungen, woran du arbeiten kannst"
+          }
+        }
+      }
+    },
     "Let the coach plan": {
       "localizations": {
         "de": {
@@ -3357,6 +3437,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lokales Modell (LM Studio / Bionic)"
+          }
+        }
+      }
+    },
+    "Look at the running form of my run “%@” from %@: its running dynamics compared with my earlier runs at a similar pace, and how they change during the run. Give me 2–3 concrete recommendations for running better and write them into “running_form” of the run in analysis.json.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schau dir den Laufstil meines Laufs „%1$@“ vom %2$@ an: die Laufeffizienz im Vergleich mit meinen früheren Läufen bei ähnlichem Tempo und wie sie sich im Lauf verändert. Gib mir 2–3 konkrete Empfehlungen, wie ich besser laufen kann, und trag sie beim Lauf in analysis.json unter „running_form“ ein."
           }
         }
       }
@@ -3787,6 +3877,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Noch nicht ausgewertet"
+          }
+        }
+      }
+    },
+    "Nothing stands out on Garmin’s scale.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach Garmins Skala fällt nichts auf."
           }
         }
       }
@@ -4721,6 +4821,26 @@
         }
       }
     },
+    "Running dynamics": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laufeffizienz"
+          }
+        }
+      }
+    },
+    "Running form · coach": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laufstil · Coach"
+          }
+        }
+      }
+    },
     "Runs": {
       "localizations": {
         "de": {
@@ -5261,6 +5381,16 @@
         }
       }
     },
+    "Starting points": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ansatzpunkte"
+          }
+        }
+      }
+    },
     "Starting …": {
       "localizations": {
         "de": {
@@ -5487,6 +5617,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Strava: Dein Claude-Nutzungslimit ist erreicht — später erneut laden oder deine Uhr als Quelle wählen."
+          }
+        }
+      }
+    },
+    "Stride length": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schrittlänge"
           }
         }
       }
@@ -6111,6 +6251,16 @@
         }
       }
     },
+    "Tips from the coach": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tipps vom Coach"
+          }
+        }
+      }
+    },
     "Title: %@": {
       "localizations": {
         "de": {
@@ -6137,6 +6287,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Werkzeug"
+          }
+        }
+      }
+    },
+    "Towards the end the ground contact gets %lld %% longer — the form fades with fatigue: strength work for core and legs twice a week and drills after easy runs help.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gegen Ende werden die Bodenkontakte %lld %% länger — die Form lässt mit der Ermüdung nach: Kraft für Rumpf und Beine zweimal pro Woche und Lauf-ABC nach lockeren Läufen helfen."
           }
         }
       }
@@ -6357,6 +6517,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stand aus dem Verlauf gelöscht"
+          }
+        }
+      }
+    },
+    "Vertical motion: less bouncing, more forward — run tall with a slight lean from the ankles; a higher cadence usually lowers the bounce by itself.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vertikale Bewegung: weniger hüpfen, mehr nach vorne — aufrecht mit leichter Vorlage aus den Sprunggelenken laufen; eine höhere Schrittfrequenz senkt das Auf und Ab meist von selbst."
+          }
+        }
+      }
+    },
+    "Vertical oscillation": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vertikale Bewegung"
+          }
+        }
+      }
+    },
+    "Vertical ratio": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vertikales Verhältnis"
           }
         }
       }
@@ -6931,6 +7121,26 @@
         }
       }
     },
+    "average": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "durchschnittlich"
+          }
+        }
+      }
+    },
+    "below average": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unterdurchschnittlich"
+          }
+        }
+      }
+    },
     "clear": {
       "localizations": {
         "de": {
@@ -7121,6 +7331,26 @@
         }
       }
     },
+    "even": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ausgeglichen"
+          }
+        }
+      }
+    },
+    "excellent": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sehr gut"
+          }
+        }
+      }
+    },
     "fair": {
       "localizations": {
         "de": {
@@ -7247,6 +7477,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "gut"
+          }
+        }
+      }
+    },
+    "ground contact %@ → %@ ms": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bodenkontakt %1$@ → %2$@ ms"
           }
         }
       }
@@ -7671,6 +7911,16 @@
         }
       }
     },
+    "pace %@ → %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace %1$@ → %2$@"
+          }
+        }
+      }
+    },
     "pace zone for %@/km": {
       "localizations": {
         "de": {
@@ -7711,6 +7961,16 @@
         }
       }
     },
+    "poor": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "schwach"
+          }
+        }
+      }
+    },
     "rain": {
       "localizations": {
         "de": {
@@ -7747,6 +8007,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Schauer"
+          }
+        }
+      }
+    },
+    "slightly uneven": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "leicht unausgeglichen"
           }
         }
       }
@@ -7831,6 +8101,16 @@
         }
       }
     },
+    "stride %@ → %@ m": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schrittlänge %1$@ → %2$@ m"
+          }
+        }
+      }
+    },
     "string without end": {
       "localizations": {
         "de": {
@@ -7907,6 +8187,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "morgen"
+          }
+        }
+      }
+    },
+    "uneven": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unausgeglichen"
           }
         }
       }

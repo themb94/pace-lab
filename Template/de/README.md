@@ -102,13 +102,18 @@ Neueste zuerst. Schema pro Lauf:
   "tag": "…",                    // nur wenn sessionId null ist, z. B. "Regeneration"
   "name": "…", "date": "2026-01-06",
   "distance_km": 7.4, "moving_time_s": 2710, "avg_pace_s": 366,
-  "avg_hr": 151, "max_hr": 178, "elevation_gain": 40, "cadence": 84,
+  "avg_hr": 151, "max_hr": 178, "elevation_gain": 40, "cadence": 84,   // cadence: Schritte eines Fußes
+  "running_dynamics": {          // Garmin, nur wenn gemessen — siehe „Laufeffizienz“
+    "cadence_spm": 168, "stride_length_cm": 107, "ground_contact_ms": 251,
+    "gct_balance_left_pct": 49.8, "vertical_oscillation_cm": 9.1, "vertical_ratio_pct": 8.4 },
   "weather": "…",                // optional
   "flags": ["…"],                // kurze Hinweise
-  "splits": [ { "km": 1, "pace_s": 381, "hr": 138 }, { "label": "Intervall 1", "pace_s": 330, "hr": 165 } ],
+  "splits": [ { "km": 1, "pace_s": 381, "hr": 138, "cadence_spm": 166, "ground_contact_ms": 255, "stride_length_cm": 104 },
+              { "label": "Intervall 1", "pace_s": 330, "hr": 165 } ],
   "verdict": "gut",              // "gut" | "ok" | "achtung"
   "analysis": "…",               // Auswertung als Fließtext
-  "adjustments": "…"             // Folgerung für die nächste Woche oder null
+  "adjustments": "…",            // Folgerung für die nächste Woche oder null
+  "running_form": "…"            // Laufstil: 2–3 Empfehlungen oder null
 }
 ```
 
@@ -117,7 +122,45 @@ Wochenfazits kommen nach `weekSummaries: [{ "week": 1, "analysis": "…", "nextW
 **Von der App geladene Läufe** (mit `source` und `verdict: null`) bei der
 Auswertung **ergänzen statt neu anlegen**: IDs und Messwerte behalten, Split-Labels
 bei Intervallen präzisieren, `sessionId`, `flags`, `verdict`, `analysis`,
-`adjustments` setzen.
+`adjustments` und — mit Laufeffizienz — `running_form` setzen.
+
+## Laufeffizienz (Garmin)
+
+Mit einer Uhr oder einem Sensor, der sie misst (z. B. HRM-Pro, Running Dynamics Pod),
+liefert Garmin die Laufeffizienz (Laufdynamik). Die App speichert sie in
+`running_dynamics` und pro Split; der Garmin-Server liefert sie in `get_activity_data`
+(Zusammenfassung und Runden) und `list_activities`.
+
+| Wert | Feld | Garmins Skala (grün = Durchschnitt, blau/lila besser) |
+|---|---|---|
+| Schrittfrequenz | `cadence_spm` (beide Füße) | grün 164–173, blau 174–183, lila > 183 |
+| Bodenkontaktzeit | `ground_contact_ms` | grün 249–277, blau 218–248, lila < 218 |
+| Balance der Bodenkontaktzeit | `gct_balance_left_pct` | grün 49,3–50,7 % |
+| Vertikale Bewegung | `vertical_oscillation_cm` | grün 8,2–9,7, blau 6,4–8,1, lila < 6,4 |
+| Vertikales Verhältnis | `vertical_ratio_pct` | grün 7,5–8,6, blau 6,1–7,4, lila < 6,1 |
+| Schrittlänge | `stride_length_cm` | keine Skala (hängt von Größe und Tempo ab) |
+
+So einordnen:
+
+- Garmins Skala vergleicht mit allen Läufern. Entscheidend ist der Vergleich mit
+  **eigenen Läufen bei ähnlichem Tempo und Typ** — lockere Läufe haben von Natur aus
+  eine niedrigere Schrittfrequenz und längere Bodenkontakte.
+- **Verlauf im Lauf:** Werden die Bodenkontakte gegen Ende länger oder die Schritte
+  kürzer (bei gleichem Tempo), lässt die Form mit der Ermüdung nach.
+- **Balance** über mehrere Läufe deutlich einseitig (über etwa 51,5 %): einseitige
+  Schwäche oder Belastung — Schmerzen gehören in ärztliche oder physiotherapeutische Hände.
+
+Empfehlungen kommen nach `running_form` des Laufs: 2–3 konkrete, machbare Punkte, z. B.
+
+- **Schrittfrequenz** in kleinen Schritten erhöhen (etwa 5 %), Metronom oder Musik im Takt
+- **Steigerungsläufe** (4–6 × 20 s locker schnell) nach lockeren Läufen
+- **Lauf-ABC** (Skippings, Anfersen, Fußgelenksarbeit), Seilspringen, leichte
+  Sprungübungen für reaktive Bodenkontakte
+- **Kraft** für Rumpf, Hüfte und Waden; einbeinige Übungen bei Ungleichgewicht
+- **Haltung:** aufrecht, leichte Vorlage aus den Sprunggelenken, unter dem Körper aufsetzen
+
+Immer nur eine Sache auf einmal ändern und in den nächsten Läufen prüfen. Lauf-ABC- oder
+Kraft-Einheiten für den Plan nur vorschlagen; eintragen erst auf Wunsch.
 
 ## Erledigte Einheiten (`completed.json`)
 
@@ -132,6 +175,7 @@ bei Intervallen präzisieren, `sessionId`, `flags`, `verdict`, `analysis`,
 2. **Struktur rekonstruieren:** Bei Intervall-Workouts ergeben aufeinanderfolgende
    Runden zusammen die geplanten Abschnitte.
 3. `completed.json` und `analysis.json` aktualisieren, Wochenfazit in `weekSummaries`.
+   Läufe mit Laufeffizienz bekommen einen Blick auf den Laufstil (`running_form`).
 4. Kurze Zusammenfassung: Läufe, Bewertung, Empfehlung für die nächste Woche.
 5. Erst danach die nächste Woche vorbereiten (`plan.json`). Garmin-Workouts nur mit
    ausdrücklicher Freigabe anlegen (bei Polar zeigt die App die Woche zum Eintragen).
@@ -139,8 +183,8 @@ bei Intervallen präzisieren, `sessionId`, `flags`, `verdict`, `analysis`,
 ## Garmin
 
 Der Garmin-Server (MCP) wird von Pace Lab eingerichtet und ist in `.mcp.json`
-eingetragen. Werkzeuge: `garmin_status`, `list_activities`, `get_activity_data`,
-`list_workouts`, `preview_plan(week)`, `create_plan(week, dry_run, replace_existing)`,
+eingetragen. Werkzeuge: `garmin_status`, `list_activities`, `get_activity_data`
+(mit Laufeffizienz), `list_workouts`, `preview_plan(week)`, `create_plan(week, dry_run, replace_existing)`,
 `delete_workout(id)`, `schedule_workout(id, date)`. Die Workouts entstehen aus
 `plan.json`; `replace_existing=true` ersetzt gleichnamige Workouts statt sie zu
 verdoppeln. Anlegen, Einplanen und Löschen nur mit Freigabe.

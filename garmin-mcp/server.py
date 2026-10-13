@@ -9,8 +9,8 @@ Tools:
   garmin_status              – check the sign-in status
   garmin_login               – sign in (token or GARMIN_EMAIL/PASSWORD, MFA capable)
   garmin_submit_mfa          – submit the MFA code
-  list_activities            – list recent Garmin activities (compact)
-  get_activity_data          – fetch summary, splits and weather of an activity
+  list_activities            – list recent Garmin activities (compact, with running dynamics)
+  get_activity_data          – fetch summary, splits, running dynamics and weather of an activity
   list_workouts              – list existing workouts in Garmin Connect
   preview_plan               – show planned workouts (no network)
   create_plan                – upload plan workouts to Garmin Connect (optionally replacing)
@@ -25,6 +25,7 @@ import os
 
 from mcp.server.fastmcp import FastMCP
 
+from garmin_activity import activity_data, compact_activity
 from garmin_workouts import build_plan, make_payload, describe_steps
 
 mcp = FastMCP("garmin-workouts")
@@ -133,27 +134,12 @@ def garmin_submit_mfa(code: str) -> str:
 @mcp.tool()
 def list_activities(limit: int = 5, activity_type: str = "running") -> str:
     """Lists the latest Garmin activities compactly. By default the last five running
-    activities are returned. activity_type="" disables the sport filter."""
+    activities are returned. activity_type="" disables the sport filter. Activities with
+    running dynamics carry them in "runningDynamics" (units as in get_activity_data)."""
     try:
         g = _client()
         data = g.get_activities(0, max(1, min(limit, 50)), activity_type or None)
-        compact = []
-        for a in data or []:
-            compact.append({
-                "activityId": a.get("activityId"),
-                "activityName": a.get("activityName"),
-                "startTimeLocal": a.get("startTimeLocal"),
-                "activityType": (a.get("activityType") or {}).get("typeKey"),
-                "distance_m": a.get("distance"),
-                "duration_s": a.get("duration"),
-                "movingDuration_s": a.get("movingDuration"),
-                "elevationGain_m": a.get("elevationGain"),
-                "averageHR": a.get("averageHR"),
-                "maxHR": a.get("maxHR"),
-                "averageCadence_spm": a.get("averageRunningCadenceInStepsPerMinute"),
-                "trainingEffect": a.get("aerobicTrainingEffect"),
-                "trainingLoad": a.get("activityTrainingLoad"),
-            })
+        compact = [compact_activity(a) for a in data or []]
         return json.dumps(compact, ensure_ascii=False, indent=2)
     except Exception as e:
         return f"❌ {type(e).__name__}: {e}"
@@ -162,48 +148,13 @@ def list_activities(limit: int = 5, activity_type: str = "running") -> str:
 @mcp.tool()
 def get_activity_data(activity_id: str) -> str:
     """Returns the Garmin data relevant for a run analysis: summary, kilometer/workout
-    laps and Garmin weather. Deliberately without GPS track and without per-second
-    series so that the MCP response stays compact."""
+    laps and Garmin weather. Summary and laps include the running dynamics if the watch
+    measured them (Garmin: "Laufeffizienz"): strideLength (cm), groundContactTime (ms),
+    groundContactBalance (% left foot), verticalOscillation (cm), verticalRatio (%);
+    averageRunCadence counts the steps of both feet. Deliberately without GPS track and
+    without per-second series so that the MCP response stays compact."""
     try:
-        g = _client()
-        activity = g.get_activity(activity_id)
-        split_data = g.get_activity_splits(activity_id)
-        try:
-            weather = g.get_activity_weather(activity_id)
-        except Exception as e:
-            weather = {"error": f"{type(e).__name__}: {e}"}
-
-        summary = activity.get("summaryDTO") or {}
-        summary_keys = [
-            "startTimeLocal", "distance", "duration", "movingDuration",
-            "elapsedDuration", "elevationGain", "elevationLoss", "averageSpeed",
-            "maxSpeed", "averageHR", "maxHR", "averageRunCadence",
-            "maxRunCadence", "averageTemperature", "minTemperature",
-            "maxTemperature", "averagePower", "maxPower", "trainingEffect",
-            "anaerobicTrainingEffect", "trainingEffectLabel", "activityTrainingLoad",
-            "directWorkoutFeel", "directWorkoutRpe", "differenceBodyBattery",
-        ]
-        lap_keys = [
-            "lapIndex", "distance", "duration", "movingDuration", "elapsedDuration",
-            "elevationGain", "elevationLoss", "averageSpeed", "maxSpeed",
-            "averageHR", "maxHR", "averageRunCadence", "maxRunCadence",
-            "averagePower", "maxPower", "averageTemperature", "intensityType",
-        ]
-        laps = [
-            {k: lap.get(k) for k in lap_keys}
-            for lap in (split_data.get("lapDTOs") or [])
-            if (lap.get("distance") or 0) >= 100
-        ]
-        result = {
-            "source": "garmin",
-            "activityId": activity.get("activityId"),
-            "activityName": activity.get("activityName"),
-            "activityType": (activity.get("activityTypeDTO") or {}).get("typeKey"),
-            "summary": {k: summary.get(k) for k in summary_keys},
-            "laps": laps,
-            "weather": weather,
-        }
-        return json.dumps(result, ensure_ascii=False, indent=2)
+        return json.dumps(activity_data(_client(), activity_id), ensure_ascii=False, indent=2)
     except Exception as e:
         return f"❌ {type(e).__name__}: {e}"
 

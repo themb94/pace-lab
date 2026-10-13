@@ -93,7 +93,7 @@ struct WatchSetup: Sendable {
     let packages: String
 
     static let garmin = WatchSetup(watch: .garmin, folderName: "garmin-mcp",
-                                   files: ["server.py", "garmin_workouts.py", "login.py", "requirements.txt"],
+                                   files: ["server.py", "garmin_workouts.py", "garmin_activity.py", "login.py", "requirements.txt"],
                                    tokenVariable: "GARMIN_TOKENSTORE", packages: "garminconnect, mcp")
     static let polar = WatchSetup(watch: .polar, folderName: "polar-mcp",
                                   files: ["server.py", "polar_api.py", "polar_targets.py", "requirements.txt"],
@@ -149,6 +149,21 @@ struct WatchSetup: Sendable {
         progress(String(localized: "Installing packages (\(packages)) — may take a minute …"))
         try Self.run(self.python, ["-m", "pip", "install", "--disable-pip-version-check", "-q", "-r",
                                    directory.appending(path: "requirements.txt").path])
+    }
+
+    /// After an app update: puts the server files of the new version in place (the Python environment
+    /// and the packages stay), so that an installed server learns new things without a new setup.
+    static func refreshInstalledServers() {
+        for setup in [garmin, polar] where setup.isInstalled {
+            guard let bundled = Bundle.main.url(forResource: setup.folderName, withExtension: nil) else { continue }
+            // server.py last: it imports the other modules.
+            for name in setup.files.filter({ $0 != "server.py" }) + ["server.py"] {
+                let source = bundled.appending(path: name)
+                let target = setup.directory.appending(path: name)
+                guard let data = try? Data(contentsOf: source), (try? Data(contentsOf: target)) != data else { continue }
+                try? data.write(to: target, options: .atomic)
+            }
+        }
     }
 
     /// Adds the server to the training folder's .mcp.json; other entries are kept.

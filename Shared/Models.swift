@@ -134,13 +134,18 @@ struct Run: Codable, Sendable, Identifiable, Hashable {
     var maxHr: Double?
     var relativeEffort: Double?
     var elevationGain: Double?
+    /// Steps of one foot per minute (as Strava counts them) — `stepsPerMinute` counts both feet.
     var cadence: Double?
+    /// Garmin's running dynamics ("Laufeffizienz"), if the watch measured them.
+    var runningDynamics: RunningDynamics?
     var weather: String?
     var flags: [String]?
     var splits: [Split]?
     var verdict: Verdict?
     var analysis: String?
     var adjustments: String?
+    /// The coach's look at the running form, with recommendations how to run better.
+    var runningForm: String?
 
     var id: String { stravaId ?? garminId ?? polarId ?? "\(date)-\(name)" }
 
@@ -151,6 +156,13 @@ struct Run: Codable, Sendable, Identifiable, Hashable {
     func hash(into hasher: inout Hasher) { hasher.combine(id) }
 
     var day: Date? { DateUtil.day(fromISO: date) }
+
+    /// Steps of both feet per minute, as watches show it. Older entries may carry either count in `cadence`.
+    var stepsPerMinute: Double? {
+        if let spm = runningDynamics?.cadenceSpm { return spm }
+        guard let cadence, cadence > 0 else { return nil }
+        return cadence < 120 ? cadence * 2 : cadence
+    }
 
     /// Avg pace in s/km; falls back to time/distance if the field is missing.
     var paceSeconds: Double? {
@@ -173,8 +185,40 @@ struct Split: Codable, Sendable, Hashable {
     var label: String?
     var paceS: Double
     var hr: Double?
+    /// Running dynamics of the split (Garmin), if measured: steps of both feet per minute, ground contact time, stride length.
+    var cadenceSpm: Double?
+    var groundContactMs: Double?
+    var strideLengthCm: Double?
 
     var title: String { label ?? "km \(km ?? 0)" }
+}
+
+/// Running dynamics of a run, averaged over the whole run — Garmin calls them “Laufeffizienz” in German.
+/// They need a watch or accessory that measures them (e.g. HRM-Pro or Running Dynamics Pod).
+struct RunningDynamics: Codable, Sendable, Hashable {
+    /// Steps of both feet per minute.
+    var cadenceSpm: Double?
+    var strideLengthCm: Double?
+    var groundContactMs: Double?
+    /// Share of the left foot in the ground contact time in percent (50 = even).
+    var gctBalanceLeftPct: Double?
+    var verticalOscillationCm: Double?
+    /// Vertical oscillation relative to stride length in percent.
+    var verticalRatioPct: Double?
+
+    init(from decoder: any Decoder) throws {
+        // A faulty value must never make analysis.json unreadable.
+        let c = try? decoder.container(keyedBy: CodingKeys.self)
+        func value(_ key: CodingKeys) -> Double? {
+            try? c?.decodeIfPresent(Double.self, forKey: key)
+        }
+        cadenceSpm = value(.cadenceSpm)
+        strideLengthCm = value(.strideLengthCm)
+        groundContactMs = value(.groundContactMs)
+        gctBalanceLeftPct = value(.gctBalanceLeftPct)
+        verticalOscillationCm = value(.verticalOscillationCm)
+        verticalRatioPct = value(.verticalRatioPct)
+    }
 }
 
 enum Verdict: String, Codable, Sendable {

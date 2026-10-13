@@ -86,6 +86,10 @@ enum RunImport {
         let distance: Double
         let seconds: Double
         let hr: Double?
+        /// Running dynamics, only from the watch: steps of both feet per minute, ground contact time (ms), stride length (cm).
+        var cadence: Double? = nil
+        var groundContact: Double? = nil
+        var stride: Double? = nil
     }
 
     /// From `get_activity_data` of the Garmin or Polar server (the Polar server delivers the same keys).
@@ -101,8 +105,14 @@ enum RunImport {
         let laps = (detail["laps"] as? [[String: Any]] ?? []).map { lap in
             Lap(distance: number(lap["distance"]) ?? 0,
                 seconds: number(lap["movingDuration"]) ?? number(lap["duration"]) ?? 0,
-                hr: number(lap["averageHR"]))
+                hr: number(lap["averageHR"]),
+                cadence: number(lap["averageRunCadence"]),
+                groundContact: number(lap["groundContactTime"]),
+                stride: number(lap["strideLength"]))
         }
+        let dynamics = runningDynamics(summary)
+        // Room for the coach's look at the running form — only where there is something to look at.
+        let form: OrderedJSON? = dynamics == nil ? nil : OrderedJSON.null
         let entry = OrderedJSON.object([
             ("source", .string(source.rawValue)),
             (source.idKey, .string(id)),
@@ -117,13 +127,30 @@ enum RunImport {
             ("elevation_gain", .int(number(summary["elevationGain"]))),
             // Garmin and Polar count steps of both legs, Strava and the existing entries only one.
             ("cadence", .int(number(summary["averageRunCadence"]).map { $0 / 2 })),
+            ("running_dynamics", dynamics),
             ("weather", garminWeather(detail["weather"] as? [String: Any], watch: number(summary["averageTemperature"])).map(OrderedJSON.string)),
             ("splits", .array(splits(laps))),
             ("verdict", .null),
             ("analysis", .null),
             ("adjustments", .null),
+            ("running_form", form),
         ])
         return ImportedRun(entry: entry, source: source, activityID: id, date: date, name: name, distanceKm: km)
+    }
+
+    /// Garmin's running dynamics (“Laufeffizienz”) from the server's summary — nil if the watch measured none
+    /// (cadence alone doesn't count: every watch has it).
+    static func runningDynamics(_ summary: [String: Any]) -> OrderedJSON? {
+        let pairs: [(String, OrderedJSON?)] = [
+            ("cadence_spm", OrderedJSON.int(number(summary["averageRunCadence"]))),
+            ("stride_length_cm", OrderedJSON.int(number(summary["strideLength"]))),
+            ("ground_contact_ms", OrderedJSON.int(number(summary["groundContactTime"]))),
+            ("gct_balance_left_pct", OrderedJSON.decimal(number(summary["groundContactBalance"]), digits: 1)),
+            ("vertical_oscillation_cm", OrderedJSON.decimal(number(summary["verticalOscillation"]), digits: 1)),
+            ("vertical_ratio_pct", OrderedJSON.decimal(number(summary["verticalRatio"]), digits: 1)),
+        ]
+        guard pairs.dropFirst().contains(where: { $0.1 != nil }) else { return nil }
+        return OrderedJSON.object(pairs)
     }
 
     /// From `list_activities` + `get_activity_performance` of the Strava MCP.
@@ -174,13 +201,22 @@ enum RunImport {
             let pace = OrderedJSON.int(lap.seconds / (lap.distance / 1000))
             let hr = OrderedJSON.int(lap.hr)
             if autoKilometers && isKilometer(lap) {
-                return .object([("km", .number(String(index + 1))), ("pace_s", pace), ("hr", hr)])
+                return withDynamics(.object([("km", .number(String(index + 1))), ("pace_s", pace), ("hr", hr)]), of: lap)
             }
             let label = autoKilometers
                 ? String(localized: "last \(distanceText(lap.distance))")
                 : String(localized: "Lap \(index + 1) · \(distanceText(lap.distance))")
-            return .object([("label", .string(label)), ("pace_s", pace), ("hr", hr)])
+            return withDynamics(.object([("label", .string(label)), ("pace_s", pace), ("hr", hr)]), of: lap)
         }
+    }
+
+    /// The lap's running dynamics on its split — the coach and the app see how the form changes during the run.
+    private static func withDynamics(_ split: OrderedJSON, of lap: Lap) -> OrderedJSON {
+        var split = split
+        split["cadence_spm"] = OrderedJSON.int(lap.cadence)
+        split["ground_contact_ms"] = OrderedJSON.int(lap.groundContact)
+        split["stride_length_cm"] = OrderedJSON.int(lap.stride)
+        return split
     }
 
     /// 800 → "800 m", 2000 → "2,00 km", 130 → "0,13 km"

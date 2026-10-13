@@ -100,13 +100,18 @@ Newest first. Schema per run:
   "tag": "…",                    // only if sessionId is null, e.g. "recovery"
   "name": "…", "date": "2026-01-06",
   "distance_km": 7.4, "moving_time_s": 2710, "avg_pace_s": 366,
-  "avg_hr": 151, "max_hr": 178, "elevation_gain": 40, "cadence": 84,
+  "avg_hr": 151, "max_hr": 178, "elevation_gain": 40, "cadence": 84,   // cadence: steps of one foot
+  "running_dynamics": {          // Garmin, only if measured — see "Running dynamics"
+    "cadence_spm": 168, "stride_length_cm": 107, "ground_contact_ms": 251,
+    "gct_balance_left_pct": 49.8, "vertical_oscillation_cm": 9.1, "vertical_ratio_pct": 8.4 },
   "weather": "…",                // optional
   "flags": ["…"],                // short notes
-  "splits": [ { "km": 1, "pace_s": 381, "hr": 138 }, { "label": "Interval 1", "pace_s": 330, "hr": 165 } ],
+  "splits": [ { "km": 1, "pace_s": 381, "hr": 138, "cadence_spm": 166, "ground_contact_ms": 255, "stride_length_cm": 104 },
+              { "label": "Interval 1", "pace_s": 330, "hr": 165 } ],
   "verdict": "good",             // "good" | "ok" | "warning"
   "analysis": "…",               // review as running text
-  "adjustments": "…"             // consequence for next week, or null
+  "adjustments": "…",            // consequence for next week, or null
+  "running_form": "…"            // running form: 2–3 recommendations, or null
 }
 ```
 
@@ -115,7 +120,45 @@ Week summaries go into `weekSummaries: [{ "week": 1, "analysis": "…", "nextWee
 **Runs loaded by the app** (with `source` and `verdict: null`) are **completed
 instead of created anew** during the review: keep IDs and measurements, make
 split labels more precise for intervals, set `sessionId`, `flags`, `verdict`,
-`analysis`, `adjustments`.
+`analysis`, `adjustments` and — with running dynamics — `running_form`.
+
+## Running dynamics (Garmin)
+
+With a watch or accessory that measures them (e.g. HRM-Pro, Running Dynamics Pod),
+Garmin delivers the running dynamics — “Laufeffizienz” in Garmin's German apps. The
+app stores them in `running_dynamics` and per split; the Garmin server returns them
+in `get_activity_data` (summary and laps) and `list_activities`.
+
+| Value | Field | Garmin's scale (green = average, blue/purple better) |
+|---|---|---|
+| Cadence | `cadence_spm` (both feet) | green 164–173, blue 174–183, purple > 183 |
+| Ground contact time | `ground_contact_ms` | green 249–277, blue 218–248, purple < 218 |
+| Ground contact balance | `gct_balance_left_pct` | green 49.3–50.7 % |
+| Vertical oscillation | `vertical_oscillation_cm` | green 8.2–9.7, blue 6.4–8.1, purple < 6.4 |
+| Vertical ratio | `vertical_ratio_pct` | green 7.5–8.6, blue 6.1–7.4, purple < 6.1 |
+| Stride length | `stride_length_cm` | no scale (depends on height and pace) |
+
+How to judge them:
+
+- Garmin's scale compares with all runners. What counts is the comparison with
+  **your own runs at a similar pace and type** — easy runs naturally show a lower
+  cadence and longer ground contact.
+- **Course of the run:** if the ground contact gets longer or the stride shorter
+  towards the end (at the same pace), the form fades with fatigue.
+- **Balance** clearly one-sided over several runs (beyond about 51.5 %): a one-sided
+  weakness or strain — pain belongs to a doctor or physiotherapist.
+
+Recommendations go into `running_form` of the run: 2–3 concrete, doable points, e.g.
+
+- **Cadence:** raise it in small steps (about 5 %), metronome or music to the beat
+- **Strides** (4–6 × 20 s, relaxed and fast) after easy runs
+- **Running drills** (skips, butt kicks, ankle work), rope skipping, light
+  plyometrics for a reactive ground contact
+- **Strength** for core, hips and calves; single-leg exercises for imbalances
+- **Posture:** run tall, slight forward lean from the ankles, land under the body
+
+Change one thing at a time and check it on the next runs. Only suggest drills or
+strength sessions for the plan; add them when asked.
 
 ## Completed sessions (`completed.json`)
 
@@ -130,6 +173,7 @@ date (`DD.MM.YYYY`). Keep the order of existing entries.
 2. **Reconstruct the structure:** for interval workouts, consecutive laps add up
    to the planned segments.
 3. Update `completed.json` and `analysis.json`, write the week summary into `weekSummaries`.
+   Runs with running dynamics get a look at the running form (`running_form`).
 4. Short summary: runs, rating, recommendation for next week.
 5. Only then prepare the next week (`plan.json`). Create Garmin workouts only with
    explicit approval (with Polar, the app shows the week for entering it by hand).
@@ -137,7 +181,7 @@ date (`DD.MM.YYYY`). Keep the order of existing entries.
 ## Garmin
 
 The Garmin server (MCP) is set up by Pace Lab and registered in `.mcp.json`. Tools:
-`garmin_status`, `list_activities`, `get_activity_data`, `list_workouts`,
+`garmin_status`, `list_activities`, `get_activity_data` (with running dynamics), `list_workouts`,
 `preview_plan(week)`, `create_plan(week, dry_run, replace_existing)`,
 `delete_workout(id)`, `schedule_workout(id, date)`. The workouts are built from
 `plan.json`; `replace_existing=true` replaces workouts with the same name instead
