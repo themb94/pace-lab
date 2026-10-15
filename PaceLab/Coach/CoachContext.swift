@@ -43,9 +43,15 @@ enum CoachContext {
         - The app displays plan.json, analysis.json and completed.json live: follow the schemas in README.md exactly and always write valid JSON.
         - The plan lives only in plan.json — including a “workout” per session, from which the workouts for the watch are built. Write a new block as a draft to plan-entwurf.json; it is applied in the app.
         - Entries in analysis.json with “source” and without “verdict” were already loaded from Strava, Garmin or Polar by the app: during a review, complete exactly those entries (keep IDs and measurements, name splits more precisely if needed) and don’t create duplicates.
+        - \(runningFormRule)
         - The app records a version (git) automatically before and after your run and can undo it. Don’t run git commands yourself.
         """
     }
+
+    /// Garmin's running dynamics ("Laufeffizienz") → recommendations for the running form.
+    private static let runningFormRule = """
+    Runs with “running_dynamics” (Garmin’s “Laufeffizienz”: cadence_spm in steps of both feet, stride_length_cm, ground_contact_ms, gct_balance_left_pct, vertical_oscillation_cm, vertical_ratio_pct; per split cadence_spm, ground_contact_ms, stride_length_cm) get a look at the running form during a review or when asked: judge the values relative to pace and type of run and compare them with the athlete’s earlier runs at a similar pace — Garmin’s color scale compares with all runners, and easy runs naturally show a lower cadence and longer ground contact. Watch the course of the run (longer ground contact or shorter stride towards the end = fatigue) and left/right imbalance. Write 2–3 concrete, doable recommendations (e.g. cadence in small steps, strides, running drills, strength or plyometrics, posture) into “running_form” of the run, short and without repeating the numbers the app already shows. Only suggest putting drills or strength sessions into the plan; don’t interpret pain — that belongs to a doctor or physiotherapist.
+    """
 
     /// What the coach may do with the profile's watch.
     private static func watchRule(_ watch: WatchKind) -> String {
@@ -67,6 +73,7 @@ enum CoachContext {
         return """
         You are \(coachOf) in the Mac app “Pace Lab”. You have no access to files, Strava or Garmin — use only the training status, the athlete profile and the conversation so far that are sent to you. Answer in \(replyLanguage), clear and compact, with simple Markdown.
         Follow the rules in the athlete profile. In general: easy runs really easy, at most two demanding sessions per week; explain a high heart rate with heat, hills or form of the day before you question fitness.
+        If runs show running dynamics (Garmin), judge the running form relative to pace and the athlete’s earlier runs and give 2–3 concrete recommendations (e.g. cadence, strides, running drills, strength).
         Give no medical advice (no medication or dosage tips) and refer to a doctor for that.
         \(readOnlyNote)
         """
@@ -137,9 +144,11 @@ enum CoachContext {
             line += ": \(Fmt.km(run.distanceKm, digits: 2)) km, \(Fmt.pace(run.paceSeconds))/km"
             if let hr = run.avgHr { line += ", avg HR \(Fmt.int(hr))" }
             if let max = run.maxHr { line += ", max \(Fmt.int(max))" }
+            if let dynamics = run.runningDynamics.flatMap(dynamicsText) { line += ", running dynamics: \(dynamics)" }
             if let verdict = run.verdict { line += ", rating: \(verdict.label)" }
             if let flags = run.flags, !flags.isEmpty { line += ". Notes: \(flags.joined(separator: "; "))" }
             if let analysis = run.analysis { line += ". Analysis: \(shorten(analysis, to: 320))" }
+            if let form = run.runningForm { line += ". Running form: \(shorten(form, to: 240))" }
             lines.append(line)
         }
         if let summary = s.weekSummaries.max(by: { $0.week < $1.week }), let text = summary.analysis {
@@ -153,6 +162,19 @@ enum CoachContext {
             lines.append(readme)
         }
         return lines.joined(separator: "\n")
+    }
+
+    /// "cadence 168 spm, stride 1.07 m, ground contact 251 ms, balance L 49.8 %, vertical oscillation 9.1 cm, vertical ratio 8.4 %"
+    private static func dynamicsText(_ d: RunningDynamics) -> String? {
+        func decimal(_ value: Double) -> String { String(format: "%.1f", value) }
+        var parts: [String] = []
+        if let spm = d.cadenceSpm { parts.append("cadence \(Int(spm.rounded())) spm") }
+        if let cm = d.strideLengthCm { parts.append("stride " + String(format: "%.2f", cm / 100) + " m") }
+        if let ms = d.groundContactMs { parts.append("ground contact \(Int(ms.rounded())) ms") }
+        if let left = d.gctBalanceLeftPct { parts.append("balance L \(decimal(left)) %") }
+        if let cm = d.verticalOscillationCm { parts.append("vertical oscillation \(decimal(cm)) cm") }
+        if let ratio = d.verticalRatioPct { parts.append("vertical ratio \(decimal(ratio)) %") }
+        return parts.isEmpty ? nil : parts.joined(separator: ", ")
     }
 
     /// Previous conversation for engines without sessions of their own.

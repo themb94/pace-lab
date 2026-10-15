@@ -77,6 +77,7 @@ final class AppModel {
         // Record changes made outside the app since the last launch as their own commit.
         record(ProjectHistory.externalChanges)
         refreshModels()
+        Task.detached(priority: .utility) { WatchSetup.refreshInstalledServers() }
     }
 
     private func connectCoach() {
@@ -589,6 +590,15 @@ final class AppModel {
         coach.draft = run.isAnalyzed
             ? String(localized: "About my run “\(run.name)” from \(day): ")
             : String(localized: "Review my run “\(run.name)” from \(day) (add an entry to analysis.json, assign the session and tick it off). ")
+        section = .coach
+    }
+
+    /// Prepares a question about the running form of a run (Garmin's running dynamics).
+    func askCoachAboutForm(of run: Run) {
+        guard !coach.isRunning else { section = .coach; return }
+        coach.newConversation()
+        let day = run.day.map(Fmt.weekdayDayMonth) ?? run.date
+        coach.draft = String(localized: "Look at the running form of my run “\(run.name)” from \(day): its running dynamics compared with my earlier runs at a similar pace, and how they change during the run. Give me 2–3 concrete recommendations for running better and write them into “running_form” of the run in analysis.json.")
         section = .coach
     }
 

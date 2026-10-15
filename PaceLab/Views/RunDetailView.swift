@@ -38,6 +38,12 @@ struct RunDetailView: View {
                 if let adjustments = run.adjustments {
                     TextBlock(title: String(localized: "Adjustment for next week"), text: adjustments, color: Color(hex: 0xE0A800))
                 }
+                if let dynamics = run.measuredDynamics {
+                    RunningFormSection(run: run, dynamics: dynamics)
+                }
+                if let form = run.runningForm {
+                    TextBlock(title: String(localized: "Running form · coach"), text: form, color: .purple)
+                }
             }
             .padding(24)
             .frame(maxWidth: 900, alignment: .leading)
@@ -115,7 +121,8 @@ struct RunDetailView: View {
             if let elevation = run.elevationGain {
                 MetricTile(value: "\(Fmt.int(elevation)) m", label: String(localized: "Climb"), symbol: "mountain.2.fill")
             }
-            if let cadence = run.cadence {
+            // The running dynamics section shows the cadence itself.
+            if let cadence = run.stepsPerMinute, run.measuredDynamics?.cadenceSpm == nil {
                 MetricTile(value: "\(Fmt.int(cadence)) spm", label: String(localized: "Cadence"), symbol: "metronome.fill")
             }
             if let weather = run.weather {
