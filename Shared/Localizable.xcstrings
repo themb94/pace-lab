@@ -5251,6 +5251,16 @@
         }
       }
     },
+    "Sign in again …": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu anmelden …"
+          }
+        }
+      }
+    },
     "Sign in to Polar again …": {
       "localizations": {
         "de": {
@@ -6067,6 +6077,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Der gemeinsame App-Group-Container ist nicht verfügbar."
+          }
+        }
+      }
+    },
+    "The sign-in of %@ has expired. Sign in again in Terminal, then send your message again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Anmeldung von %@ ist abgelaufen. Melde dich im Terminal neu an und schick deine Nachricht dann noch einmal."
           }
         }
       }

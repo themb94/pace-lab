@@ -39,6 +39,25 @@ struct CoachEngine: Codable, Identifiable, Hashable, Sendable {
             }
         }
 
+        /// Arguments that sign the CLI in (in Terminal); nil = nothing to sign in to.
+        var signInArguments: String? {
+            switch self {
+            case .claudeCode: "auth login"
+            case .codex: "login"
+            case .textCLI: nil
+            }
+        }
+
+        /// The run failed because the CLI's sign-in is missing or expired
+        /// (e.g. "Failed to authenticate: OAuth session expired and could not be refreshed").
+        func isSignInError(_ message: String) -> Bool {
+            guard signInArguments != nil else { return false }
+            let text = message.lowercased()
+            return ["failed to authenticate", "oauth", "not logged in", "please run /login", "log in again",
+                    "sign in again", "login again", "token expired", "could not be refreshed", "unauthorized",
+                    "invalid api key"].contains { text.contains($0) }
+        }
+
         var capabilities: String {
             switch self {
             case .claudeCode: String(localized: "Agent: reads and edits files, Strava, Garmin (upload only with approval), memory from the chat.")
@@ -113,6 +132,13 @@ struct CoachEngine: Codable, Identifiable, Hashable, Sendable {
     /// The command that actually gets called (empty → the type's default).
     var command: String {
         executable.trimmingCharacters(in: .whitespaces).isEmpty ? kind.defaultCommand : executable
+    }
+
+    /// Shell command that signs this engine's CLI in again — the same executable the coach runs.
+    var signInCommand: String? {
+        guard let arguments = kind.signInArguments else { return nil }
+        let path = CLIResolver.find(command)?.path ?? command
+        return "'" + path.replacingOccurrences(of: "'", with: "'\\''") + "' " + arguments
     }
 }
 

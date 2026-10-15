@@ -372,6 +372,21 @@ private struct TurnView: View {
                 Label(turn.errorMessage ?? "Fehlgeschlagen.", systemImage: "xmark.octagon.fill")
                     .foregroundStyle(.red)
                     .textSelection(.enabled)
+                if let engine = signInEngine {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("The sign-in of \(engine.name) has expired. Sign in again in Terminal, then send your message again.")
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button {
+                            if let command = engine.signInCommand {
+                                Terminal.run(command, name: "login", profile: model.profile)
+                            }
+                        } label: {
+                            Label("Sign in again …", systemImage: "person.crop.circle.badge.exclamationmark")
+                        }
+                    }
+                    .font(.callout)
+                    .card(tint: .orange, padding: 12)
+                }
                 if turn.commit != nil { ChangesCard(turn: turn) }
             }
         case .cancelled:
@@ -382,6 +397,14 @@ private struct TurnView: View {
                 if turn.commit != nil { ChangesCard(turn: turn) }
             }
         }
+    }
+
+    /// Engine of this conversation, if the turn failed because its CLI is no longer signed in.
+    private var signInEngine: CoachEngine? {
+        guard let message = turn.errorMessage,
+              let conversation = model.coach.current, conversation.turns.contains(where: { $0.id == turn.id }),
+              let engine = model.coach.engine(of: conversation), engine.kind.isSignInError(message) else { return nil }
+        return engine
     }
 
     private var garminDenied: [String] {
