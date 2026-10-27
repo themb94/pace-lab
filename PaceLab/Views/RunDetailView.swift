@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RunDetailView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openURL) private var openURL
     let run: Run
     let snapshot: TrainingSnapshot
 
@@ -60,22 +61,33 @@ struct RunDetailView: View {
             .frame(maxWidth: 900, alignment: .leading)
         }
         // Actions on the selected run live in the window's toolbar, not crammed next to the title.
+        // Each action is its own item with a gap between them — in one group they merge into a single
+        // glass capsule, and a `Link` would add its blue link color to it.
         .toolbar {
-            ToolbarItemGroup {
+            ToolbarItem {
                 AssignMenu(run: run, snapshot: snapshot)
+            }
+            ToolbarSpacer(.fixed)
+            ToolbarItem {
                 Button {
                     model.askCoach(about: run)
                 } label: {
                     Label(run.isAnalyzed ? "Ask coach" : "Review", systemImage: "sparkles")
                 }
                 .help(run.isAnalyzed ? "Ask the coach about this run" : "Have the coach review this run")
-                if let url = run.stravaURL {
-                    Link(destination: url) {
+            }
+            if let url = run.stravaURL {
+                ToolbarSpacer(.fixed)
+                ToolbarItem {
+                    Button { openURL(url) } label: {
                         Label("Open in Strava", systemImage: "arrow.up.right.square")
                     }
                     .help("Open in Strava")
-                } else if let url = run.garminURL {
-                    Link(destination: url) {
+                }
+            } else if let url = run.garminURL {
+                ToolbarSpacer(.fixed)
+                ToolbarItem {
+                    Button { openURL(url) } label: {
                         Label("Open in Garmin", systemImage: "arrow.up.right.square")
                     }
                     .help("Open in Garmin")
