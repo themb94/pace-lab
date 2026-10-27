@@ -75,7 +75,7 @@ struct GarminUploadSheet: View {
                                 .font(.caption).foregroundStyle(.secondary)
                         } else if let name = session.garminName, existing.contains(name) {
                             Label("Already on Garmin — will be replaced", systemImage: "arrow.triangle.2.circlepath")
-                                .font(.caption).foregroundStyle(.orange)
+                                .font(.caption).foregroundStyle(.legible(.orange))
                         }
                     }
                 }
@@ -99,7 +99,7 @@ struct GarminUploadSheet: View {
             .textSelection(.enabled)
         case .failed(let message):
             Label(message, systemImage: "exclamationmark.triangle.fill")
-                .foregroundStyle(.orange)
+                .foregroundStyle(.legible(.orange))
                 .textSelection(.enabled)
         }
     }

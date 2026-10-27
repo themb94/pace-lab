@@ -86,7 +86,7 @@ struct DraftPlanView: View {
                 }
             }
             Text(draft.title).font(.title.bold())
-            if let goal = draft.goal { Text(goal).font(.title3).foregroundStyle(Color.brand) }
+            if let goal = draft.goal { Text(goal).font(.title3).foregroundStyle(.legible(.brand)) }
             Text("\(snapshot.weekCount) weeks starting \(Fmt.longDate(snapshot.startMonday))")
                 .foregroundStyle(.secondary)
             if let subtitle = draft.subtitle, !subtitle.contains("\(snapshot.weekCount) Wochen"), !subtitle.contains("\(snapshot.weekCount) weeks") {
@@ -98,7 +98,7 @@ struct DraftPlanView: View {
             if draft.idPrefix == model.snapshot?.plan.idPrefix {
                 Label("Same ID prefix as the current block — the draft can’t be applied like this.",
                       systemImage: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.legible(.orange))
             }
             HStack(spacing: 10) {
                 Button {

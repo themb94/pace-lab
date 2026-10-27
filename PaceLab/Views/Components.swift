@@ -47,7 +47,7 @@ struct Pill: View {
         .font(.caption.weight(.bold))
         .padding(.horizontal, 8)
         .padding(.vertical, 3)
-        .foregroundStyle(color)
+        .foregroundStyle(.legible(color))
         .background(color.opacity(0.15), in: Capsule())
     }
 }
@@ -112,8 +112,11 @@ struct DoneToggle: View {
         Button(action: action) {
             Image(systemName: isDone ? "checkmark.circle.fill" : "circle")
                 .font(.title2)
-                .foregroundStyle(isDone ? Color.green : Color.secondary)
+                .foregroundStyle(isDone ? AnyShapeStyle(.legible(.green)) : AnyShapeStyle(Color.secondary))
                 .contentTransition(.symbolEffect(.replace))
+                // 28 × 28 pt: the default control size on the Mac; the bare symbol is only ~18 pt.
+                .frame(width: 28, height: 28)
+                .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .help(isDone ? "Mark as open (completed.json)" : "Mark as done (completed.json)")
@@ -140,7 +143,7 @@ struct SessionRowContent: View {
                 if hasRun {
                     Image(systemName: "chart.bar.xaxis")
                         .font(.caption)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.legible(.blue))
                         .help("Analysis available")
                 }
             }
@@ -151,10 +154,11 @@ struct SessionRowContent: View {
             if let doneDate {
                 Text("✓ done on \(doneDate)")
                     .font(.caption)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(.legible(.green))
             }
         }
-        .opacity(isDone ? 0.65 : 1)
+        // No dimming for finished sessions: 65 % opacity pushed the green date line to 2.8:1.
+        // Done is already shown by the check, the strikethrough and the date.
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -166,8 +170,9 @@ struct RunRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             RoundedRectangle(cornerRadius: 2)
-                .fill(run.isAnalyzed ? (run.verdict ?? .ok).color : Color.secondary.opacity(0.35))
+                .fill(run.isAnalyzed ? (run.verdict?.color ?? Color.secondary.opacity(0.35)) : Color.secondary.opacity(0.35))
                 .frame(width: 4)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     if let day = run.day {
@@ -175,10 +180,18 @@ struct RunRow: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                    // The verdict is also a symbol (not only the bar's color) and is read out by VoiceOver.
+                    if run.isAnalyzed, let verdict = run.verdict {
+                        Image(systemName: verdict.symbol)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.legible(verdict.color))
+                            .help(verdict.label)
+                            .accessibilityLabel(verdict.label)
+                    }
                     if !run.isAnalyzed {
                         Text("NEW")
                             .font(.caption2.weight(.bold))
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(.legible(.blue))
                             .help("Loaded, but not yet reviewed by the coach")
                     }
                     Spacer()
@@ -191,7 +204,8 @@ struct RunRow: View {
                 HStack(spacing: 8) {
                     Text(label ?? run.tag ?? (run.isAnalyzed ? String(localized: "Unplanned") : String(localized: "Not assigned to a session yet")))
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(label != nil ? Color.blue : run.isAnalyzed ? Color.purple : Color.secondary)
+                        .foregroundStyle(label != nil ? AnyShapeStyle(.legible(.blue))
+                                         : run.isAnalyzed ? AnyShapeStyle(.legible(.purple)) : AnyShapeStyle(Color.secondary))
                         .lineLimit(1)
                     Spacer(minLength: 4)
                     Label("\(Fmt.pace(run.paceSeconds))/km", systemImage: "speedometer")
@@ -412,7 +426,7 @@ struct ErrorBanner: View {
     var body: some View {
         Label(message, systemImage: "exclamationmark.triangle.fill")
             .font(.callout)
-            .foregroundStyle(.orange)
+            .foregroundStyle(.legible(.orange))
             .card(tint: .orange, padding: 12)
     }
 }

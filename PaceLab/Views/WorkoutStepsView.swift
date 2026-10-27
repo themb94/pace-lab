@@ -18,7 +18,7 @@ struct WorkoutStepsView: View {
                 VStack(alignment: .leading, spacing: compact ? 3 : 6) {
                     Text("\(count) ×")
                         .font((compact ? Font.caption : .callout).weight(.bold))
-                        .foregroundStyle(Color.brand)
+                        .foregroundStyle(.legible(.brand))
                     self.steps(inner, depth: depth + 1)
                         .padding(.leading, 12)
                         .overlay(alignment: .leading) {

@@ -83,7 +83,7 @@ private struct BlockHeaderCard: View {
                 if let goal = snapshot.plan.goal {
                     Text(goal.prefix(1).uppercased() + goal.dropFirst())
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(Color.brand)
+                        .foregroundStyle(.legible(.brand))
                 }
                 if let subtitle = snapshot.plan.subtitle {
                     Text(subtitle).foregroundStyle(.secondary)
@@ -143,7 +143,7 @@ private struct StatBlock: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("\(Text(value).foregroundStyle(color))\(Text(total).foregroundStyle(.secondary).font(.title3))")
+            Text("\(Text(value).foregroundStyle(.legible(color)))\(Text(total).foregroundStyle(.secondary).font(.title3))")
                 .font(.largeTitle.weight(.bold).monospacedDigit())
             Text(label)
                 .font(.caption)
@@ -162,7 +162,7 @@ private struct NextSessionCard: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Up next · Week \(session.week) · \(session.phase)")
                 .font(.caption.weight(.bold))
-                .foregroundStyle(Color.brand)
+                .foregroundStyle(.legible(.brand))
                 .textCase(.uppercase)
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 Text(session.dist)
@@ -338,7 +338,7 @@ struct WeeklyKmChart: View {
                 Spacer()
                 Text("W = block week, otherwise Monday of the week")
                     .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
             }
         }
     }

@@ -35,6 +35,24 @@ extension Color {
     static var subtleFill: Color { Color.primary.opacity(0.06) }
 }
 
+/// For colored text and symbols: saturated colors reach only ~2–3:1 on a light background, so in the
+/// light appearance they are darkened (≥ 4.5:1 on white); in the dark appearance they stay as they are.
+struct LegibleStyle: ShapeStyle {
+    let base: Color
+
+    func resolve(in environment: EnvironmentValues) -> Color.Resolved {
+        let color = base.resolve(in: environment)
+        guard environment.colorScheme == .light else { return color }
+        let keep: Float = 0.6
+        return Color.Resolved(red: color.red * keep, green: color.green * keep, blue: color.blue * keep,
+                              opacity: color.opacity)
+    }
+}
+
+extension ShapeStyle where Self == LegibleStyle {
+    static func legible(_ color: Color) -> LegibleStyle { LegibleStyle(base: color) }
+}
+
 extension SessionType {
     var label: String {
         switch self {

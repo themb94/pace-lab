@@ -4,7 +4,7 @@ import AppKit
 /// Development/testing only: with `-debugSnapshots <folder>` the app saves images of its views.
 /// Optional: `-debugSettings YES` (Settings), `-debugSync YES` (Load runs), `-debugPlanSheet YES`
 /// (planning form), `-debugEngine "<name>"` + `-debugCoachPrompt "<question>"` asks the coach a real
-/// question, `-debugDark YES`, `-debugCreateFolder YES` (creates the empty project folder from the template), `-debugTour <folder>` (walkthrough with window captures), `-debugSupportDirectory <folder>` (separate conversations/model lists, profiles, no widget data), `-debugQuit YES` quits the app afterwards. Language: `-AppleLanguages "(en)"` or `"(de)"`. With `-projectPath <folder>` against a copy (an empty folder shows the setup).
+/// question, `-debugDark YES` or `-debugLight YES`, `-debugCreateFolder YES` (creates the empty project folder from the template), `-debugTour <folder>` (walkthrough with window captures), `-debugSupportDirectory <folder>` (separate conversations/model lists, profiles, no widget data), `-debugQuit YES` quits the app afterwards. Language: `-AppleLanguages "(en)"` or `"(de)"`. With `-projectPath <folder>` against a copy (an empty folder shows the setup).
 /// Profiles (only together with `-debugSupportDirectory`): `-debugProfile <name>` creates a test profile with the training
 /// folder `-debugProfileFolder <folder>`, switches to it and captures the profile views; everything after that runs in it.
 /// `-debugGarminConfig YES` registers the Garmin server in its folder, `-debugWatch polar` sets its watch (and registers the
@@ -19,6 +19,7 @@ enum DebugSnapshots {
         let dir = URL(filePath: path, directoryHint: .isDirectory)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         if defaults.bool(forKey: "debugDark") { NSApp.appearance = NSAppearance(named: .darkAqua) }
+        if defaults.bool(forKey: "debugLight") { NSApp.appearance = NSAppearance(named: .aqua) }
 
         if let name = defaults.string(forKey: "debugProfile"), defaults.string(forKey: "debugSupportDirectory") != nil {
             await profiles(name: name, model: model, dir: dir, openSettings: openSettings, openWindow: openWindow)

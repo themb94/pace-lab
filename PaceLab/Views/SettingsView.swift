@@ -62,7 +62,7 @@ private struct GeneralSettings: View {
                     }
                 }
                 if let folderError {
-                    Label(folderError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                    Label(folderError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.legible(.orange))
                 }
                 ForEach(["plan.json", "analysis.json", "completed.json", "README.md", ".mcp.json"], id: \.self) { name in
                     let found = FileManager.default.fileExists(atPath: URL(filePath: projectPath).appending(path: name).path)
@@ -87,14 +87,14 @@ private struct GeneralSettings: View {
             Section {
                 if model.history.isRepository {
                     Label(historyCount.map { "Active — \($0) versions saved" } ?? "Active", systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(.legible(.green))
                     Button("Open history") {
                         model.section = .history
                         openWindow(id: "main")
                     }
                 } else {
                     Label("Off", systemImage: "xmark.circle")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.legible(.orange))
                     HStack {
                         Button("Set up") {
                             settingUp = true
@@ -108,7 +108,7 @@ private struct GeneralSettings: View {
                     }
                 }
                 if let historyError {
-                    Text(historyError).foregroundStyle(.orange).textSelection(.enabled)
+                    Text(historyError).foregroundStyle(.legible(.orange)).textSelection(.enabled)
                 }
             } header: {
                 Text("Version control (git)")
@@ -255,7 +255,7 @@ private struct RunSourceSettings: View {
                 if let step = model.sync.step {
                     Label(step, systemImage: "arrow.down.circle").foregroundStyle(.secondary)
                 } else if case .failed(let message) = model.sync.state {
-                    Label(message, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                    Label(message, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.legible(.orange))
                 } else if case .finished(let summary) = model.sync.state {
                     Label(summary.message, systemImage: "checkmark.circle").foregroundStyle(.secondary)
                 }
@@ -333,7 +333,7 @@ private struct CoachSettings: View {
                                     HStack(spacing: 4) {
                                         Text(engine.name)
                                         if engine.id == coach.selectedEngine.id {
-                                            Text("Default").font(.caption2.weight(.semibold)).foregroundStyle(Color.brand)
+                                            Text("Default").font(.caption2.weight(.semibold)).foregroundStyle(.legible(.brand))
                                         }
                                     }
                                     Text("\(engine.kind.label) · \(model.models.label(for: engine))")
@@ -450,10 +450,10 @@ private struct EngineEditor: View {
                     if resolving {
                         Label("Searching …", systemImage: "magnifyingglass")
                     } else if let resolvedPath {
-                        Label("Found: \(resolvedPath)", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                        Label("Found: \(resolvedPath)", systemImage: "checkmark.circle.fill").foregroundStyle(.legible(.green))
                     } else if !engine.command.isEmpty {
                         Label("“\(engine.command)” not found — enter the full path.", systemImage: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.legible(.orange))
                     }
                 }
                 .font(.callout)
@@ -596,7 +596,7 @@ private struct EngineEditor: View {
             if let models = store.models(for: engine) {
                 ForEach(models.notices, id: \.self) { notice in
                     Label(notice, systemImage: "arrow.up.circle")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.legible(.orange))
                 }
                 HStack(spacing: 8) {
                     Text("\(engine.kind == .claudeCode ? "Claude Code" : "Codex") \(models.cliVersion) · updated \(models.fetchedAt.formatted(.dateTime.day().month().hour().minute().locale(Fmt.locale)))")
@@ -613,7 +613,7 @@ private struct EngineEditor: View {
             } else if store.isLoading(engine) {
                 Label("Querying the available models …", systemImage: "hourglass")
             } else if let error = store.error(for: engine) {
-                Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
+                Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.legible(.orange))
             }
         }
     }

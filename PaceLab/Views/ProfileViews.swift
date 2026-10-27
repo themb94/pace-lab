@@ -8,7 +8,7 @@ struct ProfileAvatar: View {
     var body: some View {
         Text(profile.initial)
             .font(.system(size: size * 0.48, weight: .bold, design: .rounded))
-            .foregroundStyle(Color.brand)
+            .foregroundStyle(.legible(.brand))
             .frame(width: size, height: size)
             .background(Color.brand.opacity(0.18), in: Circle())
             .accessibilityHidden(true)
@@ -85,7 +85,7 @@ struct NewProfileSheet: View {
         VStack(alignment: .leading, spacing: 14) {
             Label("New profile", systemImage: "person.crop.circle.badge.plus")
                 .font(.title2.bold())
-                .foregroundStyle(Color.brand)
+                .foregroundStyle(.legible(.brand))
             Text("A profile is a Pace Lab of its own for another person: its own training folder with plan and runs, its own coach conversations and settings, and its own sign-ins for Claude Code, Codex, the watch (Garmin or Polar) and Strava. Nothing is shared between profiles — the new profile is set up from scratch.")
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -95,7 +95,7 @@ struct NewProfileSheet: View {
             if isTaken {
                 Label("A profile with this name already exists.", systemImage: "exclamationmark.triangle.fill")
                     .font(.callout)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.legible(.orange))
             }
             if model.isBusy {
                 Label("Pace Lab is working right now — the profile is created, you switch to it afterwards.", systemImage: "hourglass")
@@ -185,7 +185,7 @@ struct ProfileSettings: View {
                         Text("Main profile").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
                     }
                     if active {
-                        Text("Active").font(.caption2.weight(.semibold)).foregroundStyle(Color.brand)
+                        Text("Active").font(.caption2.weight(.semibold)).foregroundStyle(.legible(.brand))
                     }
                 }
                 Text(profile.projectPath.replacingOccurrences(of: NSHomeDirectory(), with: "~"))
@@ -196,7 +196,7 @@ struct ProfileSettings: View {
                     .help(profile.projectPath)
                 Text(profile.isMain ? "Sign-ins of this Mac" : "Own sign-ins")
                     .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
             }
             Spacer()
             if !active {

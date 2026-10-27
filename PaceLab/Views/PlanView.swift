@@ -77,7 +77,7 @@ struct PlanView: View {
                 if let draft = model.draft {
                     Section {
                         HStack(spacing: 10) {
-                            Image(systemName: "pencil.and.list.clipboard").foregroundStyle(.purple)
+                            Image(systemName: "pencil.and.list.clipboard").foregroundStyle(.legible(.purple))
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Draft for the next block: \(draft.title)").font(.headline)
                                 Text("\(draft.weeks.count) weeks starting \(DateUtil.day(fromISO: draft.startMonday).map(Fmt.longDate) ?? draft.startMonday)")
@@ -92,7 +92,7 @@ struct PlanView: View {
                 } else if let error = model.draftError {
                     Section {
                         Label(error, systemImage: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.legible(.orange))
                             .selectionDisabled()
                     }
                 }
@@ -269,11 +269,11 @@ private struct WeekSummaryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             if let analysis = summary.analysis {
-                Text("Week summary").font(.caption.weight(.bold)).foregroundStyle(Color.brand)
+                Text("Week summary").font(.caption.weight(.bold)).foregroundStyle(.legible(.brand))
                 Text(analysis).font(.callout)
             }
             if let changes = summary.nextWeekChanges {
-                Text("Adjustments for week \(week + 1)").font(.caption.weight(.bold)).foregroundStyle(.orange)
+                Text("Adjustments for week \(week + 1)").font(.caption.weight(.bold)).foregroundStyle(.legible(.orange))
                 Text(changes).font(.callout)
             }
         }

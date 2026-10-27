@@ -123,7 +123,7 @@ struct HistoryView: View {
                 Label("Set up", systemImage: "checkmark.circle")
             }
             .disabled(settingUp)
-            if let loadError { Text(loadError).foregroundStyle(.orange) }
+            if let loadError { Text(loadError).foregroundStyle(.legible(.orange)) }
         }
     }
 
@@ -266,7 +266,7 @@ private struct HistoryDetail: View {
                         Spacer()
                         Text(entry.shortID)
                             .font(.caption.monospaced())
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(.secondary)
                             .textSelection(.enabled)
                     }
                     .padding(.top, 4)
@@ -280,8 +280,8 @@ private struct HistoryDetail: View {
                                 Text(file.path).font(.callout.monospaced())
                                 Spacer()
                                 if let added = file.added, let removed = file.removed {
-                                    Text("+\(added)").foregroundStyle(.green)
-                                    Text("−\(removed)").foregroundStyle(.red)
+                                    Text("+\(added)").foregroundStyle(.legible(.green))
+                                    Text("−\(removed)").foregroundStyle(.legible(.red))
                                 }
                             }
                             .font(.caption.monospacedDigit())

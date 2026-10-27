@@ -20,7 +20,7 @@ struct MenuBarContent: View {
 
                 Text(snapshot.statusLine(on: .now))
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(Color.brand)
+                    .foregroundStyle(.legible(.brand))
                     .textCase(.uppercase)
 
                 if let next = snapshot.nextSession {
@@ -66,7 +66,7 @@ struct MenuBarContent: View {
             } else if case .failed(let message) = model.sync.state {
                 Label(message, systemImage: "exclamationmark.triangle.fill")
                     .font(.caption)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.legible(.orange))
                     .lineLimit(3)
             }
 

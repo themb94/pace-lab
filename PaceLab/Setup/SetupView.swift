@@ -50,7 +50,7 @@ struct SetupView: View {
                     Label(model.profiles.hasSeveral ? String(localized: "Set up “\(profile.displayName)”") : String(localized: "Set up Pace Lab"),
                           systemImage: "figure.run.circle.fill")
                         .font(.largeTitle.bold())
-                        .foregroundStyle(Color.brand)
+                        .foregroundStyle(.legible(.brand))
                     Text("Your data stays on your Mac: in the training folder, in your CLIs and with Garmin, Polar or Strava themselves. Watch and Strava are optional — without them you plan and tick off by hand.")
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -90,7 +90,7 @@ struct SetupView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(projectPath).font(.callout.monospaced()).textSelection(.enabled).lineLimit(2)
             if folderReady {
-                Label("Plan, runs and coach README are in place.", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                Label("Plan, runs and coach README are in place.", systemImage: "checkmark.circle.fill").foregroundStyle(.legible(.green))
             } else {
                 Text("This is where your plan (plan.json), your runs (analysis.json), ticks and the README with the rules for the coach live. The app creates it with an example plan; every change is recorded as a version (git).")
                     .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -122,7 +122,7 @@ struct SetupView: View {
                 }
                 if creating { ProgressView().controlSize(.small) }
             }
-            if let folderError { Label(folderError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
+            if let folderError { Label(folderError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.legible(.orange)) }
         }
     }
 
@@ -223,7 +223,7 @@ struct SetupView: View {
         VStack(alignment: .leading, spacing: 8) {
             if let configured = serverConfigured {
                 Label("Server registered: \(configured)", systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(.green).font(.callout).lineLimit(2)
+                    .foregroundStyle(.legible(.green)).font(.callout).lineLimit(2)
             }
             HStack {
                 Button(serverConfigured == nil ? String(localized: "Set up \(setup.watch.label) server") : String(localized: "Reinstall server")) { install(setup) }
@@ -234,7 +234,7 @@ struct SetupView: View {
             if !folderReady {
                 folderFirstHint
             }
-            if let installError { Label(installError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange).textSelection(.enabled) }
+            if let installError { Label(installError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.legible(.orange)).textSelection(.enabled) }
         }
     }
 
@@ -253,7 +253,7 @@ struct SetupView: View {
         default:
             VStack(alignment: .leading, spacing: 8) {
                 if WatchSetup.garmin.hasToken {
-                    Label("Signed in (token present)", systemImage: "checkmark.circle.fill").foregroundStyle(.green).font(.callout)
+                    Label("Signed in (token present)", systemImage: "checkmark.circle.fill").foregroundStyle(.legible(.green)).font(.callout)
                 }
                 HStack {
                     TextField("Garmin email", text: $login.email).textFieldStyle(.roundedBorder).frame(maxWidth: 240)
@@ -262,8 +262,8 @@ struct SetupView: View {
                         .disabled(login.email.isEmpty || login.password.isEmpty)
                 }
                 checkRow
-                if case .done(let text) = login.phase { Label(text, systemImage: "checkmark.circle.fill").foregroundStyle(.green) }
-                if case .failed(let text) = login.phase { Label(text, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange).textSelection(.enabled) }
+                if case .done(let text) = login.phase { Label(text, systemImage: "checkmark.circle.fill").foregroundStyle(.legible(.green)) }
+                if case .failed(let text) = login.phase { Label(text, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.legible(.orange)).textSelection(.enabled) }
             }
         }
     }
@@ -273,7 +273,7 @@ struct SetupView: View {
         let stored = PolarAccount.load()
         VStack(alignment: .leading, spacing: 10) {
             if stored?.hasToken == true {
-                Label("Signed in (token present)", systemImage: "checkmark.circle.fill").foregroundStyle(.green).font(.callout)
+                Label("Signed in (token present)", systemImage: "checkmark.circle.fill").foregroundStyle(.legible(.green)).font(.callout)
             }
             Text("1. Sign in at admin.polaraccesslink.com with your Polar account and create a client (free). Name: e.g. “Pace Lab”. Enter exactly this as the redirect URL:")
                 .font(.callout).fixedSize(horizontal: false, vertical: true)
@@ -316,8 +316,8 @@ struct SetupView: View {
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             checkRow
-            if case .done(let text) = polar.phase { Label(text, systemImage: "checkmark.circle.fill").foregroundStyle(.green) }
-            if case .failed(let text) = polar.phase { Label(text, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange).textSelection(.enabled) }
+            if case .done(let text) = polar.phase { Label(text, systemImage: "checkmark.circle.fill").foregroundStyle(.legible(.green)) }
+            if case .failed(let text) = polar.phase { Label(text, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.legible(.orange)).textSelection(.enabled) }
         }
     }
 
@@ -369,7 +369,7 @@ struct SetupView: View {
             case .needsLogin:
                 Button("Sign in to Strava …") { StravaSetup.openLogin(folder: folder) }
             case .connected:
-                Label("Strava connected", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                Label("Strava connected", systemImage: "checkmark.circle.fill").foregroundStyle(.legible(.green))
             case .unknown(let text):
                 Label("Status: \(text)", systemImage: "questionmark.circle").foregroundStyle(.secondary)
                 Button("Sign in to Strava …") { StravaSetup.openLogin(folder: folder) }
@@ -380,7 +380,7 @@ struct SetupView: View {
                     Text("You choose the source for “Load runs” in Settings → Runs.").font(.caption).foregroundStyle(.secondary)
                 }
             }
-            if let stravaError { Label(stravaError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
+            if let stravaError { Label(stravaError, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.legible(.orange)) }
         }
     }
 
@@ -411,7 +411,7 @@ struct SetupView: View {
                 if done {
                     Image(systemName: "checkmark").font(.callout.bold()).foregroundStyle(.white)
                 } else {
-                    Text("\(number)").font(.callout.bold()).foregroundStyle(Color.brand)
+                    Text("\(number)").font(.callout.bold()).foregroundStyle(.legible(.brand))
                 }
             }
             VStack(alignment: .leading, spacing: 10) {

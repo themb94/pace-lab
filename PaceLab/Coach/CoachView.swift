@@ -166,7 +166,7 @@ private struct CoachWelcome: View {
                     VStack(spacing: 8) {
                         Label(CoachError.notFound(engine.command.isEmpty ? engine.name : engine.command).localizedDescription,
                               systemImage: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.legible(.orange))
                         SettingsLink { Text("Open settings …") }
                     }
                     .card(tint: .orange)
@@ -203,7 +203,7 @@ private struct WelcomeCard: View {
         VStack(alignment: .leading, spacing: 8) {
             Image(systemName: symbol)
                 .font(.title2)
-                .foregroundStyle(Color.brand)
+                .foregroundStyle(.legible(.brand))
             Text(title).font(.headline)
             Text(text)
                 .font(.callout)
@@ -330,7 +330,7 @@ private struct TurnView: View {
                     HStack(spacing: 12) {
                         Image(systemName: "applewatch")
                             .font(.title2)
-                            .foregroundStyle(Color.brand)
+                            .foregroundStyle(.legible(.brand))
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Create workouts on Garmin?").font(.headline)
                             Text("The coach may only do this after you approve.")
@@ -365,12 +365,12 @@ private struct TurnView: View {
                 }
                 Text(doneText)
                     .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
             }
         case .failed:
             VStack(alignment: .leading, spacing: 8) {
                 Label(turn.errorMessage ?? "Fehlgeschlagen.", systemImage: "xmark.octagon.fill")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.legible(.red))
                     .textSelection(.enabled)
                 if let engine = signInEngine {
                     VStack(alignment: .leading, spacing: 8) {
@@ -542,12 +542,12 @@ private struct ProposalCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
-                Image(systemName: "wand.and.stars").foregroundStyle(Color.brand)
+                Image(systemName: "wand.and.stars").foregroundStyle(.legible(.brand))
                 Text(title).font(.headline)
                 Spacer()
                 if turn.proposalApplied == true {
                     Label("Applied", systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(.legible(.green))
                         .font(.callout)
                 } else {
                     Button {
@@ -615,7 +615,7 @@ private struct StepsView: View {
                     Group {
                         switch step.state {
                         case .running: ProgressView().controlSize(.mini)
-                        case .failed: Image(systemName: "xmark.circle").foregroundStyle(.orange)
+                        case .failed: Image(systemName: "xmark.circle").foregroundStyle(.legible(.orange))
                         default: Image(systemName: "checkmark.circle").foregroundStyle(.green.opacity(0.8))
                         }
                     }
@@ -641,7 +641,7 @@ private struct CoachComposer: View {
         let isAgent = coach.activeEngine.kind.isAgent
         VStack(alignment: .leading, spacing: 10) {
             if let note = coach.limitNote {
-                Label(note, systemImage: "hourglass").font(.caption).foregroundStyle(.orange)
+                Label(note, systemImage: "hourglass").font(.caption).foregroundStyle(.legible(.orange))
             }
             HStack(spacing: 8) {
                 ForEach(CoachAction.available(for: model.watch)) { action in

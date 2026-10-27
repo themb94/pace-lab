@@ -91,7 +91,7 @@ struct RunDetailView: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "hourglass")
                 .font(.title3)
-                .foregroundStyle(.blue)
+                .foregroundStyle(.legible(.blue))
             VStack(alignment: .leading, spacing: 4) {
                 Text("Not reviewed yet").font(.headline)
                 let origin = run.source.flatMap { RunSource(rawValue: $0)?.shortLabel } ?? String(localized: "the watch")
@@ -181,7 +181,7 @@ private struct TextBlock: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(title)
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(color)
+                    .foregroundStyle(.legible(color))
                     .textCase(.uppercase)
                 Text(text)
                     .font(.body)

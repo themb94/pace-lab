@@ -229,7 +229,8 @@ private struct SyncButton: View {
     }
 }
 
-/// Short feedback at the top of the window, disappears after a few seconds.
+/// Short feedback at the top of the window. A plain confirmation disappears after a few seconds;
+/// errors and toasts with a button stay until dismissed.
 private struct ToastView: View {
     @Environment(AppModel.self) private var model
 
@@ -249,9 +250,13 @@ private struct ToastView: View {
                     model.toast = nil
                 } label: {
                     Image(systemName: "xmark")
+                        .frame(width: 20, height: 20)
+                        .contentShape(.rect)
                 }
                 .buttonStyle(.borderless)
                 .foregroundStyle(.secondary)
+                .help("Dismiss")
+                .accessibilityLabel("Dismiss")
             }
             .font(.callout)
             .padding(.horizontal, 14)
@@ -263,7 +268,12 @@ private struct ToastView: View {
             .padding(.top, 10)
             .transition(.move(edge: .top).combined(with: .opacity))
             .task(id: toast.id) {
-                try? await Task.sleep(for: .seconds(toast.isError ? 12 : 6))
+                // VoiceOver reads the message out, since it appears without focus.
+                AccessibilityNotification.Announcement(toast.message).post()
+                // Only a plain confirmation fades on its own. Errors and toasts with a button stay until
+                // they are dismissed, so nobody has to race a timer to read or act on them.
+                guard !toast.isError, toast.action == nil else { return }
+                try? await Task.sleep(for: .seconds(6))
                 withAnimation { if model.toast?.id == toast.id { model.toast = nil } }
             }
         }
@@ -318,12 +328,12 @@ private struct SidebarStatus: View {
             if let synced = model.sync.lastSync {
                 Text("Runs loaded: \(synced.formatted(.dateTime.day().month().hour().minute().locale(Fmt.locale)))")
                     .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
             }
             if let loaded = model.lastLoaded {
                 Text("Files: \(loaded.formatted(.dateTime.hour().minute().second().locale(Fmt.locale)))")
                     .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
                     .help(model.folder.url.path)
             }
         }
