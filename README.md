@@ -10,7 +10,9 @@ through **Claude Code**, **Codex** or a **local model** (LM Studio).
 
 - **Plan** — training blocks in a simple JSON file, every session with its
   structured workout (warm-up, intervals, pace targets). Tick sessions off,
-  see planned vs. run kilometres per week.
+  see planned vs. run kilometres per week. Every session is a bar — length =
+  distance, color = intensity (its heart-rate zone), filled once run — so the
+  whole block fits on one screen, one row per week.
 - **Runs** — load new runs from **Garmin Connect** or **Polar Flow** (directly,
   no AI involved) or **Strava** (through Claude Code). Splits, heart-rate zones, analysis.
   With Garmin also the **running dynamics** (cadence, stride length, ground contact
