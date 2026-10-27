@@ -33,20 +33,21 @@ server, no account and no telemetry.
 
 ## Requirements
 
-- macOS 26 or newer, Xcode 26 or newer
-- An Apple developer team to sign the app (a free Personal Team from
-  Xcode → Settings → Accounts should do)
+- A Mac with macOS 26 or newer
 - At least one coach:
   [Claude Code](https://docs.claude.com/en/docs/claude-code/setup),
   [Codex](https://developers.openai.com/codex/cli) or
   [LM Studio](https://lmstudio.ai) with a local model
 - Optional for Garmin or Polar: Python 3.10+ (e.g. `brew install python`) and a
   Garmin Connect or Polar Flow account
-- Optional for Strava: Claude Code and access to
-  [Strava's MCP server](https://mcp.strava.com/mcp) — Strava offers it to
-  subscribers only
+- Optional for Strava: Claude Code and a Strava subscription (Strava offers its
+  connection for AI tools to subscribers only)
 
 ## Build
+
+There is no ready-made download yet — you build Pace Lab once yourself with
+Xcode 26. A free Apple account is enough: the app has to be signed with your own
+team, which Xcode does for you.
 
 ```bash
 git clone git@github.com:themb94/pace-lab.git
@@ -54,8 +55,8 @@ cd pace-lab
 cp Config/Signing.local.example.xcconfig Config/Signing.local.xcconfig
 ```
 
-Edit `Config/Signing.local.xcconfig` — your Team ID and a bundle ID of your
-own (this file is ignored by git):
+Edit `Config/Signing.local.xcconfig` — your Team ID (Xcode → Settings → Accounts)
+and a bundle ID of your own:
 
 ```
 DEVELOPMENT_TEAM = ABCDE12345
@@ -77,117 +78,45 @@ Pace Lab opens a setup window (also under *Pace Lab → Setup …*):
 3. **Coach** — detects Claude Code, Codex and LM Studio and whether you are
    logged in (`claude auth login`, `codex login`).
 4. **Watch** (optional) — choose **Garmin**, **Polar** or none (you can switch
-   later in *Settings → Runs*). The app installs the bundled MCP server for it into
-   its own Python environment and signs you in:
-   - *Garmin:* your password goes only to the local server process; only a token
-     is stored (`~/.garminconnect`).
-   - *Polar:* uses Polar's official AccessLink API. Create a free client at
+   later in *Settings → Runs*). The app sets up the connection and signs you in:
+   - *Garmin:* your password is only used to sign in; afterwards only a token is
+     kept on your Mac.
+   - *Polar:* uses Polar's official interface. Create a free client at
      [admin.polaraccesslink.com](https://admin.polaraccesslink.com) with the
      redirect URL `http://localhost:8721/pacelab/callback`, enter its ID and secret,
-     then approve access in the browser. Only the token and the client are stored.
-5. **Strava** (optional) — registers Strava's MCP server in Claude Code for
-   your training folder and opens the browser sign-in.
+     then approve access in the browser.
+5. **Strava** (optional) — connects Strava to Claude Code for your training
+   folder and opens the browser sign-in.
 6. **Start** — let the coach plan your first real block.
 
 ## Profiles
 
 Several people can train with Pace Lab on the same Mac. Every profile is
-completely separate and is set up on its own:
-
-- its own **training folder** (plan, runs, history) — a folder belongs to one profile only,
-- its own **settings** (coach CLIs and models, source for “Load runs”) and **coach conversations**,
-- its own **sign-ins**: Claude Code (`CLAUDE_CONFIG_DIR`) and Codex (`CODEX_HOME`)
-  get a configuration folder per profile — with its own login, Strava connection,
-  memory and sessions —, and the Garmin or Polar token lives per profile as well,
-- its own **watch**: Garmin, Polar or none.
-
-The first profile (*main profile*) keeps the app's original locations and the
-sign-ins of the Mac (`~/.claude`, `~/.codex`, `~/.garminconnect`), so an
-existing setup keeps working unchanged. Further profiles keep everything in
-`~/Library/Application Support/Pace Lab/Profiles/<id>`; their settings are in
-their own UserDefaults domain.
+completely separate: its own training folder, settings, coach conversations,
+sign-ins (Claude Code, Codex, Garmin or Polar) and watch. Your first profile
+keeps the sign-ins you already have on this Mac.
 
 Switch profiles in the sidebar (bottom left), in the menu bar or under
 *Pace Lab → Profile*. *New profile …* asks for a name and opens the setup.
-*Settings → Profiles* lists all profiles; deleting one signs its CLIs out and
-removes its settings, conversations and sign-ins — the training folder stays.
-Widgets show the active profile; in *Edit widget* you can pin one to a profile.
+Deleting a profile in *Settings → Profiles* removes its settings, conversations
+and sign-ins — the training folder stays. Widgets show the active profile; in
+*Edit widget* you can pin one to a profile.
 
-## How it works
-
-```
-Pace Lab.app ──reads/writes──▶ training folder (plan.json, analysis.json, completed.json, README.md, .git)
-     │                                  ▲
-     ├── Coach: runs `claude -p` / `codex exec` / `lms chat` in that folder
-     ├── Garmin: talks MCP (stdio) to garmin-mcp/server.py (read-only unless you approve an upload)
-     ├── Polar: talks MCP (stdio) to polar-mcp/server.py (Polar AccessLink, read-only)
-     └── Strava: `claude -p` with only the two Strava read tools; the raw data is taken from the stream
-```
+## Good to know
 
 - The coach follows the `README.md` in your training folder — that's where
-  the rules, schemas and your athlete profile live. Adapt it to your liking.
-- The Garmin server builds workouts straight from `plan.json`
-  (`garmin-mcp/garmin_workouts.py`), so what you see is what lands on the watch.
+  the rules and your athlete profile live. Adapt it to your liking.
+- Every change to your plan — by the coach, a tick or a loaded run — can be
+  undone under *History*.
+- Workouts on a Garmin watch are built straight from your plan, so what you see
+  is what lands on the watch.
 - Polar lets no other app put training targets on the watch. Pace Lab shows a
   week as phases (name, length, heart-rate or pace range) to enter in Polar Flow
   under *Training target → Phased*. Polar only passes on sessions from the last
-  30 days that were synced after you linked the client, and no lap data — the
-  Polar server computes kilometer splits from the watch's samples.
-- Available models (e.g. Opus, Sonnet, GPT versions) are read live from the
-  installed CLIs — nothing is hard-coded.
-
-## Project layout
-
-```
-PaceLab/          App (SwiftUI): Coach/, Planning/, Sync/, Project/ (git, JSON, MCP client), Setup/, Views/
-PaceLabWidgets/   Widgets (WidgetKit)
-Shared/           Models and calculations used by app and widgets, and the translations (Localizable.xcstrings)
-Template/         Contents of a new training folder, per language: Template/en, Template/de (bundled into the app)
-garmin-mcp/       Garmin MCP server (Python, bundled into the app; tests: python3 -m unittest test_garmin)
-polar-mcp/        Polar MCP server (Python, Polar AccessLink; tests: python3 -m unittest test_polar)
-Config/           Info.plists, entitlements, signing (Signing.xcconfig + your local override)
-scripts/          Release build: signed, notarized DMG (release.sh)
-```
-
-The Debug build can render screenshots of all views without clicking:
-`"Pace Lab" -projectPath <copy-of-your-folder> -debugSnapshots <dir> -debugQuit YES`.
-Add `-debugSupportDirectory <dir>` to keep profiles, conversations and settings
-apart from your real ones; `-debugProfile <name> -debugProfileFolder <dir>`
-then tries out a separate profile (see `PaceLab/DebugSnapshots.swift`).
-
-## Languages
-
-Texts are written in English in the source and translated through a
-[String Catalog](Shared/Localizable.xcstrings) (`Shared/Localizable.xcstrings`,
-shared by the app and the widgets). German is included. To add a language, add
-its translations to the catalog in Xcode and create a matching folder
-`Template/<language>` (coach README and example plan; the app falls back to
-`Template/en`). The language the coach replies in follows the app language.
-
-Your own data stays as you wrote it: plan texts, run analyses and the coach's
-notes in your training folder are not translated.
-
-## Release build (maintainers)
-
-`scripts/release.sh` builds a DMG for distribution: signed with a *Developer ID
-Application* certificate, notarized by Apple and stapled, so Gatekeeper opens it
-without warnings on other Macs. It needs a paid Apple Developer Program
-membership. Team and bundle ID come from `Config/Signing.local.xcconfig`, the
-Apple credentials from your keychain — nothing personal lives in the repository.
-
-1. Create a *Developer ID Application* certificate (Xcode → Settings → Accounts →
-   Manage Certificates, or developer.apple.com — pick the **G2** authority when
-   asked). Certificates from the older authority expire on 2027-02-01; the script
-   shows your certificate's expiry and warns if it comes from the old chain.
-2. Store notary credentials once (asks for an app-specific password from
-   account.apple.com):
-   `xcrun notarytool store-credentials pacelab-notary --apple-id <you@example.com> --team-id <TEAMID>`
-3. Run `scripts/release.sh`. The DMG lands in `build/release/`.
-   `--no-notarize` is a dry run, `--upload` attaches the DMG to the GitHub
-   release `v<version>`.
-
-Apps that were signed and notarized stay valid after the certificate expires.
-Only new releases need a renewed certificate.
+  30 days, without laps — Pace Lab computes the kilometer splits itself.
+- A session that is dropped from the plan shows as struck through as soon as its
+  description starts with "skipped" (German: "entfällt") — the coach does that
+  for you.
 
 ## Disclaimer
 

@@ -29,3 +29,6 @@ __pycache__/
 
 # Release-Artefakte (scripts/release.sh legt sie in build/ ab)
 *.dmg
+
+# Persönliche Entwicklernotizen, nicht im Repository
+DEVELOPMENT.md
