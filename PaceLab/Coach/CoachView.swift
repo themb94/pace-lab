@@ -113,33 +113,16 @@ private struct CoachWelcome: View {
                     .font(.system(size: 44))
                     .foregroundStyle(Color.brand)
                 Text("Your running coach")
-                    .font(.largeTitle.bold())
+                    .font(.title.weight(.semibold))
                 Text(intro(for: engine))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
-                    .frame(maxWidth: 600)
+                    .frame(maxWidth: 560)
 
                 if engine.kind.isAgent {
-                    HStack(alignment: .top, spacing: 14) {
-                        ForEach([CoachAction.reviewWeek, .prepareWeek]) { action in
-                            Button {
-                                model.startCoach(action)
-                            } label: {
-                                WelcomeCard(symbol: action.symbol, title: action.title, text: action.help)
-                            }
-                            .buttonStyle(CardButtonStyle())
-                            .disabled(model.coach.isRunning || model.sync.isRunning || found == false)
-                        }
-                        Button {
-                            model.requestPlan(.week)
-                        } label: {
-                            WelcomeCard(symbol: "wand.and.stars", title: String(localized: "Planning"),
-                                        text: String(localized: "Rework a week, change a session or draft a new block"))
-                        }
-                        .buttonStyle(CardButtonStyle())
-                        .disabled(model.coach.isRunning || model.snapshot == nil || found == false)
-                    }
-                    Text("Or just write below what’s going on — e.g. “city run on Saturday, rework the week” or “legs feel heavy, what does that mean for Thursday?”")
+                    // The actions (review week, prepare week, planning) sit right above the message field —
+                    // no second set of cards here.
+                    Text("Start with one of the actions below, or write what’s going on — e.g. “city run on Saturday, rework the week” or “legs feel heavy, what does that mean for Thursday?”")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -191,27 +174,6 @@ private struct CoachWelcome: View {
         case .textCLI:
             String(localized: "The coach is “\(engine.name)”. The app sends it your current training status.")
         }
-    }
-}
-
-private struct WelcomeCard: View {
-    let symbol: String
-    let title: String
-    let text: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Image(systemName: symbol)
-                .font(.title2)
-                .foregroundStyle(.legible(.brand))
-            Text(title).font(.headline)
-            Text(text)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .frame(width: 210, alignment: .leading)
-        .card()
     }
 }
 

@@ -27,9 +27,7 @@ struct RunningFormSection: View {
                 }
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Starting points")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.secondary)
-                        .textCase(.uppercase)
+                        .font(.callout.weight(.semibold))
                     if hints.isEmpty {
                         Text("Nothing stands out on Garmin’s scale.")
                     } else {
@@ -210,22 +208,20 @@ private struct FormTile: View {
                     Text(item.ratingText ?? rating.label).lineLimit(1)
                 }
             }
-            .font(.caption2)
+            .font(.caption)
             .foregroundStyle(.secondary)
             .frame(height: 16)
             Text(item.value)
-                .font(.title3.weight(.semibold).monospacedDigit())
+                .font(.figures(.title3))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(item.label)
-                .font(.caption2)
+                .font(.caption)
                 .foregroundStyle(.secondary)
-                .textCase(.uppercase)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(Color.subtleFill, in: .rect(cornerRadius: 10, style: .continuous))
+        .accessibilityElement(children: .combine)
     }
 }
 

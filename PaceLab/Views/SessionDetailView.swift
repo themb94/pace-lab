@@ -11,23 +11,30 @@ struct SessionDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 10) {
                         TypePill(kind: session.kind)
                         PhasePill(phase: session.phase)
                     }
                     Text(session.dist)
-                        .font(.system(size: 34, weight: .bold, design: .rounded))
+                        .font(.figures(size: 34))
+                    EffortBar(kind: session.kind, state: snapshot.state(of: session), height: 10)
+                        .accessibilityHidden(true)
                     Text(session.desc)
                         .font(.title3)
                         .fixedSize(horizontal: false, vertical: true)
                     Label(
-                        String(localized: "Week \(session.week) · \(Fmt.range(snapshot.monday(ofWeek: session.week), snapshot.sunday(ofWeek: session.week)))")
-                            + (session.weekNote.map { " · \($0)" } ?? ""),
+                        String(localized: "Week \(session.week), \(Fmt.range(snapshot.monday(ofWeek: session.week), snapshot.sunday(ofWeek: session.week)))"),
                         systemImage: "calendar")
                         .font(.callout)
                         .foregroundStyle(.secondary)
+                    if let note = session.weekNote {
+                        Text(note)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
-                .card(tint: session.kind.color)
+                .padding(.bottom, 4)
 
                 if let workout = session.workout {
                     VStack(alignment: .leading, spacing: 8) {
@@ -48,7 +55,7 @@ struct SessionDetailView: View {
                         Text(isDone ? (snapshot.doneDate(session).map { "Done on \($0)" } ?? "Done") : "Still open")
                     } icon: {
                         Image(systemName: isDone ? "checkmark.circle.fill" : "circle.dashed")
-                            .foregroundStyle(isDone ? .green : .secondary)
+                            .foregroundStyle(isDone ? AnyShapeStyle(.legible(.green)) : AnyShapeStyle(.secondary))
                     }
                     .font(.headline)
 
@@ -60,7 +67,7 @@ struct SessionDetailView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(isDone ? .gray : .green)
+                    .tint(isDone ? .gray : .accentColor)
                     .controlSize(.large)
 
                     Text("Writes straight to completed.json — the coach sees it too.")
@@ -108,7 +115,7 @@ struct SessionDetailView: View {
                                 HStack(alignment: .firstTextBaseline) {
                                     Text(band.name)
                                     Spacer()
-                                    Text("\(band.range) /km").monospacedDigit().foregroundStyle(.secondary)
+                                    Text("\(band.range) /km").font(.figures(.body, weight: .regular)).foregroundStyle(.secondary)
                                 }
                             }
                             Text("Warm-up, cool-down and jog breaks have no target. On warm days (>25 °C) cap heart rate rather than chase pace.")

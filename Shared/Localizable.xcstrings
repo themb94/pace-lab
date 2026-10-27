@@ -381,16 +381,6 @@
         }
       }
     },
-    "%@ of %@ km": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$@ von %2$@ km"
-          }
-        }
-      }
-    },
     "%@ reports: %@\nIf the sign-in has expired, sign in again under Pace Lab → Setup → Watch.": {
       "localizations": {
         "de": {
@@ -1251,6 +1241,16 @@
         }
       }
     },
+    "Ask the coach about this run": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den Coach zu diesem Lauf fragen"
+          }
+        }
+      }
+    },
     "Assign": {
       "localizations": {
         "de": {
@@ -1381,32 +1381,12 @@
         }
       }
     },
-    "Block week": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Block-Woche"
-          }
-        }
-      }
-    },
     "CLI default": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Standard der CLI"
-          }
-        }
-      }
-    },
-    "CURRENT": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "AKTUELL"
           }
         }
       }
@@ -1941,16 +1921,6 @@
         }
       }
     },
-    "Conditions": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bedingungen"
-          }
-        }
-      }
-    },
     "Configured CLIs": {
       "localizations": {
         "de": {
@@ -2177,16 +2147,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ausblenden"
-          }
-        }
-      }
-    },
-    "DRAFT": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ENTWURF"
           }
         }
       }
@@ -2471,6 +2431,16 @@
         }
       }
     },
+    "done": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "erledigt"
+          }
+        }
+      }
+    },
     "Done on %@": {
       "localizations": {
         "de": {
@@ -2551,22 +2521,32 @@
         }
       }
     },
+    "dropped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "entfällt"
+          }
+        }
+      }
+    },
+    "Dropped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entfällt"
+          }
+        }
+      }
+    },
     "Duration: %lld → %lld weeks": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Dauer: %1$lld → %2$lld Wochen"
-          }
-        }
-      }
-    },
-    "EASY": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "LOCKER"
           }
         }
       }
@@ -2587,6 +2567,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Locker"
+          }
+        }
+      }
+    },
+    "Easy and long": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locker und lang"
           }
         }
       }
@@ -2767,16 +2757,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fertig · %1$@ · %2$@%3$@"
-          }
-        }
-      }
-    },
-    "First week": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erste Woche"
           }
         }
       }
@@ -3091,6 +3071,16 @@
         }
       }
     },
+    "Have the coach review this run": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den Lauf vom Coach auswerten lassen"
+          }
+        }
+      }
+    },
     "HR zones": {
       "localizations": {
         "de": {
@@ -3297,16 +3287,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Letzter Lauf"
-          }
-        }
-      }
-    },
-    "Last week": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Letzte Woche"
           }
         }
       }
@@ -3581,16 +3561,6 @@
         }
       }
     },
-    "NEW": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NEU"
-          }
-        }
-      }
-    },
     "Name, tag, analysis …": {
       "localizations": {
         "de": {
@@ -3627,6 +3597,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Beachten"
+          }
+        }
+      }
+    },
+    "New": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu"
           }
         }
       }
@@ -3891,12 +3871,32 @@
         }
       }
     },
+    "Notes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auffälligkeiten"
+          }
+        }
+      }
+    },
     "Nothing stands out on Garmin’s scale.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Nach Garmins Skala fällt nichts auf."
+          }
+        }
+      }
+    },
+    "of %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "von %@"
           }
         }
       }
@@ -4071,16 +4071,6 @@
         }
       }
     },
-    "Or just write below what’s going on — e.g. “city run on Saturday, rework the week” or “legs feel heavy, what does that mean for Thursday?”": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oder schreib unten einfach, was los ist — z. B. „Stadtlauf am Samstag, bau die Woche um“ oder „Beine schwer, was heißt das für Donnerstag?“"
-          }
-        }
-      }
-    },
     "Other / none": {
       "localizations": {
         "de": {
@@ -4171,12 +4161,22 @@
         }
       }
     },
-    "Pace per km · color = HR zone": {
+    "Pace per km, color = heart-rate zone": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pace je km · Farbe = HF-Zone"
+            "value": "Pace je km, Farbe = Herzfrequenzzone"
+          }
+        }
+      }
+    },
+    "Pace per km, color = HR zone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace je km, Farbe = HF-Zone"
           }
         }
       }
@@ -4277,16 +4277,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Plan, Läufe und Coach-README sind da."
-          }
-        }
-      }
-    },
-    "Planned vs. actual": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Geplant vs. gelaufen"
           }
         }
       }
@@ -4531,16 +4521,6 @@
         }
       }
     },
-    "RACE": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "RENNEN"
-          }
-        }
-      }
-    },
     "Race": {
       "localizations": {
         "de": {
@@ -4781,22 +4761,22 @@
         }
       }
     },
-    "Rework a week, change a session or draft a new block": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Woche umbauen, Einheit ändern oder einen neuen Block entwerfen"
-          }
-        }
-      }
-    },
     "Run": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Lauf"
+          }
+        }
+      }
+    },
+    "run": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gelaufen"
           }
         }
       }
@@ -4841,12 +4821,12 @@
         }
       }
     },
-    "Running form · coach": {
+    "Running form, coach": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Laufstil · Coach"
+            "value": "Laufform, Coach"
           }
         }
       }
@@ -5047,16 +5027,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Einheit"
-          }
-        }
-      }
-    },
-    "Sessions": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Einheiten"
           }
         }
       }
@@ -5371,12 +5341,12 @@
         }
       }
     },
-    "Splits · pace & heart rate": {
+    "Splits": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Splits · Pace & Herzfrequenz"
+            "value": "Splits"
           }
         }
       }
@@ -5397,6 +5367,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Neues Gespräch beginnen"
+          }
+        }
+      }
+    },
+    "Start with one of the actions below, or write what’s going on — e.g. “city run on Saturday, rework the week” or “legs feel heavy, what does that mean for Thursday?”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starte mit einer der Aktionen unten oder schreib einfach, was los ist — z. B. „Stadtlauf am Samstag, bau die Woche um“ oder „Beine schwer, was heißt das für Donnerstag?“"
           }
         }
       }
@@ -5427,16 +5407,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Start %@"
-          }
-        }
-      }
-    },
-    "Starts %@ · %@": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start %1$@ · %2$@"
           }
         }
       }
@@ -6481,12 +6451,12 @@
         }
       }
     },
-    "Up next · Week %lld · %@": {
+    "Up next in week %lld": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Als Nächstes · Woche %1$lld · %2$@"
+            "value": "Als Nächstes in Woche %lld"
           }
         }
       }
@@ -6607,16 +6577,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Im Plan ansehen"
-          }
-        }
-      }
-    },
-    "W = block week, otherwise Monday of the week": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "W = Blockwoche, sonst Montag der Woche"
           }
         }
       }
@@ -6751,12 +6711,12 @@
         }
       }
     },
-    "Week %lld of %lld · %@": {
+    "Week %lld of %lld, %@": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Woche %1$lld von %2$lld · %3$@"
+            "value": "Woche %1$lld von %2$lld, %3$@"
           }
         }
       }
@@ -6781,6 +6741,16 @@
         }
       }
     },
+    "Week %lld, %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woche %1$lld, %2$@"
+          }
+        }
+      }
+    },
     "Week %lld/%lld": {
       "localizations": {
         "de": {
@@ -6791,12 +6761,12 @@
         }
       }
     },
-    "Week %lld: %lld/%lld sessions · %@ of %@ km": {
+    "Week %lld: %@ of %@ km, %lld of %lld sessions": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Woche %1$lld: %2$lld/%3$lld Einheiten · %4$@ von %5$@ km"
+            "value": "Woche %1$lld: %2$@ von %3$@ km, %4$lld von %5$lld Einheiten"
           }
         }
       }
@@ -6837,16 +6807,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wochenfazit"
-          }
-        }
-      }
-    },
-    "Weekly distance": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wochenkilometer"
           }
         }
       }
@@ -7117,26 +7077,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "ca. %lld °C"
-          }
-        }
-      }
-    },
-    "actual": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "gelaufen"
-          }
-        }
-      }
-    },
-    "analyzed": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "analysiert"
           }
         }
       }
@@ -8437,16 +8377,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "≈ %1$@× Verbrauch gegenüber %2$@"
-          }
-        }
-      }
-    },
-    "✓ done on %@": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✓ erledigt am %@"
           }
         }
       }

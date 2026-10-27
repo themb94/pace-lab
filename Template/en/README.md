@@ -165,6 +165,10 @@ strength sessions for the plan; add them when asked.
 `{ "b1w1-tempo-0": "06.01.2026", … }` — the key is the session ID, the value the
 date (`DD.MM.YYYY`). Keep the order of existing entries.
 
+A session that is dropped does **not** go into `completed.json`; instead its `desc` in
+`plan.json` starts with "skipped" (e.g. "skipped this week – don't make up"). The app then
+shows it as dropped and no longer offers it as the next session.
+
 ## Weekly review
 
 1. **Fetch runs** — Strava through the Strava MCP (`list_activities`,

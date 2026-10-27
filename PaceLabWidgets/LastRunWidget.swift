@@ -21,7 +21,7 @@ struct LastRunView: View {
         let run = entry.snapshot?.lastRun
         LastRunContent(entry: entry, family: family)
             .widgetURL(entry.url(run.map { "run/\($0.id)" } ?? "runs"))
-            .widgetBackground(tint: run?.verdict?.color ?? .brand)
+            .widgetBackground()
     }
 }
 
@@ -58,8 +58,9 @@ private struct RunSummary: View {
             HStack(spacing: 5) {
                 if let verdict = run.verdict {
                     Image(systemName: verdict.symbol)
-                        .foregroundStyle(verdict.color)
+                        .foregroundStyle(.legible(verdict.color))
                         .widgetAccentable()
+                        .accessibilityLabel(verdict.label)
                 }
                 if let day = run.day {
                     Text(Fmt.weekdayDayMonth(day))
@@ -77,7 +78,7 @@ private struct RunSummary: View {
             Spacer(minLength: 0)
 
             Text("\(Fmt.km(run.distanceKm, digits: 2)) km")
-                .font(.system(.title2, design: .rounded, weight: .bold).monospacedDigit())
+                .font(.figures(.title2))
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
             HStack(spacing: 8) {
@@ -117,8 +118,8 @@ private struct MiniSplits: View {
             .chartXAxis(.hidden)
             .chartYAxis(.hidden)
             .chartYScale(domain: low...high)
-            Text("Pace per km · color = HR zone")
-                .font(.system(size: 9))
+            Text("Pace per km, color = HR zone")
+                .font(.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
         }

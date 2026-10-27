@@ -12,19 +12,30 @@ struct RunDetailView: View {
                 if !run.isAnalyzed { pending }
                 metrics
                 if let flags = run.flags, !flags.isEmpty {
-                    FlowLayout(spacing: 6) {
-                        ForEach(flags, id: \.self) { flag in
-                            Text(flag)
-                                .font(.callout)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
-                                .background(Color.subtleFill, in: Capsule())
+                    VStack(alignment: .leading, spacing: 8) {
+                        SectionTitle(text: String(localized: "Notes"))
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(Array(flags.enumerated()), id: \.offset) { index, flag in
+                                if index > 0 { Divider() }
+                                Text(flag)
+                                    .font(.callout)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .textSelection(.enabled)
+                                    .padding(.vertical, 7)
+                            }
                         }
+                        .card(padding: 14)
                     }
                 }
                 if let splits = run.splits, !splits.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        SectionTitle(text: String(localized: "Splits · pace & heart rate"))
+                        HStack(alignment: .firstTextBaseline) {
+                            SectionTitle(text: String(localized: "Splits"))
+                            Spacer()
+                            Text("Pace per km, color = heart-rate zone")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                         VStack(alignment: .leading, spacing: 12) {
                             SplitsView(splits: splits, snapshot: snapshot)
                             ZoneLegend(snapshot: snapshot)
@@ -33,20 +44,43 @@ struct RunDetailView: View {
                     }
                 }
                 if let analysis = run.analysis {
-                    TextBlock(title: String(localized: "Analysis"), text: analysis, color: .brand)
+                    TextBlock(title: String(localized: "Analysis"), text: analysis)
                 }
                 if let adjustments = run.adjustments {
-                    TextBlock(title: String(localized: "Adjustment for next week"), text: adjustments, color: Color(hex: 0xE0A800))
+                    TextBlock(title: String(localized: "Adjustment for next week"), text: adjustments)
                 }
                 if let dynamics = run.measuredDynamics {
                     RunningFormSection(run: run, dynamics: dynamics)
                 }
                 if let form = run.runningForm {
-                    TextBlock(title: String(localized: "Running form · coach"), text: form, color: .purple)
+                    TextBlock(title: String(localized: "Running form, coach"), text: form)
                 }
             }
             .padding(24)
             .frame(maxWidth: 900, alignment: .leading)
+        }
+        // Actions on the selected run live in the window's toolbar, not crammed next to the title.
+        .toolbar {
+            ToolbarItemGroup {
+                AssignMenu(run: run, snapshot: snapshot)
+                Button {
+                    model.askCoach(about: run)
+                } label: {
+                    Label(run.isAnalyzed ? "Ask coach" : "Review", systemImage: "sparkles")
+                }
+                .help(run.isAnalyzed ? "Ask the coach about this run" : "Have the coach review this run")
+                if let url = run.stravaURL {
+                    Link(destination: url) {
+                        Label("Open in Strava", systemImage: "arrow.up.right.square")
+                    }
+                    .help("Open in Strava")
+                } else if let url = run.garminURL {
+                    Link(destination: url) {
+                        Label("Open in Garmin", systemImage: "arrow.up.right.square")
+                    }
+                    .help("Open in Garmin")
+                }
+            }
         }
     }
 
@@ -56,33 +90,19 @@ struct RunDetailView: View {
                 Text(Fmt.longDate(day)).foregroundStyle(.secondary)
             }
             Text(run.name)
-                .font(.title.weight(.bold))
+                .font(.title.weight(.semibold))
                 .fixedSize(horizontal: false, vertical: true)
-            HStack(spacing: 6) {
+            HStack(spacing: 16) {
                 if let label = snapshot.label(for: run) {
-                    Pill(text: label, symbol: "calendar", color: .blue)
+                    Label(label, systemImage: "calendar")
+                        .foregroundStyle(.secondary)
                 } else {
-                    Pill(text: run.tag ?? (run.isAnalyzed ? String(localized: "Unplanned") : String(localized: "Unassigned")),
-                         color: run.isAnalyzed ? .purple : .gray)
+                    Text(run.tag ?? (run.isAnalyzed ? String(localized: "Unplanned") : String(localized: "Unassigned")))
+                        .foregroundStyle(.secondary)
                 }
                 if let verdict = run.verdict { VerdictPill(verdict: verdict) }
-                Spacer(minLength: 12)
-                AssignMenu(run: run, snapshot: snapshot)
-                Button {
-                    model.askCoach(about: run)
-                } label: {
-                    Label(run.isAnalyzed ? "Ask coach" : "Review", systemImage: "sparkles")
-                }
-                if let url = run.stravaURL {
-                    Link(destination: url) {
-                        Label("Open in Strava", systemImage: "arrow.up.right.square")
-                    }
-                } else if let url = run.garminURL {
-                    Link(destination: url) {
-                        Label("Open in Garmin", systemImage: "arrow.up.right.square")
-                    }
-                }
             }
+            .font(.callout)
         }
     }
 
@@ -105,7 +125,24 @@ struct RunDetailView: View {
     }
 
     private var metrics: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 130), spacing: 8)], spacing: 8) {
+        VStack(alignment: .leading, spacing: 14) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 130), spacing: 16, alignment: .leading)], alignment: .leading, spacing: 16) {
+                metricTiles
+            }
+            if let weather = run.weather {
+                Divider()
+                Label(WeatherInfo.summary(weather), systemImage: WeatherInfo(weather).symbol)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .help(weather)
+            }
+        }
+        .card()
+    }
+
+    @ViewBuilder
+    private var metricTiles: some View {
             MetricTile(value: "\(Fmt.km(run.distanceKm, digits: 2)) km", label: String(localized: "Distance"), symbol: "ruler")
             MetricTile(value: Fmt.duration(run.movingTimeS), label: String(localized: "Time"), symbol: "stopwatch")
             MetricTile(value: "\(Fmt.pace(run.paceSeconds))/km", label: String(localized: "Avg pace"), symbol: "speedometer")
@@ -125,12 +162,6 @@ struct RunDetailView: View {
             if let cadence = run.stepsPerMinute, run.measuredDynamics?.cadenceSpm == nil {
                 MetricTile(value: "\(Fmt.int(cadence)) spm", label: String(localized: "Cadence"), symbol: "metronome.fill")
             }
-            if let weather = run.weather {
-                let info = WeatherInfo(weather)
-                MetricTile(value: info.label, label: String(localized: "Conditions"), symbol: info.symbol)
-                    .help(weather)
-            }
-        }
     }
 }
 
@@ -173,23 +204,17 @@ private struct AssignMenu: View {
 private struct TextBlock: View {
     let title: String
     let text: String
-    let color: Color
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            RoundedRectangle(cornerRadius: 2).fill(color).frame(width: 3)
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.legible(color))
-                    .textCase(.uppercase)
-                Text(text)
-                    .font(.body)
-                    .lineSpacing(2)
-                    .textSelection(.enabled)
-            }
+        VStack(alignment: .leading, spacing: 8) {
+            SectionTitle(text: title)
+            Text(text)
+                .font(.body)
+                .lineSpacing(3)
+                .textSelection(.enabled)
+                .frame(maxWidth: 640, alignment: .leading)
+                .card()
         }
-        .card()
     }
 }
 
@@ -206,5 +231,16 @@ private struct WeatherInfo {
         else if t.contains("kalt") || t.contains("cold") { (label, symbol) = (String(localized: "cold"), "snowflake") }
         else if t.contains("regen") || t.contains("rain") { (label, symbol) = (String(localized: "Rain"), "cloud.rain.fill") }
         else { (label, symbol) = (String(localized: "Weather"), "cloud.sun.fill") }
+    }
+
+    /// The weather text itself, cut to its first part ("Garmin-Wetter beim Start: ca. 12 °C, …" →
+    /// "ca. 12 °C, gefühlt ca. 12 °C, 67 % Luftfeuchte, …") — the full text is in the tooltip.
+    static func summary(_ text: String) -> String {
+        var t = text
+        if let colon = t.firstIndex(of: ":"), t.distance(from: t.startIndex, to: colon) < 40 {
+            t = String(t[t.index(after: colon)...])
+        }
+        if let semicolon = t.firstIndex(of: ";") { t = String(t[..<semicolon]) }
+        return t.trimmingCharacters(in: .whitespaces)
     }
 }

@@ -73,9 +73,9 @@ struct ProfileBadge: View {
     var body: some View {
         if entry.showsProfile, let profile = entry.profile {
             Text(profile.initial)
-                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .font(.system(size: 10, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.brand)
-                .frame(width: 16, height: 16)
+                .frame(width: 18, height: 18)
                 .background(Color.brand.opacity(0.18), in: Circle())
                 .accessibilityLabel(profile.name)
         }
@@ -97,28 +97,11 @@ struct WidgetMessage: View {
     }
 }
 
-struct WidgetBar: View {
-    let value: Double
-    var color: Color = .brand
-
-    var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule().fill(.quaternary)
-                Capsule().fill(color).frame(width: geo.size.width * min(max(value, 0), 1))
-                    .widgetAccentable()
-            }
-        }
-        .frame(height: 6)
-    }
-}
-
 extension View {
-    /// Subtle gradient in the color of the session or the rating.
-    func widgetBackground(tint: Color = .brand) -> some View {
+    /// A plain background — the bars and the type color carry the color, not a wash behind everything.
+    func widgetBackground() -> some View {
         containerBackground(for: .widget) {
-            LinearGradient(colors: [tint.opacity(0.22), Color.pageBackground],
-                           startPoint: .topLeading, endPoint: .bottom)
+            Color.pageBackground
         }
     }
 }

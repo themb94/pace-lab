@@ -97,14 +97,6 @@ struct PlanView: View {
                     }
                 }
 
-                Section("Planned vs. actual") {
-                    WeeklyKmChart(
-                        buckets: snapshot.weeklyBuckets(from: snapshot.startMonday, count: snapshot.weekCount),
-                        currentMonday: DateUtil.startOfWeek(.now))
-                        .padding(.vertical, 8)
-                        .selectionDisabled()
-                }
-
                 ForEach(1...snapshot.weekCount, id: \.self) { week in
                     Section {
                         ForEach(snapshot.sessions(inWeek: week)) { session in
@@ -174,26 +166,39 @@ private struct WeekHeader: View {
 
     var body: some View {
         let sessions = snapshot.sessions(inWeek: week)
-        let done = sessions.filter(snapshot.isDone).count
-        HStack(spacing: 8) {
-            Text("Week \(week)")
-                .font(.headline)
-                .foregroundStyle(.primary)
-            if isCurrent { Pill(text: String(localized: "CURRENT"), color: .brand) }
-            PhasePill(phase: snapshot.phase(ofWeek: week))
-            Text(Fmt.range(snapshot.monday(ofWeek: week), snapshot.sunday(ofWeek: week))
-                 + (snapshot.note(ofWeek: week).map { " · \($0)" } ?? ""))
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text("\(Fmt.km(snapshot.plannedKm(week: week), digits: 0)) km")
-                .foregroundStyle(.secondary)
-            Text("\(done)/\(sessions.count)")
-                .monospacedDigit()
-                .foregroundStyle(done == sessions.count ? .green : .secondary)
-            WeekMenu(week: week, uploadable: sessions.contains(where: \.isUploadable))
+        let planned = snapshot.plannedKm(week: week)
+        let actual = snapshot.actualKm(week: week)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text("Week \(week)")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(isCurrent ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.primary))
+                Text(Fmt.range(snapshot.monday(ofWeek: week), snapshot.sunday(ofWeek: week)))
+                    .foregroundStyle(.secondary)
+                PhasePill(phase: snapshot.phase(ofWeek: week))
+                if isCurrent {
+                    Text("This week").font(.caption.weight(.semibold)).foregroundStyle(Color.accentColor)
+                }
+                Spacer()
+                if actual > 0 {
+                    Text("\(Text(Fmt.km(actual, digits: 0)).font(.figures(.body))) \(Text("of \(Fmt.km(planned, digits: 0)) km").foregroundStyle(.secondary))")
+                } else {
+                    Text("\(Fmt.km(planned, digits: 0)) km").font(.figures(.body, weight: .regular)).foregroundStyle(.secondary)
+                }
+                WeekMenu(week: week, uploadable: sessions.contains(where: \.isUploadable))
+            }
+            if let note = snapshot.note(ofWeek: week) {
+                Text(note)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+            WeekBars(snapshot: snapshot, week: week, scaleKm: snapshot.longestWeekKm, height: 8, showLabels: false)
+                .padding(.trailing, 28)
         }
-        .padding(.top, 10)
-        .padding(.bottom, 2)
+        .padding(.top, 14)
+        .padding(.bottom, 6)
+        // Opaque, so rows scrolling under the pinned header don't shine through.
+        .background { Color.cardBackground.padding(.horizontal, -20) }
     }
 }
 
@@ -245,7 +250,9 @@ private struct PlanSessionRow: View {
                 session: session,
                 isDone: isDone,
                 doneDate: snapshot.doneDate(session),
-                hasRun: snapshot.linkedRun(for: session) != nil)
+                hasRun: snapshot.linkedRun(for: session) != nil,
+                isDropped: snapshot.state(of: session) == .dropped,
+                actualKm: isDone ? snapshot.linkedRun(for: session)?.distanceKm : nil)
         }
         .padding(.vertical, 4)
         .contextMenu {
@@ -269,11 +276,11 @@ private struct WeekSummaryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             if let analysis = summary.analysis {
-                Text("Week summary").font(.caption.weight(.bold)).foregroundStyle(.legible(.brand))
+                Text("Week summary").font(.callout.weight(.semibold))
                 Text(analysis).font(.callout)
             }
             if let changes = summary.nextWeekChanges {
-                Text("Adjustments for week \(week + 1)").font(.caption.weight(.bold)).foregroundStyle(.legible(.orange))
+                Text("Adjustments for week \(week + 1)").font(.callout.weight(.semibold))
                 Text(changes).font(.callout)
             }
         }

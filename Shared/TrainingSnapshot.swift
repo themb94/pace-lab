@@ -20,6 +20,14 @@ struct PlannedSession: Identifiable, Hashable, Sendable {
     /// Planned km: mean of all numbers in the distance text ("~9 km" → 9).
     var plannedKm: Double { Self.parseKm(dist) }
 
+    /// Dropped from the plan: the coach starts the description with "entfällt" / "skipped"
+    /// (e.g. "entfällt diese Woche – nicht nachholen").
+    var isDropped: Bool {
+        let text = desc.trimmingCharacters(in: .whitespaces).lowercased()
+        return ["entfällt", "entfaellt", "fällt aus", "skipped", "cancelled", "canceled", "dropped"]
+            .contains { text.hasPrefix($0) }
+    }
+
     static func parseKm(_ text: String) -> Double {
         let numbers = text.replacingOccurrences(of: ",", with: ".")
             .split(whereSeparator: { !"0123456789.".contains($0) })
@@ -27,6 +35,11 @@ struct PlannedSession: Identifiable, Hashable, Sendable {
         guard !numbers.isEmpty else { return 0 }
         return numbers.reduce(0, +) / Double(numbers.count)
     }
+}
+
+/// Where a session stands: still to run, run (checked off) or dropped from the plan.
+enum SessionState: Sendable {
+    case open, done, dropped
 }
 
 enum BlockStatus: Sendable, Equatable {
@@ -145,6 +158,15 @@ extension TrainingSnapshot {
         case .finished: String(localized: "Block completed")
         }
     }
+
+    /// "Week 5 of 12, Build" or "Starts in 4 days"
+    func progressLine(on date: Date) -> String {
+        switch status(on: date) {
+        case .upcoming(let days): String(localized: "Starts \(Fmt.relativeDays(days))")
+        case .running(let week): String(localized: "Week \(week) of \(weekCount), \(phase(ofWeek: week))")
+        case .finished: String(localized: "Block completed")
+        }
+    }
 }
 
 // MARK: - Sessions & completion status
@@ -165,12 +187,36 @@ extension TrainingSnapshot {
         return date
     }
 
-    var nextSession: PlannedSession? { sessions.first { !isDone($0) } }
+    func state(of session: PlannedSession) -> SessionState {
+        if isDone(session) { return .done }
+        return session.isDropped ? .dropped : .open
+    }
+
+    /// The next open session — from the current week on, so that a session left open in an
+    /// earlier week doesn't stay "next" forever; only if nothing is open from there, an earlier one.
+    var nextSession: PlannedSession? {
+        let open = sessions.filter { state(of: $0) == .open }
+        let week = focusWeek(on: .now)
+        return open.first { $0.week >= week } ?? open.first
+    }
 
     var doneCount: Int { sessions.filter(isDone).count }
 
     func linkedRun(for session: PlannedSession) -> Run? {
         runs.first { $0.sessionId == session.id }
+    }
+
+    /// Length of a session's bar: the run's distance once it's done (if a run is linked), otherwise the plan.
+    func barKm(for session: PlannedSession) -> Double {
+        if isDone(session), let km = linkedRun(for: session)?.distanceKm, km > 0 { return km }
+        return max(session.plannedKm, 1)
+    }
+
+    /// The km that fill a whole row of bars: the longest week of the block.
+    var longestWeekKm: Double {
+        (1...max(weekCount, 1)).map { week in
+            sessions(inWeek: week).reduce(0) { $0 + barKm(for: $1) }
+        }.max() ?? 1
     }
 }
 

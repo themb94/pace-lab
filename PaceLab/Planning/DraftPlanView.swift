@@ -78,7 +78,7 @@ struct DraftPlanView: View {
     private func header(_ snapshot: TrainingSnapshot) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
-                Pill(text: String(localized: "DRAFT"), symbol: "pencil.and.list.clipboard", color: .purple)
+                Pill(text: String(localized: "Draft"), symbol: "pencil.and.list.clipboard", color: .purple)
                 if let prefix = draft.idPrefix {
                     Text("ID prefix \(prefix) · Workouts \(draft.workoutPrefix ?? prefix.uppercased())")
                         .font(.caption)

@@ -23,11 +23,12 @@ struct RunsView: View {
             List(selection: $model.selectedRunID) {
                 if query.isEmpty {
                     Section {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 20) {
                             MetricTile(value: "\(snapshot.runs.count)", label: String(localized: "Runs"), symbol: "figure.run")
                             MetricTile(value: Fmt.km(snapshot.totalKm, digits: 0), label: "km", symbol: "ruler")
-                            MetricTile(value: "\(snapshot.runs.filter { $0.verdict == .gut }.count)", label: String(localized: "good"), symbol: "checkmark.seal")
+                            MetricTile(value: "\(snapshot.runs.filter { $0.verdict == .gut }.count)", label: String(localized: "Went well"), symbol: "checkmark.seal")
                         }
+                        .padding(.vertical, 6)
                         .selectionDisabled()
                     }
                 }

@@ -2,38 +2,39 @@ import SwiftUI
 
 // MARK: - Cards & pills
 
+/// A quiet surface for grouped content. `tint` only for messages (warnings, errors) — a flat wash,
+/// never a gradient.
 struct CardModifier: ViewModifier {
     var tint: Color? = nil
-    var padding: CGFloat = 18
+    var padding: CGFloat = 16
 
     func body(content: Content) -> some View {
         content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(Color.cardBackground)
                     .overlay {
                         if let tint {
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(LinearGradient(colors: [tint.opacity(0.20), tint.opacity(0.03)],
-                                                     startPoint: .topLeading, endPoint: .bottomTrailing))
+                            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(tint.opacity(0.10))
                         }
                     }
                     .overlay {
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .strokeBorder(Color.primary.opacity(0.08))
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.06))
                     }
             }
     }
 }
 
 extension View {
-    func card(tint: Color? = nil, padding: CGFloat = 18) -> some View {
+    func card(tint: Color? = nil, padding: CGFloat = 16) -> some View {
         modifier(CardModifier(tint: tint, padding: padding))
     }
 }
 
+/// A short colored label: symbol and text, no capsule, no capitals.
 struct Pill: View {
     let text: String
     var symbol: String? = nil
@@ -44,22 +45,34 @@ struct Pill: View {
             if let symbol { Image(systemName: symbol) }
             Text(text)
         }
-        .font(.caption.weight(.bold))
-        .padding(.horizontal, 8)
-        .padding(.vertical, 3)
+        .font(.caption.weight(.semibold))
         .foregroundStyle(.legible(color))
-        .background(color.opacity(0.15), in: Capsule())
     }
 }
 
+/// Session type: a small swatch in the color of its intensity, then the name.
 struct TypePill: View {
     let kind: SessionType
-    var body: some View { Pill(text: kind.shortLabel, symbol: kind.symbol, color: kind.color) }
+    var body: some View {
+        HStack(spacing: 5) {
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                .fill(kind.color)
+                .frame(width: 12, height: 8)
+                .accessibilityHidden(true)
+            Text(kind.label)
+                .font(.caption.weight(.semibold))
+        }
+    }
 }
 
+/// Phase of a week ("Build", "Step-back") — plain text, it's context, not a status.
 struct PhasePill: View {
     let phase: String
-    var body: some View { Pill(text: phase.uppercased(), color: PhaseStyle.color(phase)) }
+    var body: some View {
+        Text(phase)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
 }
 
 struct VerdictPill: View {
@@ -71,16 +84,14 @@ struct SectionTitle: View {
     let text: String
     var body: some View {
         Text(text)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
+            .font(.headline)
             .padding(.leading, 2)
     }
 }
 
 struct ProgressBar: View {
     let value: Double
-    var color: Color = .brand
+    var color: Color = .accentColor
 
     var body: some View {
         GeometryReader { geo in
@@ -89,7 +100,7 @@ struct ProgressBar: View {
                 Capsule().fill(color).frame(width: geo.size.width * min(max(value, 0), 1))
             }
         }
-        .frame(height: 8)
+        .frame(height: 6)
     }
 }
 
@@ -132,18 +143,30 @@ struct SessionRowContent: View {
     let isDone: Bool
     var doneDate: String? = nil
     var hasRun = false
+    var isDropped = false
+    /// km of the linked run, once the session is done.
+    var actualKm: Double? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 6) {
                 TypePill(kind: session.kind)
-                Text(session.dist)
-                    .font(.headline)
-                    .strikethrough(isDone, color: .secondary)
+                if let actualKm {
+                    // Run: what was run, then the plan.
+                    Text("\(Text(Fmt.km(actualKm)).font(.figures(.callout))) \(Text("of \(session.dist)").foregroundStyle(.secondary))")
+                } else {
+                    Text(session.dist)
+                        .font(.figures(.callout))
+                        .strikethrough(isDropped, color: .secondary)
+                        .foregroundStyle(isDropped ? .secondary : .primary)
+                }
+                if isDropped {
+                    Text("Dropped").font(.caption).foregroundStyle(.secondary)
+                }
                 if hasRun {
                     Image(systemName: "chart.bar.xaxis")
                         .font(.caption)
-                        .foregroundStyle(.legible(.blue))
+                        .foregroundStyle(.secondary)
                         .help("Analysis available")
                 }
             }
@@ -152,13 +175,13 @@ struct SessionRowContent: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             if let doneDate {
-                Text("✓ done on \(doneDate)")
+                Text("Done on \(doneDate)")
                     .font(.caption)
                     .foregroundStyle(.legible(.green))
             }
         }
         // No dimming for finished sessions: 65 % opacity pushed the green date line to 2.8:1.
-        // Done is already shown by the check, the strikethrough and the date.
+        // Done is shown by the check, the date and the run's distance.
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -168,55 +191,45 @@ struct RunRow: View {
     let label: String?
 
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            RoundedRectangle(cornerRadius: 2)
-                .fill(run.isAnalyzed ? (run.verdict?.color ?? Color.secondary.opacity(0.35)) : Color.secondary.opacity(0.35))
-                .frame(width: 4)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                HStack {
-                    if let day = run.day {
-                        Text(Fmt.weekdayDayMonth(day))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    // The verdict is also a symbol (not only the bar's color) and is read out by VoiceOver.
-                    if run.isAnalyzed, let verdict = run.verdict {
-                        Image(systemName: verdict.symbol)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.legible(verdict.color))
-                            .help(verdict.label)
-                            .accessibilityLabel(verdict.label)
-                    }
-                    if !run.isAnalyzed {
-                        Text("NEW")
-                            .font(.caption2.weight(.bold))
-                            .foregroundStyle(.legible(.blue))
-                            .help("Loaded, but not yet reviewed by the coach")
-                    }
-                    Spacer()
-                    Text("\(Fmt.km(run.distanceKm)) km")
-                        .font(.callout.weight(.semibold).monospacedDigit())
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline) {
+                if let day = run.day {
+                    Text(Fmt.weekdayDayMonth(day))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                Text(run.name)
-                    .font(.headline)
-                    .lineLimit(2)
-                HStack(spacing: 8) {
-                    Text(label ?? run.tag ?? (run.isAnalyzed ? String(localized: "Unplanned") : String(localized: "Not assigned to a session yet")))
+                // The verdict as a symbol with a label — not by color alone.
+                if run.isAnalyzed, let verdict = run.verdict {
+                    Image(systemName: verdict.symbol)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(label != nil ? AnyShapeStyle(.legible(.blue))
-                                         : run.isAnalyzed ? AnyShapeStyle(.legible(.purple)) : AnyShapeStyle(Color.secondary))
-                        .lineLimit(1)
-                    Spacer(minLength: 4)
-                    Label("\(Fmt.pace(run.paceSeconds))/km", systemImage: "speedometer")
-                    if let hr = run.avgHr {
-                        Label(Fmt.int(hr), systemImage: "heart.fill")
-                    }
+                        .foregroundStyle(.legible(verdict.color))
+                        .help(verdict.label)
+                        .accessibilityLabel(verdict.label)
                 }
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(.secondary)
-                .labelStyle(CompactLabelStyle())
+                if !run.isAnalyzed {
+                    Text("New")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.legible(.blue))
+                        .help("Loaded, but not yet reviewed by the coach")
+                }
+                Spacer()
+                Text("\(Fmt.km(run.distanceKm)) km")
+                    .font(.figures(.callout))
             }
+            Text(run.name)
+                .font(.headline)
+                .lineLimit(2)
+            HStack(spacing: 10) {
+                Text(label ?? run.tag ?? (run.isAnalyzed ? String(localized: "Unplanned") : String(localized: "Not assigned to a session yet")))
+                    .lineLimit(1)
+                Spacer(minLength: 4)
+                Text("\(Fmt.pace(run.paceSeconds)) /km")
+                if let hr = run.avgHr {
+                    Text("\(Fmt.int(hr)) bpm")
+                }
+            }
+            .font(.figures(.caption, weight: .regular))
+            .foregroundStyle(.secondary)
         }
         .padding(.vertical, 3)
     }
@@ -239,23 +252,18 @@ struct MetricTile: View {
     let symbol: String
 
     var body: some View {
+        // The label says what it is; `symbol` stays for VoiceOver context only.
         VStack(alignment: .leading, spacing: 2) {
-            Image(systemName: symbol)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .frame(height: 16)
             Text(value)
-                .font(.title3.weight(.semibold).monospacedDigit())
+                .font(.figures(.title3))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(label)
-                .font(.caption2)
+                .font(.caption)
                 .foregroundStyle(.secondary)
-                .textCase(.uppercase)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(Color.subtleFill, in: .rect(cornerRadius: 10, style: .continuous))
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -279,25 +287,25 @@ struct SplitsView: View {
                         .frame(width: 96, alignment: .leading)
                     GeometryReader { geo in
                         let ratio = max(0.38, fastest / max(split.paceS, 1))
-                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                            .fill(color.gradient)
+                        RoundedRectangle(cornerRadius: 3, style: .continuous)
+                            .fill(color)
                             .frame(width: geo.size.width * ratio)
                             .overlay(alignment: .leading) {
                                 Text(Fmt.pace(split.paceS))
-                                    .font(.caption.weight(.semibold).monospacedDigit())
-                                    .foregroundStyle(.black.opacity(0.8))
-                                    .padding(.leading, 7)
+                                    .font(.figures(.caption))
+                                    .foregroundStyle(.black.opacity(0.85))
+                                    .padding(.leading, 6)
                             }
                     }
-                    .frame(height: 22)
+                    .frame(height: 20)
                     Group {
                         if let hr = split.hr, let zone {
-                            Text("\(Fmt.int(hr)) bpm · Z\(zone)")
+                            Text("\(Fmt.int(hr)) bpm, Z\(zone)")
                         } else {
                             Text("")
                         }
                     }
-                    .font(.caption.monospacedDigit())
+                    .font(.figures(.caption, weight: .regular))
                     .foregroundStyle(.secondary)
                     .frame(width: 88, alignment: .trailing)
                 }

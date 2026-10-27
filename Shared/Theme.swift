@@ -10,7 +10,25 @@ extension Color {
         )
     }
 
-    /// Brand color (orange).
+    /// A color with its own value for the light and the dark appearance.
+    init(light: UInt32, dark: UInt32) {
+        #if os(macOS)
+        self.init(nsColor: NSColor(name: nil) { appearance in
+            let hex = appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua ? dark : light
+            return NSColor(srgbRed: CGFloat((hex >> 16) & 0xFF) / 255, green: CGFloat((hex >> 8) & 0xFF) / 255,
+                           blue: CGFloat(hex & 0xFF) / 255, alpha: 1)
+        })
+        #else
+        self.init(uiColor: UIColor { traits in
+            let hex = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(red: CGFloat((hex >> 16) & 0xFF) / 255, green: CGFloat((hex >> 8) & 0xFF) / 255,
+                           blue: CGFloat(hex & 0xFF) / 255, alpha: 1)
+        })
+        #endif
+    }
+
+    /// Brand color (orange) — the app's own mark (icon, coach, profiles). Not a status or an intensity:
+    /// those have their own colors below.
     static let brand = Color(hex: 0xFC4C02)
 
     /// Page background behind the cards.
@@ -63,13 +81,11 @@ extension SessionType {
         }
     }
 
-    /// Short form ("TEMPO", "EASY", "LONG").
+    /// Short form ("Tempo", "Easy", "Long").
     var shortLabel: String {
         switch self {
-        case .tempo: "TEMPO"
-        case .easy: String(localized: "EASY")
-        case .long: "LONG"
-        case .race: String(localized: "RACE")
+        case .long: "Long"
+        default: label
         }
     }
 
@@ -82,14 +98,17 @@ extension SessionType {
         }
     }
 
-    var color: Color {
+    /// Heart-rate zone the session is meant for: easy and long runs in zone 2, tempo in 4, the race in 5.
+    var zone: Int {
         switch self {
-        case .tempo: Color(hex: 0xFF5A52)
-        case .easy: Color(hex: 0x2EB866)
-        case .long: Color(hex: 0x3D8BFF)
-        case .race: .brand
+        case .easy, .long: 2
+        case .tempo: 4
+        case .race: 5
         }
     }
+
+    /// The color of the intensity — the same scale as the heart-rate zones.
+    var color: Color { HRZone.color(zone) }
 }
 
 extension Verdict {
@@ -118,29 +137,29 @@ extension Verdict {
     }
 }
 
+/// Intensity is the one color scale of the app: the heart-rate zones (Z1 gray … Z5 red). Session types,
+/// splits and zone legends all use it, so a color always means "how hard". Light values are darker so that
+/// bars reach at least 3:1 on white.
 enum HRZone {
-    /// Zone colors (Z1 gray … Z5 red).
     static func color(_ zone: Int) -> Color {
         switch zone {
-        case 1: Color(hex: 0x7A8699)
-        case 2: Color(hex: 0x2ECC71)
-        case 3: Color(hex: 0xF5C518)
-        case 4: Color(hex: 0xFF8C42)
-        default: Color(hex: 0xFF5252)
+        case 1: Color(light: 0x6B7585, dark: 0x7A8699)
+        case 2: Color(light: 0x1E9E52, dark: 0x2ECC71)
+        case 3: Color(light: 0xB8900A, dark: 0xF5C518)
+        case 4: Color(light: 0xE0701F, dark: 0xFF8C42)
+        default: Color(light: 0xE03E3E, dark: 0xFF5252)
         }
     }
 }
 
-enum PhaseStyle {
-    static func color(_ phase: String) -> Color {
-        switch phase.lowercased() {
-        case "aufbau": Color(hex: 0x2EB866)
-        case "step-back": Color(hex: 0xE0A800)
-        case "peak": Color(hex: 0xB065E0)
-        case "taper": Color(hex: 0xFF8C42)
-        case "basis": Color(hex: 0x3D8BFF)
-        case "race": .brand
-        default: .secondary
-        }
+extension Font {
+    /// Numbers (km, pace, time, heart rate): SF Pro Expanded with digits of equal width — the look of a
+    /// start number or a stopwatch. Only for figures; everything else stays in the regular system font.
+    static func figures(_ style: Font.TextStyle = .body, weight: Font.Weight = .semibold) -> Font {
+        .system(style, weight: weight).width(.expanded).monospacedDigit()
+    }
+
+    static func figures(size: CGFloat, weight: Font.Weight = .semibold) -> Font {
+        .system(size: size, weight: weight).width(.expanded).monospacedDigit()
     }
 }

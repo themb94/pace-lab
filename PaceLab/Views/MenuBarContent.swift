@@ -18,16 +18,15 @@ struct MenuBarContent: View {
                 let planned = snapshot.plannedKm(week: week)
                 let actual = snapshot.actualKm(week: week)
 
-                Text(snapshot.statusLine(on: .now))
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.legible(.brand))
-                    .textCase(.uppercase)
+                Text(snapshot.progressLine(on: .now))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
 
                 if let next = snapshot.nextSession {
                     VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 8) {
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text(next.dist).font(.figures(.title3))
                             TypePill(kind: next.kind)
-                            Text(next.dist).font(.title3.bold())
                         }
                         Text(next.desc)
                             .font(.callout)
@@ -36,11 +35,11 @@ struct MenuBarContent: View {
                     }
                 }
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Week \(week): \(sessions.filter(snapshot.isDone).count)/\(sessions.count) sessions · \(Fmt.km(actual)) of \(Fmt.km(planned, digits: 0)) km")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Week \(week): \(Fmt.km(actual)) of \(Fmt.km(planned, digits: 0)) km, \(sessions.filter(snapshot.isDone).count) of \(sessions.count) sessions")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    ProgressBar(value: planned > 0 ? actual / planned : 0)
+                    WeekBars(snapshot: snapshot, week: week, scaleKm: snapshot.longestWeekKm, height: 14)
                 }
             } else {
                 Text(model.loadError ?? String(localized: "No training data")).foregroundStyle(.secondary)

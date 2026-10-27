@@ -167,6 +167,10 @@ Kraft-Einheiten für den Plan nur vorschlagen; eintragen erst auf Wunsch.
 `{ "b1w1-tempo-0": "06.01.2026", … }` — Schlüssel ist die Session-ID, Wert das Datum
 (`TT.MM.JJJJ`). Reihenfolge der vorhandenen Einträge beibehalten.
 
+Fällt eine Einheit weg, kommt sie **nicht** in `completed.json`; stattdessen beginnt ihre
+`desc` in `plan.json` mit „entfällt“ (z. B. „entfällt diese Woche – nicht nachholen“). Die
+App zeigt sie dann als entfallen und nimmt sie nicht mehr als nächste Einheit.
+
 ## Wochenauswertung
 
 1. **Läufe holen** — Strava über den Strava-MCP (`list_activities`,

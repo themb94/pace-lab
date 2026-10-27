@@ -18,11 +18,9 @@ struct NextSessionView: View {
 
     var body: some View {
         let next = entry.snapshot?.nextSession
-        // Large shows the whole week → neutral brand tone instead of the color of the next session.
-        let tint = family == .systemLarge ? Color.brand : (next?.kind.color ?? .brand)
         NextSessionContent(entry: entry, family: family)
             .widgetURL(entry.url(next.map { "session/\($0.id)" } ?? "plan"))
-            .widgetBackground(tint: tint)
+            .widgetBackground()
     }
 }
 
@@ -70,13 +68,7 @@ private struct SessionSummary: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 4) {
-                HStack(spacing: 4) {
-                    Image(systemName: session.kind.symbol)
-                    Text(session.kind.shortLabel)
-                }
-                .font(.caption.weight(.bold))
-                .foregroundStyle(session.kind.color)
-                .widgetAccentable()
+                TypeTag(kind: session.kind)
                 Spacer(minLength: 2)
                 ProfileBadge(entry: entry)
             }
@@ -84,7 +76,7 @@ private struct SessionSummary: View {
             Spacer(minLength: 0)
 
             Text(session.dist)
-                .font(.system(.title, design: .rounded, weight: .bold))
+                .font(.figures(.title))
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
             Text(session.desc)
@@ -110,6 +102,22 @@ private struct SessionSummary: View {
     }
 }
 
+/// Session type as in the app: a swatch in the color of its intensity, then the name.
+private struct TypeTag: View {
+    let kind: SessionType
+
+    var body: some View {
+        HStack(spacing: 5) {
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                .fill(kind.color)
+                .frame(width: 12, height: 8)
+                .widgetAccentable()
+            Text(kind.label)
+        }
+        .font(.caption.weight(.semibold))
+    }
+}
+
 struct WeekChecklist: View {
     let snapshot: TrainingSnapshot
     let week: Int
@@ -128,8 +136,8 @@ struct WeekChecklist: View {
             ForEach(sessions) { session in
                 let done = snapshot.isDone(session)
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Image(systemName: done ? "checkmark.circle.fill" : "circle")
-                        .foregroundStyle(done ? Color.green : Color.secondary)
+                    Image(systemName: done ? "checkmark.circle.fill" : snapshot.state(of: session) == .dropped ? "minus.circle" : "circle")
+                        .foregroundStyle(done ? AnyShapeStyle(.legible(.green)) : AnyShapeStyle(Color.secondary))
                         .widgetAccentable()
                     VStack(alignment: .leading, spacing: 1) {
                         HStack {
@@ -150,13 +158,12 @@ struct WeekChecklist: View {
                         }
                     }
                 }
-                .opacity(done ? 0.6 : 1)
             }
             Spacer(minLength: 0)
             Text("\(Fmt.km(actual)) / \(Fmt.km(planned, digits: 0)) km")
-                .font(.caption2.monospacedDigit())
+                .font(.figures(.caption2, weight: .regular))
                 .foregroundStyle(.secondary)
-            WidgetBar(value: planned > 0 ? actual / planned : 0)
+            WeekBars(snapshot: snapshot, week: week, scaleKm: max(planned, actual), height: 8, showLabels: false)
         }
     }
 }
@@ -172,10 +179,9 @@ private struct WeekOverview: View {
         let week = snapshot.focusWeek(on: date)
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(snapshot.statusLine(on: date))
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(Color.brand)
-                    .widgetAccentable()
+                Text(snapshot.progressLine(on: date))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
                 Spacer()
                 Text(snapshot.plan.title)
                     .font(.caption2)
@@ -184,11 +190,9 @@ private struct WeekOverview: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Label(session.kind.label, systemImage: session.kind.symbol)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(session.kind.color)
+                TypeTag(kind: session.kind)
                 Text(session.dist)
-                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    .font(.figures(.largeTitle))
                 Text(session.desc)
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -206,7 +210,8 @@ private struct WeekOverview: View {
                 Divider()
                 HStack(spacing: 6) {
                     if let verdict = run.verdict {
-                        Image(systemName: verdict.symbol).foregroundStyle(verdict.color)
+                        Image(systemName: verdict.symbol).foregroundStyle(.legible(verdict.color))
+                            .accessibilityLabel(verdict.label)
                     }
                     Text(run.day.map(Fmt.weekdayDayMonth) ?? "")
                         .foregroundStyle(.secondary)

@@ -164,7 +164,8 @@ private struct ProfileRootView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .navigation) {
+                // An action, not navigation: with the other actions on the trailing side.
+                ToolbarItem(placement: .primaryAction) {
                     SyncButton()
                 }
             }
@@ -321,20 +322,14 @@ private struct SidebarStatus: View {
 
     private var status: some View {
         VStack(alignment: .leading, spacing: 3) {
-            if let snapshot = model.snapshot {
-                Text(snapshot.statusLine(on: .now))
-                    .font(.caption.weight(.semibold))
-            }
             if let synced = model.sync.lastSync {
                 Text("Runs loaded: \(synced.formatted(.dateTime.day().month().hour().minute().locale(Fmt.locale)))")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-            }
-            if let loaded = model.lastLoaded {
-                Text("Files: \(loaded.formatted(.dateTime.hour().minute().second().locale(Fmt.locale)))")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .help(model.folder.url.path)
+                    // When the files were last read is a detail for the curious — in the tooltip.
+                    .help(model.folder.url.path + (model.lastLoaded.map {
+                        "\n" + String(localized: "Files: \($0.formatted(.dateTime.hour().minute().second().locale(Fmt.locale)))")
+                    } ?? ""))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
